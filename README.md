@@ -2,6 +2,12 @@
 
 A 3D zombie-survival brawler for Omarchy, built with Rust and Bevy. Granny holds off a shambling horde on Maplewood Lane with a baseball bat, a revolver and a cane shotgun. Aiming uses the mouse (or auto-targeting on `F`), and movement is two keys: forward toward the aim and back away from it.
 
+![Granny swings the bat at a zombie on the lawn of a yellow house, with blood on the grass and the street](docs/screenshots/bat.jpg)
+
+| ![Title screen with the Play, Buy Cardio and Quit menu over the night street](docs/screenshots/title.jpg) | ![Granny fires the revolver down the street and a hit zombie sprays blood](docs/screenshots/revolver.jpg) |
+|:-:|:-:|
+| Title screen | Revolver |
+
 ## Quick path
 
 ```bash
