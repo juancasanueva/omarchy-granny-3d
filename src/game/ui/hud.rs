@@ -299,7 +299,7 @@ fn spawn_hud(
                 ..default()
             })
             .with_children(|bc| {
-                bc.spawn((HudText::Hint, label(&fonts, "WASD move  ·  SPACE swing  ·  LMB / F fire  ·  1 / 2 / Q / wheel switch  ·  ESC pause", 15.0, pal.foreground), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
+                bc.spawn((HudText::Hint, label(&fonts, "W / S forward / back  ·  MOUSE aim  ·  LMB fire  ·  F auto-target fire  ·  SPACE swing  ·  1 / 2 / Q / wheel switch  ·  ESC pause", 15.0, pal.foreground), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
                 bc.spawn((HudText::Empty, mono(&fonts, "", 15.0, pal.warn), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
                 bc.spawn(Node { column_gap: px(14), align_items: AlignItems::FlexEnd, ..default() }).with_children(|row| {
                     weapon_card(row, &fonts, &pal, None);

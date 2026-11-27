@@ -1,6 +1,6 @@
 # Granny vs. The Neighborhood
 
-A 3D zombie-survival brawler for Omarchy, built with Rust and Bevy. Granny holds off a shambling horde on Maplewood Lane with a rolling pin, a revolver and a cane shotgun. This is a port of the web game in `~/Projects/web/granny3d`: the rules, balance and assets are the same, and the UI has been redesigned.
+A 3D zombie-survival brawler for Omarchy, built with Rust and Bevy. Granny holds off a shambling horde on Maplewood Lane with a rolling pin, a revolver and a cane shotgun. This is a port of the web game in `~/Projects/web/granny3d`: the rules, balance and assets are the same. The UI has been redesigned, and aiming now uses the mouse (or auto-targeting on `F`), and movement is two keys: forward toward the aim and back away from it.
 
 ## Quick path
 
@@ -14,13 +14,15 @@ make uninstall
 
 | Input | Action |
 |-------|--------|
-| `W A S D` / arrows | Move (camera-relative) |
-| `Space` | Rolling-pin swing (hitstop, knockback, stun) |
-| Left mouse / `F` (hold) | Fire the selected gun, with aim assist |
+| `W` / `↑`, `S` / `↓` | Walk forward toward where Granny aims, or back away while still facing it |
+| Mouse | Aim: Granny faces the cursor while you move, so you can back away and shoot |
+| Left mouse (hold) | Fire the selected gun toward the cursor, with aim assist |
+| `F` (hold) | Keyboard play: turn to the nearest zombie in range and fire |
+| `Space` | Rolling-pin swing toward where Granny faces (hitstop, knockback, stun) |
 | `1` / `2`, `Q`, mouse wheel | Revolver / cane shotgun / switch |
 | `Esc` | Pause (also pauses when the window loses focus) |
 
-Menus work with the arrow keys plus `Enter`, their shortcut keys, or the mouse.
+Moving or clicking the mouse switches to mouse aim; pressing `F` switches back to keyboard aim, where forward is simply the way Granny currently faces and `F` turns her toward the nearest zombie. Menus work with the arrow keys plus `Enter`, their shortcut keys, or the mouse.
 
 ## How a run works
 

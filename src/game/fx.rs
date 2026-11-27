@@ -1,16 +1,15 @@
-//! World-space combat feedback: tracers, muzzle flashes, impact shards, swing arcs,
+//! World-space combat feedback: tracers, muzzle flashes, impact shards,
 //! rings, and the glowing pickups. Presentation only; nothing feeds back into the sim.
 
 use std::collections::HashMap;
 use std::f32::consts::FRAC_PI_2;
 
-use bevy::asset::RenderAssetUsages;
-use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::prelude::*;
+use bevy::window::{CursorIcon, PrimaryWindow, SystemCursorIcon};
 
 use super::AppState;
 use super::assets::Ground;
-use super::run::{FrameEvents, Sim, SimAdvance, StepClock};
+use super::run::{Aim, FrameEvents, Sim, SimAdvance, StepClock};
 use crate::sim::data::{Gun, PICKUP_TTL_TICKS, STEP_S};
 use crate::sim::rng::Rng;
 use crate::sim::world::{DamageSource, PickupKind, SimEvent};
@@ -25,7 +24,7 @@ impl Plugin for FxPlugin {
         app.add_systems(Startup, build_fx_assets)
             .add_systems(
                 Update,
-                (spawn_event_fx, swing_arcs, sync_pickups, tick_fx)
+                (spawn_event_fx, sync_pickups, tick_fx, aim_reticle, cursor_icon)
                     .chain()
                     .after(SimAdvance),
             )
@@ -41,7 +40,6 @@ struct FxAssets {
     coin: Handle<Mesh>,
     ring: Handle<Mesh>,
     disc: Handle<Mesh>,
-    arc: Handle<Mesh>,
     tracer: Handle<StandardMaterial>,
     tracer_shotgun: Handle<StandardMaterial>,
     muzzle: Handle<StandardMaterial>,
@@ -73,11 +71,6 @@ enum FxKind {
     },
     /// A flash of light that decays to zero.
     Light { peak: f32 },
-    /// Fades its own material.
-    Fade {
-        color: LinearRgba,
-        material: Handle<StandardMaterial>,
-    },
 }
 
 #[derive(Component)]
@@ -118,35 +111,6 @@ fn unlit(color: LinearRgba, alpha: AlphaMode) -> StandardMaterial {
     }
 }
 
-/// Flat annulus sector on the ground plane, centred on +X.
-fn arc_mesh(inner: f32, outer: f32, half_angle: f32, segments: usize) -> Mesh {
-    let mut positions = Vec::new();
-    let mut uvs = Vec::new();
-    let mut indices = Vec::new();
-    for i in 0..=segments {
-        let t = i as f32 / segments as f32;
-        let a = -half_angle + 2.0 * half_angle * t;
-        let (s, c) = a.sin_cos();
-        positions.push([c * inner, 0.0, s * inner]);
-        positions.push([c * outer, 0.0, s * outer]);
-        uvs.push([t, 0.0]);
-        uvs.push([t, 1.0]);
-        if i < segments {
-            let b = (i * 2) as u32;
-            indices.extend_from_slice(&[b, b + 1, b + 2, b + 1, b + 3, b + 2]);
-        }
-    }
-    let normals = vec![[0.0, 1.0, 0.0]; positions.len()];
-    Mesh::new(
-        PrimitiveTopology::TriangleList,
-        RenderAssetUsages::default(),
-    )
-    .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, positions)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, normals)
-    .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, uvs)
-    .with_inserted_indices(Indices::U32(indices))
-}
-
 fn build_fx_assets(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -180,7 +144,6 @@ fn build_fx_assets(
         coin: meshes.add(Cylinder::new(0.18, 0.05)),
         ring: meshes.add(Annulus::new(0.85, 1.0).mesh().resolution(48)),
         disc: meshes.add(Circle::new(1.0).mesh().resolution(32)),
-        arc: meshes.add(arc_mesh(0.45, 2.2, 70f32.to_radians(), 24)),
         tracer: mats.add(unlit(LinearRgba::rgb(9.0, 6.5, 2.8), AlphaMode::Opaque)),
         tracer_shotgun: mats.add(unlit(LinearRgba::rgb(3.0, 8.0, 7.5), AlphaMode::Opaque)),
         muzzle: mats.add(unlit(LinearRgba::rgb(14.0, 9.0, 3.5), AlphaMode::Add)),
@@ -402,39 +365,6 @@ fn spawn_event_fx(
     }
 }
 
-/// A sweeping arc on the ground when Granny starts a rolling-pin swing.
-fn swing_arcs(
-    mut commands: Commands,
-    sim: Option<Res<Sim>>,
-    ground: Option<Res<Ground>>,
-    fx: Option<Res<FxAssets>>,
-    mut mats: ResMut<Assets<StandardMaterial>>,
-    mut swinging: Local<bool>,
-) {
-    let (Some(sim), Some(ground), Some(fx)) = (sim, ground, fx) else {
-        return;
-    };
-    let p = &sim.world.player;
-    let now = p.attack_tick.is_some();
-    if now && !*swinging {
-        let color = LinearRgba::rgb(0.32, 0.27, 0.2);
-        let material = mats.add(unlit(color, AlphaMode::Add));
-        commands.spawn((
-            Mesh3d(fx.arc.clone()),
-            MeshMaterial3d(material.clone()),
-            Transform::from_translation(ground_point(p.pos, ground.height(p.pos) + 0.07))
-                .with_rotation(Quat::from_rotation_y(-p.facing))
-                .with_scale(Vec3::splat(sim.world.tuning.melee_range / 2.2)),
-            Fx {
-                life: 0.28,
-                max: 0.28,
-                kind: FxKind::Fade { color, material },
-            },
-        ));
-    }
-    *swinging = now;
-}
-
 #[allow(clippy::too_many_arguments)]
 fn sync_pickups(
     mut commands: Commands,
@@ -605,11 +535,6 @@ fn tick_fx(
                     l.intensity = *peak * k;
                 }
             }
-            FxKind::Fade { color, material } => {
-                if let Some(mut m) = mats.get_mut(material) {
-                    m.base_color = (*color * k * k).into();
-                }
-            }
         }
     }
 }
@@ -618,4 +543,58 @@ fn clear_fx(mut commands: Commands, fx: Query<Entity, Or<(With<Fx>, With<PickupV
     for e in &fx {
         commands.entity(e).despawn();
     }
+}
+
+#[derive(Component)]
+struct Reticle;
+
+/// Glowing ground ring under the cursor while the mouse aims.
+fn aim_reticle(
+    mut commands: Commands,
+    time: Res<Time>,
+    state: Res<State<AppState>>,
+    aim: Res<Aim>,
+    ground: Option<Res<Ground>>,
+    fx: Option<Res<FxAssets>>,
+    mut mats: ResMut<Assets<StandardMaterial>>,
+    mut reticle: Query<(&mut Transform, &mut Visibility), With<Reticle>>,
+) {
+    let (Some(ground), Some(fx)) = (ground, fx) else { return };
+    let Ok((mut tf, mut vis)) = reticle.single_mut() else {
+        let material = mats.add(unlit(LinearRgba::rgb(1.6, 1.3, 0.9), AlphaMode::Add));
+        commands.spawn((
+            Reticle,
+            Mesh3d(fx.ring.clone()),
+            MeshMaterial3d(material),
+            Transform::from_rotation(Quat::from_rotation_x(-FRAC_PI_2)),
+            Visibility::Hidden,
+        ));
+        return;
+    };
+    match aim.reticle {
+        Some(p) if *state.get() == AppState::Playing => {
+            *vis = Visibility::Inherited;
+            let pulse = 0.36 + 0.04 * (time.elapsed_secs() * 6.0).sin();
+            tf.translation = ground_point(p, ground.height(p) + 0.05);
+            tf.scale = Vec3::splat(pulse);
+        }
+        _ => *vis = Visibility::Hidden,
+    }
+}
+
+/// Crosshair pointer while a run is being played, the normal arrow elsewhere.
+fn cursor_icon(
+    mut commands: Commands,
+    state: Res<State<AppState>>,
+    window: Query<Entity, With<PrimaryWindow>>,
+    mut last: Local<Option<bool>>,
+) {
+    let playing = *state.get() == AppState::Playing;
+    if *last == Some(playing) {
+        return;
+    }
+    let Ok(window) = window.single() else { return };
+    *last = Some(playing);
+    let icon = if playing { SystemCursorIcon::Crosshair } else { SystemCursorIcon::Default };
+    commands.entity(window).insert(CursorIcon::from(icon));
 }

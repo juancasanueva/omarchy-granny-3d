@@ -3,10 +3,11 @@
 
 use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
-use bevy::window::WindowFocused;
+use bevy::window::{CursorMoved, PrimaryWindow, WindowFocused};
 
 use super::AppState;
-use super::assets::LayoutRes;
+use super::assets::{Ground, LayoutRes};
+use super::scene::GameCamera;
 use crate::sim::data::{Gun, STEP_S, facing_camera, perk_tuning};
 use crate::sim::save::{SaveStore, Settlement};
 use crate::sim::world::{InputSnapshot, Phase, SimEvent, World};
@@ -23,6 +24,7 @@ impl Plugin for RunPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(Save(SaveStore::load_default()))
             .init_resource::<PendingInput>()
+            .init_resource::<Aim>()
             .init_resource::<FrameEvents>()
             .init_resource::<StepClock>()
             .add_message::<RunCommand>()
@@ -96,7 +98,23 @@ struct PendingInput {
     fire: bool,
     select: Option<Gun>,
     cycle: bool,
+    /// The latest fire press came from F, which auto-targets.
+    auto_target: bool,
 }
+
+/// How Granny is aimed: the mouse after any mouse motion or click, the keyboard after F.
+#[derive(Resource, Default)]
+pub struct Aim {
+    pub mouse: bool,
+    /// Aim target: the cursor ray at a zombie's chest height, while the mouse aims.
+    pub point: Option<Vec2>,
+    /// Where the cursor ray meets the ground, for drawing the reticle under the pointer.
+    pub reticle: Option<Vec2>,
+}
+
+/// Height above the ground where the cursor ray is intersected: roughly a zombie's chest,
+/// so pointing at a body aims at that body rather than the ground behind it.
+const AIM_PLANE_HEIGHT: f32 = 1.0;
 
 #[derive(Message, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RunCommand {
@@ -119,13 +137,50 @@ fn sample_input(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     mut wheel: MessageReader<MouseWheel>,
+    mut motion: MessageReader<CursorMoved>,
     mut pending: ResMut<PendingInput>,
+    mut aim: ResMut<Aim>,
+    sim: Res<Sim>,
+    ground: Option<Res<Ground>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
+    camera: Query<(&Camera, &GlobalTransform), With<GameCamera>>,
 ) {
     if keys.just_pressed(KeyCode::Space) {
         pending.melee = true;
     }
-    if mouse.just_pressed(MouseButton::Left) || keys.just_pressed(KeyCode::KeyF) {
+    if motion.read().count() > 0 || mouse.just_pressed(MouseButton::Left) {
+        aim.mouse = true;
+    }
+    if keys.just_pressed(KeyCode::KeyF) {
+        aim.mouse = false;
         pending.fire = true;
+        pending.auto_target = true;
+    }
+    if mouse.just_pressed(MouseButton::Left) {
+        pending.fire = true;
+        pending.auto_target = false;
+    }
+    aim.point = None;
+    aim.reticle = None;
+    if aim.mouse
+        && let (Ok(window), Ok((cam, cam_tf))) = (windows.single(), camera.single())
+        && let Some(cursor) = window.cursor_position()
+        && let Ok(ray) = cam.viewport_to_world(cam_tf, cursor)
+    {
+        let p = sim.world.player.pos;
+        let ground_y = ground.map(|g| g.height(p)).unwrap_or(0.0);
+        let dy = ray.direction.y;
+        if dy < -1e-4 {
+            let at = |y: f32| (ray.origin + *ray.direction * ((y - ray.origin.y) / dy)).xz();
+            aim.point = Some(at(ground_y + AIM_PLANE_HEIGHT));
+            aim.reticle = Some(at(ground_y));
+        }
+    }
+    if super::dev::autoplay() {
+        // Scripted aim sweeps around Granny, independent of her walking direction.
+        let w = &sim.world;
+        aim.point = Some(w.player.pos + Vec2::from_angle(-(w.tick as f32) / 60.0 * 1.1) * 5.0);
+        aim.reticle = aim.point;
     }
     if keys.just_pressed(KeyCode::Digit1) {
         pending.select = Some(Gun::Revolver);
@@ -145,6 +200,7 @@ fn advance_sim(
     keys: Res<ButtonInput<KeyCode>>,
     mouse: Res<ButtonInput<MouseButton>>,
     sim: Option<ResMut<Sim>>,
+    aim: Res<Aim>,
     mut pending: ResMut<PendingInput>,
     mut clock: ResMut<StepClock>,
     mut events: ResMut<FrameEvents>,
@@ -157,14 +213,15 @@ fn advance_sim(
         return;
     }
     let held = |k: &[KeyCode]| keys.any_pressed(k.iter().copied());
-    let move_dir = InputSnapshot::compose_move(
-        held(&[KeyCode::KeyW, KeyCode::ArrowUp]),
-        held(&[KeyCode::KeyA, KeyCode::ArrowLeft]),
-        held(&[KeyCode::KeyS, KeyCode::ArrowDown]),
-        held(&[KeyCode::KeyD, KeyCode::ArrowRight]),
-    );
-    let mut fire_held = mouse.pressed(MouseButton::Left) || keys.pressed(KeyCode::KeyF);
-    let mut move_dir = move_dir;
+    // Two-key movement: forward toward where Granny aims, back away from it.
+    let throttle = held(&[KeyCode::KeyW, KeyCode::ArrowUp]) as i32 as f32
+        - held(&[KeyCode::KeyS, KeyCode::ArrowDown]) as i32 as f32;
+    let mouse_fire = mouse.pressed(MouseButton::Left);
+    let key_fire = keys.pressed(KeyCode::KeyF);
+    let mut fire_held = mouse_fire || key_fire;
+    // Holding F auto-targets unless the mouse button is also held.
+    let auto_held = key_fire && !mouse_fire;
+    let mut move_dir = Vec2::ZERO;
     let scripted = super::dev::autoplay();
     if scripted {
         let t = sim.world.tick as f32 / 60.0;
@@ -178,12 +235,15 @@ fn advance_sim(
         clock.accumulator -= STEP_S;
         let input = InputSnapshot {
             move_dir,
+            throttle,
             melee_pulse: std::mem::take(&mut pending.melee)
                 || (scripted && sim.world.tick % 40 == 0),
             fire_held,
             fire_pulse: std::mem::take(&mut pending.fire),
             select: pending.select.take(),
             cycle: std::mem::take(&mut pending.cycle),
+            aim_point: aim.point,
+            auto_target: std::mem::take(&mut pending.auto_target) || auto_held,
         };
         sim.world.step(&input);
         let drained = std::mem::take(&mut sim.world.events);
