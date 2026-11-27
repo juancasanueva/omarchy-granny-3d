@@ -179,9 +179,11 @@ fn spawn_title(
             ))
             .with_children(|row| {
                 for (keys, what) in [
-                    (&["WASD"][..], "move"),
+                    (&["W", "S"][..], "forward / back"),
                     (&["SPACE"][..], "swing"),
-                    (&["LMB", "F"][..], "fire"),
+                    (&["MOUSE"][..], "aim"),
+                    (&["LMB"][..], "fire"),
+                    (&["F"][..], "auto-target fire"),
                     (&["1", "2", "Q"][..], "weapon"),
                     (&["ESC"][..], "pause"),
                 ] {

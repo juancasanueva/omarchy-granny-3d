@@ -359,6 +359,11 @@ fn attack_clip_time(progress: f32, active: f32, impact: f32, duration: f32) -> f
     f * duration
 }
 
+/// True when the step points away from where the actor faces.
+fn backpedaling(step: Vec2, facing: f32) -> bool {
+    step.length_squared() > 1e-8 && step.dot(Vec2::from_angle(facing)) < 0.0
+}
+
 fn walk_clip_time(phase: f32, duration: f32) -> f32 {
     (phase / TAU).rem_euclid(1.0) * duration
 }
@@ -393,7 +398,12 @@ fn sync_granny(
     let kit = &assets.granny;
     let speed = (p.pos - p.prev_pos).length() / STEP_S;
     ease_walk(&mut blend, speed, time.delta_secs());
-    let walk_t = walk_clip_time(p.walk_phase, kit.duration(Clip::Walk));
+    let walk_dur = kit.duration(Clip::Walk);
+    let mut walk_t = walk_clip_time(p.walk_phase, walk_dur);
+    if backpedaling(p.pos - p.prev_pos, p.facing) {
+        // Stepping backward: run the stride in reverse instead of moonwalking.
+        walk_t = walk_dur - walk_t;
+    }
     if p.hp == 0 {
         let t = sim.ended_for * 1.1;
         pose(&mut player, kit, [0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, t]);
@@ -576,6 +586,13 @@ mod tests {
         assert!((t - GRANNY_IMPACT * 2.0).abs() < 1e-5);
         assert_eq!(attack_clip_time(0.0, active, GRANNY_IMPACT, 2.0), 0.0);
         assert!((attack_clip_time(1.0, active, GRANNY_IMPACT, 2.0) - 2.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn backpedaling_only_when_stepping_away_from_facing() {
+        assert!(backpedaling(Vec2::new(-0.05, 0.0), 0.0));
+        assert!(!backpedaling(Vec2::new(0.05, 0.0), 0.0));
+        assert!(!backpedaling(Vec2::ZERO, 0.0));
     }
 
     #[test]

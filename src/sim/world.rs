@@ -11,24 +11,25 @@ use super::rng::Rng;
 /// Per-tick player intent, already in world space.
 #[derive(Debug, Clone, Default)]
 pub struct InputSnapshot {
+    /// Free movement in world space (scripted input); players use `throttle`.
     pub move_dir: Vec2,
+    /// Forward (+1) toward where Granny faces, or back (-1) away from it, keeping her facing.
+    pub throttle: f32,
     pub melee_pulse: bool,
     pub fire_held: bool,
     pub fire_pulse: bool,
     pub select: Option<Gun>,
     pub cycle: bool,
+    /// Ground point under the mouse cursor; when present, Granny faces it.
+    pub aim_point: Option<Vec2>,
+    /// Firing turns Granny to the nearest visible zombie first (keyboard play).
+    pub auto_target: bool,
 }
 
-impl InputSnapshot {
-    /// Camera-relative WASD into world space using the fixed camera yaw.
-    pub fn compose_move(up: bool, left: bool, down: bool, right: bool) -> Vec2 {
-        let x = right as i32 as f32 - left as i32 as f32;
-        let y = down as i32 as f32 - up as i32 as f32;
-        let yaw = FIXED_CAMERA.yaw_deg.to_radians();
-        let (s, c) = yaw.sin_cos();
-        Vec2::new(x * c + y * s, -x * s + y * c).normalize_or_zero()
-    }
-}
+/// Inside this distance the cursor no longer turns Granny, so she can stand on it calmly.
+const AIM_DEAD_ZONE: f32 = 0.3;
+/// Walking forward slows over this distance before the cursor and stops at the dead zone.
+const ARRIVE_SLOW: f32 = 0.5;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PickupKind {
@@ -313,13 +314,26 @@ impl World {
                 p.selected = p.selected.other();
             }
         }
-        p.vel = input.move_dir.clamp_length_max(1.0) * tuning_speed;
-        if input.move_dir.length_squared() > 0.0 {
+        let cursor = input.aim_point.map(|a| a - p.pos);
+        let to_cursor = cursor.filter(|d| d.length() > AIM_DEAD_ZONE);
+        if let Some(dir) = to_cursor {
+            // Mouse aim: facing is independent of movement and turns instantly.
+            p.facing = dir.to_angle();
+        } else if input.move_dir.length_squared() > 0.0 {
             let target = input.move_dir.y.atan2(input.move_dir.x);
             let delta = target - p.facing;
             let shortest = delta.sin().atan2(delta.cos());
             p.facing += shortest * (1.0 - (-TURN_RATE * STEP_S).exp());
         }
+        let mut throttle = input.throttle.clamp(-1.0, 1.0);
+        if throttle > 0.0
+            && let Some(d) = cursor
+        {
+            // Arrive at the cursor instead of overshooting it and spinning around.
+            throttle *= ((d.length() - AIM_DEAD_ZONE) / ARRIVE_SLOW).clamp(0.0, 1.0);
+        }
+        let walk = input.move_dir + Vec2::from_angle(p.facing) * throttle;
+        p.vel = walk.clamp_length_max(1.0) * tuning_speed;
         if input.melee_pulse && p.attack_tick.is_none() {
             p.attack_tick = Some(0);
             self.swing_id += 1;
@@ -343,6 +357,13 @@ impl World {
             return;
         }
         let gun = p.selected;
+        if input.auto_target {
+            let range = if p.ammo(gun) == 0 { self.tuning.melee_range + SHAMBLER.radius } else { gun.spec().range };
+            if let Some(facing) = self.nearest_visible_zombie(range) {
+                self.player.facing = facing;
+            }
+        }
+        let p = &mut self.player;
         if p.ammo(gun) == 0 {
             p.attack_tick = Some(0);
             self.swing_id += 1;
@@ -925,6 +946,26 @@ impl World {
             .unwrap_or(self.player.facing)
     }
 
+    /// Heading to the closest zombie within `range` that a shot would actually reach.
+    fn nearest_visible_zombie(&self, range: f32) -> Option<f32> {
+        let origin = self.player.pos;
+        self.zombies
+            .iter()
+            .enumerate()
+            .filter(|(_, z)| z.active && z.hp > 0)
+            .filter_map(|(i, z)| {
+                let d = z.pos - origin;
+                let dist = d.length();
+                if dist == 0.0 || dist > range {
+                    return None;
+                }
+                let (hit, _) = self.trace_shot(d / dist, range);
+                (hit == Some(i)).then_some((dist, d.to_angle()))
+            })
+            .min_by(|a, b| a.0.total_cmp(&b.0))
+            .map(|(_, facing)| facing)
+    }
+
     /// First zombie hit along a unit ray, and the ray's travel distance. Walls win ties.
     fn trace_shot(&self, dir: Vec2, range: f32) -> (Option<usize>, f32) {
         let o = self.player.pos;
@@ -1148,16 +1189,104 @@ mod tests {
     }
 
     #[test]
-    fn camera_relative_move_is_unit_and_rotated() {
-        let up = InputSnapshot::compose_move(true, false, false, false);
-        assert!((up.length() - 1.0).abs() < 1e-5);
-        let diag = InputSnapshot::compose_move(true, false, false, true);
-        assert!((diag.length() - 1.0).abs() < 1e-5);
-        assert_eq!(
-            InputSnapshot::compose_move(true, false, true, false),
-            Vec2::ZERO
-        );
+    fn cursor_aim_sets_facing_independently_of_movement() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let target = w.player.pos + Vec2::new(0.0, 5.0);
+        let input = InputSnapshot { move_dir: Vec2::NEG_X, aim_point: Some(target), ..default() };
+        w.step(&input);
+        let facing = Vec2::from_angle(w.player.facing);
+        assert!(facing.dot(Vec2::Y) > 0.999, "faces the cursor, got {facing}");
+        assert!(w.player.vel.x < 0.0, "still walks the other way");
     }
+
+    #[test]
+    fn without_cursor_facing_still_follows_movement() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let input = InputSnapshot { move_dir: Vec2::Y, ..default() };
+        step_n(&mut w, 30, &input);
+        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::Y) > 0.99);
+    }
+
+    #[test]
+    fn swing_goes_toward_the_cursor() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        place_zombie(&mut w, 0, Vec2::new(-1.5, 0.0));
+        let aim = Some(w.player.pos + Vec2::new(-3.0, 0.0));
+        w.step(&InputSnapshot { melee_pulse: true, aim_point: aim, ..default() });
+        step_n(&mut w, 8, &InputSnapshot { aim_point: aim, ..default() });
+        assert_eq!(w.zombies[0].hp, 25, "zombie behind the old facing is hit");
+    }
+
+    #[test]
+    fn auto_target_fire_turns_to_the_nearest_zombie() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        place_zombie(&mut w, 0, Vec2::new(-5.0, 0.0));
+        place_zombie(&mut w, 1, Vec2::new(0.0, 9.0));
+        let input = InputSnapshot { fire_held: true, auto_target: true, ..default() };
+        w.step(&input);
+        assert_eq!(w.zombies[0].hp, 25, "nearest zombie, directly behind, is shot");
+        assert_eq!(w.zombies[1].hp, 50);
+        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::NEG_X) > 0.999);
+    }
+
+    #[test]
+    fn auto_target_without_zombies_in_range_fires_ahead() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let input = InputSnapshot { fire_held: true, auto_target: true, ..default() };
+        w.step(&input);
+        assert_eq!(w.player.facing, 0.0);
+        assert_eq!(w.player.revolver_ammo, REVOLVER.initial_ammo - 1);
+    }
+
+    #[test]
+    fn forward_walks_toward_the_cursor_and_back_retreats_facing_it() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let start = w.player.pos;
+        let aim = Some(start + Vec2::new(0.0, 6.0));
+        step_n(&mut w, 30, &InputSnapshot { throttle: 1.0, aim_point: aim, ..default() });
+        assert!(w.player.pos.y > start.y + 1.5, "forward moves toward the cursor");
+        assert!((w.player.pos.x - start.x).abs() < 1e-3);
+        let mid = w.player.pos;
+        step_n(&mut w, 30, &InputSnapshot { throttle: -1.0, aim_point: aim, ..default() });
+        assert!(w.player.pos.y < mid.y - 1.5, "back moves away from the cursor");
+        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::Y) > 0.999, "still faces the cursor");
+    }
+
+    #[test]
+    fn forward_stops_at_the_cursor_without_spinning() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let aim = w.player.pos + Vec2::new(2.0, 0.0);
+        step_n(&mut w, 120, &InputSnapshot { throttle: 1.0, aim_point: Some(aim), ..default() });
+        assert!(w.player.pos.distance(aim) < 0.6, "arrives at the cursor");
+        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::X) > 0.99, "keeps facing the same way");
+    }
+
+    #[test]
+    fn forward_without_cursor_follows_current_facing() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        w.player.facing = std::f32::consts::FRAC_PI_2;
+        let start = w.player.pos;
+        step_n(&mut w, 30, &InputSnapshot { throttle: 1.0, ..default() });
+        assert!(w.player.pos.y > start.y + 1.5);
+        assert!((w.player.pos.x - start.x).abs() < 1e-3);
+    }
+
 
     #[test]
     fn melee_hits_in_front_with_hitstop_and_knockback() {
