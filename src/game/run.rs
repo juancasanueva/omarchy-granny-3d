@@ -63,7 +63,8 @@ impl Sim {
     fn new(mut world: World, showcase: bool) -> Self {
         if showcase {
             // The title screen shows Granny's face, not her back.
-            world.player.facing = facing_camera();
+            // Three-quarter view: her face reads and the aimed gun points across the screen.
+            world.player.facing = facing_camera() + TITLE_TURN;
         }
         static NEXT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
         let run_id = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -115,6 +116,9 @@ pub struct Aim {
 /// Height above the ground where the cursor ray is intersected: roughly a zombie's chest,
 /// so pointing at a body aims at that body rather than the ground behind it.
 const AIM_PLANE_HEIGHT: f32 = 1.0;
+
+/// How far Granny turns from facing the camera on the title screen, in radians.
+const TITLE_TURN: f32 = 0.85;
 
 #[derive(Message, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RunCommand {
@@ -223,6 +227,7 @@ fn advance_sim(
     let auto_held = key_fire && !mouse_fire;
     let mut move_dir = Vec2::ZERO;
     let scripted = super::dev::autoplay();
+    let scripted_gun = scripted.then(super::dev::autoplay_gun).flatten();
     if scripted {
         let t = sim.world.tick as f32 / 60.0;
         move_dir = Vec2::from_angle(t * 0.5) * if (t as u32) % 4 == 3 { 0.0 } else { 1.0 };
@@ -240,7 +245,7 @@ fn advance_sim(
                 || (scripted && sim.world.tick % 40 == 0),
             fire_held,
             fire_pulse: std::mem::take(&mut pending.fire),
-            select: pending.select.take(),
+            select: pending.select.take().or(scripted_gun),
             cycle: std::mem::take(&mut pending.cycle),
             aim_point: aim.point,
             auto_target: std::mem::take(&mut pending.auto_target) || auto_held,

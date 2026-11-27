@@ -31,7 +31,7 @@ impl Plugin for ActorsPlugin {
                 Update,
                 (
                     sync_granny,
-                    sync_firearms,
+                    sync_guns,
                     sync_zombies,
                     spawn_corpses,
                     sync_corpses,
@@ -58,16 +58,19 @@ pub struct Rig {
     pub materials: Vec<Handle<StandardMaterial>>,
 }
 
-/// Root of Granny's primitive firearms; its +X axis points where she faces.
+/// A gun model hanging from Granny's right hand.
 #[derive(Component)]
-struct Firearms;
+struct GunModel(Gun);
 
+/// The muzzle point of a gun model, where shots leave the barrel.
 #[derive(Component)]
-struct FirearmModel(Gun);
+pub struct Muzzle(pub Gun);
 
 #[derive(Component, Default)]
 struct Blend {
     walk: f32,
+    /// 0 holds the revolver pose, 1 the shotgun pose; eased so switching guns blends.
+    shotgun: f32,
 }
 
 #[derive(Component)]
@@ -98,161 +101,8 @@ fn actor_transform(pos: Vec2, y: f32, facing: f32, scale: f32) -> Transform {
     }
 }
 
-/// Revolver and cane shotgun from primitives, barrels along +X (`render/grannyWeapons.ts`).
-fn spawn_firearms(
-    commands: &mut Commands,
-    meshes: &mut Assets<Mesh>,
-    mats: &mut Assets<StandardMaterial>,
-) {
-    let metal = mats.add(StandardMaterial {
-        base_color: Color::srgb_u8(0x64, 0x72, 0x7e),
-        metallic: 0.65,
-        perceptual_roughness: 0.35,
-        ..default()
-    });
-    let wood = mats.add(StandardMaterial {
-        base_color: Color::srgb_u8(0x85, 0x54, 0x34),
-        perceptual_roughness: 0.7,
-        ..default()
-    });
-    let brass = mats.add(StandardMaterial {
-        base_color: Color::srgb_u8(0xe1, 0xb5, 0x5b),
-        metallic: 0.5,
-        perceptual_roughness: 0.4,
-        ..default()
-    });
-    let mut part_box = |size: Vec3, at: Vec3, mat: &Handle<StandardMaterial>, roll: f32| {
-        (
-            Mesh3d(meshes.add(Cuboid::from_size(size))),
-            MeshMaterial3d(mat.clone()),
-            Transform::from_translation(at).with_rotation(Quat::from_rotation_z(roll)),
-        )
-    };
-    let revolver = [
-        part_box(
-            Vec3::new(0.12, 0.23, 0.12),
-            Vec3::new(-0.03, -0.06, 0.0),
-            &wood,
-            -0.2,
-        ),
-        part_box(
-            Vec3::new(0.24, 0.1, 0.12),
-            Vec3::new(0.06, 0.1, 0.0),
-            &metal,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.16, 0.19, 0.19),
-            Vec3::new(0.1, 0.16, 0.0),
-            &metal,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.32, 0.08, 0.08),
-            Vec3::new(0.33, 0.17, 0.0),
-            &metal,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.03, 0.03, 0.025),
-            Vec3::new(0.46, 0.22, 0.0),
-            &brass,
-            0.0,
-        ),
-    ];
-    let shotgun = [
-        part_box(
-            Vec3::new(0.32, 0.13, 0.13),
-            Vec3::new(-0.12, 0.0, 0.0),
-            &wood,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.9, 0.1, 0.1),
-            Vec3::new(0.46, 0.07, 0.0),
-            &metal,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.24, 0.15, 0.15),
-            Vec3::new(0.38, -0.03, 0.0),
-            &wood,
-            0.0,
-        ),
-        part_box(
-            Vec3::new(0.1, 0.24, 0.09),
-            Vec3::new(-0.3, -0.1, 0.0),
-            &brass,
-            0.35,
-        ),
-    ];
-    commands
-        .spawn((Firearms, Transform::default(), Visibility::Hidden))
-        .with_children(|root| {
-            root.spawn((
-                FirearmModel(Gun::Revolver),
-                Transform::default(),
-                Visibility::Inherited,
-            ))
-            .with_children(|g| {
-                for part in revolver {
-                    g.spawn(part);
-                }
-            });
-            root.spawn((
-                FirearmModel(Gun::Shotgun),
-                Transform::default(),
-                Visibility::Hidden,
-            ))
-            .with_children(|g| {
-                for part in shotgun {
-                    g.spawn(part);
-                }
-            });
-        });
-}
-
-fn sync_firearms(
-    sim: Option<Res<Sim>>,
-    granny: Query<&Rig, With<GrannyActor>>,
-    hands: Query<&GlobalTransform>,
-    mut root: Query<(&mut Transform, &mut Visibility), (With<Firearms>, Without<FirearmModel>)>,
-    mut models: Query<(&FirearmModel, &mut Visibility), Without<Firearms>>,
-) {
-    let Some(sim) = sim else { return };
-    let (Ok(rig), Ok((mut tf, mut vis))) = (granny.single(), root.single_mut()) else {
-        return;
-    };
-    let p = &sim.world.player;
-    let Some(hand) = rig.hand.and_then(|h| hands.get(h).ok()) else {
-        *vis = Visibility::Hidden;
-        return;
-    };
-    let show = p.hp > 0 && p.attack_tick.is_none();
-    *vis = if show {
-        Visibility::Inherited
-    } else {
-        Visibility::Hidden
-    };
-    *tf = Transform::from_translation(hand.translation())
-        .with_rotation(Quat::from_rotation_y(-p.facing));
-    for (m, mut v) in &mut models {
-        *v = if m.0 == p.selected {
-            Visibility::Inherited
-        } else {
-            Visibility::Hidden
-        };
-    }
-}
-
-fn spawn_actors(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut mats: ResMut<Assets<StandardMaterial>>,
-) {
+fn spawn_actors(mut commands: Commands, assets: Res<GameAssets>) {
     commands.init_resource::<CorpseRing>();
-    spawn_firearms(&mut commands, &mut meshes, &mut mats);
     commands
         .spawn((
             GrannyActor,
@@ -314,8 +164,8 @@ fn attach_rig(
     };
     for e in children.iter_descendants(root) {
         if let Ok(mut player) = players.get_mut(e) {
-            for clip in Clip::ALL {
-                player.play(kit_assets.node(clip)).pause().set_weight(0.0);
+            for node in Clip::ALL.into_iter().filter_map(|c| kit_assets.node(c)) {
+                player.play(node).pause().set_weight(0.0);
             }
             commands
                 .entity(e)
@@ -324,6 +174,18 @@ fn attach_rig(
         }
         if *kit == Kit::Granny && names.get(e).is_ok_and(|n| n.as_str() == "hand.R") {
             rig.hand = Some(e);
+            // The gun models are exported in the hand bone's own frame.
+            commands.entity(e).with_children(|hand| {
+                for gun in Gun::ALL {
+                    hand.spawn((
+                        GunModel(gun),
+                        WorldAssetRoot(assets.gun(gun)),
+                        Transform::default(),
+                        Visibility::Hidden,
+                    ))
+                    .observe(mark_muzzle);
+                }
+            });
         }
         if *kit == Kit::Zombie
             && let Ok(mat) = mats.get(e)
@@ -336,17 +198,47 @@ fn attach_rig(
     }
 }
 
-/// Sets clip weights and times; `None` time leaves the clip where it is.
-fn pose(player: &mut AnimationPlayer, kit: &ActorKit, weights: [f32; 4], times: [f32; 4]) {
+fn mark_muzzle(
+    ready: On<WorldInstanceReady>,
+    guns: Query<&GunModel>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    mut commands: Commands,
+) {
+    let Ok(gun) = guns.get(ready.entity) else {
+        return;
+    };
+    for e in children.iter_descendants(ready.entity) {
+        if names.get(e).is_ok_and(|n| n.as_str() == "Muzzle") {
+            commands.entity(e).insert(Muzzle(gun.0));
+        }
+    }
+}
+
+/// Drives the listed clips at `(weight, time)` and silences every other clip.
+fn pose(player: &mut AnimationPlayer, kit: &ActorKit, active: &[(Clip, f32, f32)]) {
     for clip in Clip::ALL {
-        let i = clip as usize;
-        if let Some(anim) = player.animation_mut(kit.node(clip)) {
-            anim.set_weight(weights[i]);
-            if weights[i] > 0.0 {
-                anim.seek_to(times[i].clamp(0.0, (kit.duration(clip) - 1e-3).max(0.0)));
+        let Some(anim) = kit.node(clip).and_then(|n| player.animation_mut(n)) else {
+            continue;
+        };
+        match active.iter().find(|a| a.0 == clip) {
+            Some(&(_, weight, t)) => {
+                anim.set_weight(weight);
+                if weight > 0.0 {
+                    anim.seek_to(t.clamp(0.0, (kit.duration(clip) - 1e-3).max(0.0)));
+                }
+            }
+            None => {
+                anim.set_weight(0.0);
             }
         }
     }
+}
+
+/// Seconds since the last shot, when the selected gun's fire clip is still playing.
+fn firing(since_shot_ticks: u32, alpha: f32, fire_duration: f32) -> Option<f32> {
+    let t = (since_shot_ticks as f32 + alpha) * STEP_S;
+    (since_shot_ticks != u32::MAX && t < fire_duration).then_some(t)
 }
 
 /// Piecewise map so `impact` of the clip lands exactly at the simulation's active fraction.
@@ -404,22 +296,37 @@ fn sync_granny(
         // Stepping backward: run the stride in reverse instead of moonwalking.
         walk_t = walk_dur - walk_t;
     }
+    let target = if p.selected == Gun::Shotgun { 1.0 } else { 0.0 };
+    blend.shotgun += (target - blend.shotgun) * (1.0 - (-14.0 * time.delta_secs()).exp());
     if p.hp == 0 {
         let t = sim.ended_for * 1.1;
-        pose(&mut player, kit, [0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, t]);
+        pose(&mut player, kit, &[(Clip::Die, 1.0, t)]);
     } else if let Some(swing) = p.swing_t() {
         let active = ROLLING_PIN.active_tick as f32 / ROLLING_PIN.total_ticks as f32;
         let t = attack_clip_time(swing, active, GRANNY_IMPACT, kit.duration(Clip::Attack));
-        pose(&mut player, kit, [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, t, 0.0]);
+        pose(&mut player, kit, &[(Clip::Attack, 1.0, t)]);
     } else {
-        let idle_t = time.elapsed_secs().rem_euclid(kit.duration(Clip::Idle));
+        // Legs idle or walk; the upper body holds the selected gun and kicks on each shot.
         let w = blend.walk;
-        pose(
-            &mut player,
-            kit,
-            [1.0 - w, w, 0.0, 0.0],
-            [idle_t, walk_t, 0.0, 0.0],
-        );
+        let idle_t = time.elapsed_secs().rem_euclid(kit.duration(Clip::Idle));
+        let mut layers = vec![
+            (Clip::IdleLower, 1.0 - w, idle_t),
+            (Clip::WalkLower, w, walk_t),
+        ];
+        let alpha = if sim.showcase { 0.0 } else { clock.alpha };
+        for (gun, share) in [
+            (Gun::Revolver, 1.0 - blend.shotgun),
+            (Gun::Shotgun, blend.shotgun),
+        ] {
+            let aim_t = time.elapsed_secs().rem_euclid(kit.duration(Clip::aim(gun)));
+            match firing(p.since_shot, alpha, kit.duration(Clip::fire(gun)))
+                .filter(|_| gun == p.selected)
+            {
+                Some(t) => layers.push((Clip::fire(gun), share, t)),
+                None => layers.push((Clip::aim(gun), share, aim_t)),
+            }
+        }
+        pose(&mut player, kit, &layers);
     }
 }
 
@@ -460,7 +367,7 @@ fn sync_zombies(
         if let Some(swipe) = z.swipe_t() {
             let active = SHAMBLER.swipe_active_tick as f32 / SHAMBLER.swipe_ticks as f32;
             let t = attack_clip_time(swipe, active, ZOMBIE_IMPACT, kit.duration(Clip::Attack));
-            pose(&mut player, kit, [0.0, 0.0, 1.0, 0.0], [0.0, 0.0, t, 0.0]);
+            pose(&mut player, kit, &[(Clip::Attack, 1.0, t)]);
         } else {
             let idle_t =
                 (time.elapsed_secs() + slot.0 as f32 * 0.37).rem_euclid(kit.duration(Clip::Idle));
@@ -469,8 +376,7 @@ fn sync_zombies(
             pose(
                 &mut player,
                 kit,
-                [1.0 - w, w, 0.0, 0.0],
-                [idle_t, walk_t, 0.0, 0.0],
+                &[(Clip::Idle, 1.0 - w, idle_t), (Clip::Walk, w, walk_t)],
             );
         }
     }
@@ -541,7 +447,7 @@ fn sync_corpses(
         let y = ground.height(c.pos) - sink_t * sink_t * 0.9;
         *tf = actor_transform(c.pos, y, c.facing, ZOMBIE_SCALE);
         if let Some(mut player) = rig.player.and_then(|e| players.get_mut(e).ok()) {
-            pose(&mut player, kit, [0.0, 0.0, 0.0, 1.0], [0.0, 0.0, 0.0, c.t]);
+            pose(&mut player, kit, &[(Clip::Die, 1.0, c.t)]);
         }
     }
 }
@@ -575,6 +481,20 @@ fn flash_zombies(
     }
 }
 
+/// Shows the selected gun in Granny's hand; guns are put away while she swings or falls.
+fn sync_guns(sim: Option<Res<Sim>>, mut guns: Query<(&GunModel, &mut Visibility)>) {
+    let Some(sim) = sim else { return };
+    let p = &sim.world.player;
+    let holding = p.hp > 0 && p.attack_tick.is_none();
+    for (gun, mut vis) in &mut guns {
+        *vis = if holding && gun.0 == p.selected {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        };
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -593,6 +513,14 @@ mod tests {
         assert!(backpedaling(Vec2::new(-0.05, 0.0), 0.0));
         assert!(!backpedaling(Vec2::new(0.05, 0.0), 0.0));
         assert!(!backpedaling(Vec2::ZERO, 0.0));
+    }
+
+    #[test]
+    fn fire_clip_plays_only_right_after_a_shot() {
+        assert_eq!(firing(0, 0.0, 0.33), Some(0.0));
+        assert!(firing(10, 0.5, 0.33).is_some());
+        assert_eq!(firing(30, 0.0, 0.33), None);
+        assert_eq!(firing(u32::MAX, 0.0, 0.33), None, "never fired");
     }
 
     #[test]
