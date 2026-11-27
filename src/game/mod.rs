@@ -50,6 +50,21 @@ pub fn run() {
                 .set(AssetPlugin {
                     file_path: assets_dir(),
                     ..default()
+                })
+                // No bindless materials. With texture binding arrays, Bevy keeps every
+                // material in one shared table that shaders index into; on Intel Iris
+                // Plus (Ice Lake, Mesa 26.2) those lookups go wrong some frames, so
+                // models flicker or lose their textures. Hiding the feature makes Bevy
+                // bind each material on its own, which is plenty fast for this scene.
+                .set(bevy::render::RenderPlugin {
+                    render_creation: bevy::render::settings::WgpuSettings {
+                        disabled_features: Some(
+                            bevy::render::settings::WgpuFeatures::TEXTURE_BINDING_ARRAY,
+                        ),
+                        ..default()
+                    }
+                    .into(),
+                    ..default()
                 }),
         )
         .add_plugins(PalettePlugin)
