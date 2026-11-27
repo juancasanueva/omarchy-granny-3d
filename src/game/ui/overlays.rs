@@ -232,7 +232,7 @@ fn spawn_summary(
         root.spawn(panel(&pal, 600.0, pal.bad)).with_children(|card| {
             card.spawn(mono(&fonts, "THE NIGHT IS OVER", 13.0, pal.bad));
             card.spawn(label(&fonts, "Granny has fallen", 44.0, pal.foreground));
-            card.spawn(label(&fonts, "Maplewood claims another night. The neighborhood will remember her rolling pin.", 15.0, pal.muted));
+            card.spawn(label(&fonts, "Maplewood claims another night. The neighborhood will remember her baseball bat.", 15.0, pal.muted));
             card.spawn(Node { flex_wrap: FlexWrap::Wrap, column_gap: px(12), row_gap: px(12), margin: UiRect::vertical(px(10)), ..default() })
                 .with_children(|grid| {
                     let tiles = [

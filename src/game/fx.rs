@@ -13,7 +13,7 @@ use super::AppState;
 use super::actors::{GrannyActor, Muzzle, Rig};
 use super::assets::Ground;
 use super::run::{Aim, FrameEvents, Sim, SimAdvance, StepClock};
-use crate::sim::data::{Gun, PICKUP_TTL_TICKS, STEP_S};
+use crate::sim::data::{Gun, PICKUP_TTL_TICKS, STEP_S, Weapon};
 use crate::sim::rng::Rng;
 use crate::sim::world::{DamageSource, PickupKind, SimEvent};
 
@@ -513,7 +513,7 @@ fn granny_muzzle(
     muzzles: &Query<&GlobalTransform, With<Muzzle>>,
 ) -> Option<Vec3> {
     let rig = granny.single().ok()?;
-    let (_, model) = rig.guns.iter().find(|(g, _)| *g == gun)?;
+    let (_, model) = rig.guns.iter().find(|(w, _)| *w == Weapon::from(gun))?;
     children
         .iter_descendants(*model)
         .find_map(|e| muzzles.get(e).ok())

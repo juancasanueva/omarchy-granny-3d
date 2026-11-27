@@ -1,6 +1,6 @@
 //! Development aids, driven by environment variables (all optional):
 //! - `GRANNY3D_AUTOSTART=play|pause|summary` skips the title screen.
-//! - `GRANNY3D_AUTOPLAY=1` drives Granny with scripted input (`GRANNY3D_AUTOPLAY_GUN=shotgun` to switch guns).
+//! - `GRANNY3D_AUTOPLAY=1` drives Granny with scripted input; `GRANNY3D_AUTOPLAY_GUN=bat|revolver|shotgun` picks the weapon (also on the title screen).
 //! - `GRANNY3D_SHOT=/path.png` saves a screenshot after `GRANNY3D_SHOT_AFTER` seconds (default 6) and exits.
 
 use bevy::prelude::*;
@@ -19,11 +19,13 @@ impl Plugin for DevPlugin {
     }
 }
 
-/// `GRANNY3D_AUTOPLAY_GUN=shotgun|revolver` picks the gun scripted runs hold.
-pub fn autoplay_gun() -> Option<crate::sim::data::Gun> {
+/// `GRANNY3D_AUTOPLAY_GUN=bat|revolver|shotgun` picks the weapon scripted runs hold.
+pub fn autoplay_gun() -> Option<crate::sim::data::Weapon> {
+    use crate::sim::data::Weapon;
     match std::env::var("GRANNY3D_AUTOPLAY_GUN").as_deref() {
-        Ok("shotgun") => Some(crate::sim::data::Gun::Shotgun),
-        Ok("revolver") => Some(crate::sim::data::Gun::Revolver),
+        Ok("bat") => Some(Weapon::Bat),
+        Ok("revolver") => Some(Weapon::Revolver),
+        Ok("shotgun") => Some(Weapon::Shotgun),
         _ => None,
     }
 }

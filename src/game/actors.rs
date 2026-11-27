@@ -10,7 +10,7 @@ use bevy::world_serialization::WorldInstanceReady;
 use super::AppState;
 use super::assets::{ActorKit, Clip, GameAssets, Ground};
 use super::run::{FrameEvents, Sim, SimAdvance, StepClock};
-use crate::sim::data::{Gun, ROLLING_PIN, SHAMBLER, STEP_S, ZOMBIE_POOL_CAPACITY};
+use crate::sim::data::{BAT, Gun, SHAMBLER, STEP_S, Weapon, ZOMBIE_POOL_CAPACITY};
 use crate::sim::world::SimEvent;
 
 pub const GRANNY_SCALE: f32 = 1.99 / 1.3136;
@@ -55,24 +55,33 @@ pub struct Rig {
     pub player: Option<Entity>,
     /// Granny's right-hand bone, which carries her guns.
     pub hand: Option<Entity>,
-    /// Granny's gun model entities, children of the hand bone.
-    pub guns: Vec<(Gun, Entity)>,
+    /// Granny's weapon model entities, children of the hand bone.
+    pub guns: Vec<(Weapon, Entity)>,
     pub materials: Vec<Handle<StandardMaterial>>,
 }
 
-/// A gun model hanging from Granny's right hand.
+/// A weapon model in Granny's right hand.
 #[derive(Component)]
-struct GunModel(Gun);
+struct GunModel(Weapon);
 
 /// The muzzle point of a gun model, where shots leave the barrel.
 #[derive(Component)]
 pub struct Muzzle(pub Gun);
 
-#[derive(Component, Default)]
+#[derive(Component)]
 struct Blend {
     walk: f32,
-    /// 0 holds the revolver pose, 1 the shotgun pose; eased so switching guns blends.
-    shotgun: f32,
+    /// Share of each weapon's hold (bat, revolver, shotgun); eased so switching weapons blends.
+    hold: [f32; 3],
+}
+
+impl Default for Blend {
+    fn default() -> Self {
+        Self {
+            walk: 0.0,
+            hold: [0.0, 1.0, 0.0],
+        }
+    }
 }
 
 #[derive(Component)]
@@ -179,11 +188,11 @@ fn attach_rig(
             // The gun models are exported in the hand bone's own frame.
             let mut guns = Vec::new();
             commands.entity(e).with_children(|hand| {
-                for gun in Gun::ALL {
+                for gun in Weapon::ALL {
                     let id = hand
                         .spawn((
                             GunModel(gun),
-                            WorldAssetRoot(assets.gun(gun)),
+                            WorldAssetRoot(assets.weapon(gun)),
                             Transform::default(),
                             Visibility::Hidden,
                         ))
@@ -216,8 +225,10 @@ fn mark_muzzle(
         return;
     };
     for e in children.iter_descendants(ready.entity) {
-        if names.get(e).is_ok_and(|n| n.as_str() == "Muzzle") {
-            commands.entity(e).insert(Muzzle(gun.0));
+        if let Some(g) = gun.0.gun()
+            && names.get(e).is_ok_and(|n| n.as_str() == "Muzzle")
+        {
+            commands.entity(e).insert(Muzzle(g));
         }
     }
 }
@@ -303,17 +314,20 @@ fn sync_granny(
         // Stepping backward: run the stride in reverse instead of moonwalking.
         walk_t = walk_dur - walk_t;
     }
-    let target = if p.selected == Gun::Shotgun { 1.0 } else { 0.0 };
-    blend.shotgun += (target - blend.shotgun) * (1.0 - (-14.0 * time.delta_secs()).exp());
+    let ease = 1.0 - (-14.0 * time.delta_secs()).exp();
+    for (i, weapon) in Weapon::ALL.into_iter().enumerate() {
+        let target = if weapon == p.selected { 1.0 } else { 0.0 };
+        blend.hold[i] += (target - blend.hold[i]) * ease;
+    }
     if p.hp == 0 {
         let t = sim.ended_for * 1.1;
         pose(&mut player, kit, &[(Clip::Die, 1.0, t)]);
     } else if let Some(swing) = p.swing_t() {
-        let active = ROLLING_PIN.active_tick as f32 / ROLLING_PIN.total_ticks as f32;
+        let active = BAT.active_tick as f32 / BAT.total_ticks as f32;
         let t = attack_clip_time(swing, active, GRANNY_IMPACT, kit.duration(Clip::Attack));
         pose(&mut player, kit, &[(Clip::Attack, 1.0, t)]);
     } else {
-        // Legs idle or walk; the upper body holds the selected gun and kicks on each shot.
+        // Legs idle or walk; the upper body holds the selected weapon and guns kick on each shot.
         let w = blend.walk;
         let idle_t = time.elapsed_secs().rem_euclid(kit.duration(Clip::Idle));
         let mut layers = vec![
@@ -321,16 +335,15 @@ fn sync_granny(
             (Clip::WalkLower, w, walk_t),
         ];
         let alpha = if sim.showcase { 0.0 } else { clock.alpha };
-        for (gun, share) in [
-            (Gun::Revolver, 1.0 - blend.shotgun),
-            (Gun::Shotgun, blend.shotgun),
-        ] {
-            let aim_t = time.elapsed_secs().rem_euclid(kit.duration(Clip::aim(gun)));
-            match firing(p.since_shot, alpha, kit.duration(Clip::fire(gun)))
-                .filter(|_| gun == p.selected)
-            {
-                Some(t) => layers.push((Clip::fire(gun), share, t)),
-                None => layers.push((Clip::aim(gun), share, aim_t)),
+        for (weapon, share) in Weapon::ALL.into_iter().zip(blend.hold) {
+            let aim = Clip::aim(weapon);
+            let aim_t = time.elapsed_secs().rem_euclid(kit.duration(aim));
+            let shot = weapon.gun().filter(|_| weapon == p.selected).and_then(|g| {
+                firing(p.since_shot, alpha, kit.duration(Clip::fire(g))).map(|t| (Clip::fire(g), t))
+            });
+            match shot {
+                Some((clip, t)) => layers.push((clip, share, t)),
+                None => layers.push((aim, share, aim_t)),
             }
         }
         pose(&mut player, kit, &layers);
@@ -488,17 +501,27 @@ fn flash_zombies(
     }
 }
 
-/// Shows the selected gun in Granny's hand; guns are put away while she swings or falls.
+/// Shows the weapon in Granny's hand: the bat while she swings (an empty gun swings it too),
+/// otherwise the selected weapon. Everything is put away when she falls.
 fn sync_guns(sim: Option<Res<Sim>>, mut guns: Query<(&GunModel, &mut Visibility)>) {
     let Some(sim) = sim else { return };
     let p = &sim.world.player;
-    let holding = p.hp > 0 && p.attack_tick.is_none();
+    let shown = shown_weapon(p.hp, p.attack_tick.is_some(), p.selected);
     for (gun, mut vis) in &mut guns {
-        *vis = if holding && gun.0 == p.selected {
+        *vis = if shown == Some(gun.0) {
             Visibility::Inherited
         } else {
             Visibility::Hidden
         };
+    }
+}
+
+/// Which weapon model is in Granny's hand, if any.
+fn shown_weapon(hp: i32, swinging: bool, selected: Weapon) -> Option<Weapon> {
+    match (hp > 0, swinging) {
+        (false, _) => None,
+        (true, true) => Some(Weapon::Bat),
+        (true, false) => Some(selected),
     }
 }
 
@@ -508,7 +531,7 @@ mod tests {
 
     #[test]
     fn attack_impact_lands_on_active_tick() {
-        let active = ROLLING_PIN.active_tick as f32 / ROLLING_PIN.total_ticks as f32;
+        let active = BAT.active_tick as f32 / BAT.total_ticks as f32;
         let t = attack_clip_time(active, active, GRANNY_IMPACT, 2.0);
         assert!((t - GRANNY_IMPACT * 2.0).abs() < 1e-5);
         assert_eq!(attack_clip_time(0.0, active, GRANNY_IMPACT, 2.0), 0.0);
@@ -520,6 +543,21 @@ mod tests {
         assert!(backpedaling(Vec2::new(-0.05, 0.0), 0.0));
         assert!(!backpedaling(Vec2::new(0.05, 0.0), 0.0));
         assert!(!backpedaling(Vec2::ZERO, 0.0));
+    }
+
+    #[test]
+    fn the_bat_appears_for_every_swing_and_guns_otherwise() {
+        assert_eq!(
+            shown_weapon(100, false, Weapon::Shotgun),
+            Some(Weapon::Shotgun)
+        );
+        assert_eq!(
+            shown_weapon(100, true, Weapon::Revolver),
+            Some(Weapon::Bat),
+            "empty gun swings the bat"
+        );
+        assert_eq!(shown_weapon(100, false, Weapon::Bat), Some(Weapon::Bat));
+        assert_eq!(shown_weapon(0, false, Weapon::Bat), None);
     }
 
     #[test]

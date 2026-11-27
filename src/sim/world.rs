@@ -15,10 +15,9 @@ pub struct InputSnapshot {
     pub move_dir: Vec2,
     /// Forward (+1) toward where Granny faces, or back (-1) away from it, keeping her facing.
     pub throttle: f32,
-    pub melee_pulse: bool,
     pub fire_held: bool,
     pub fire_pulse: bool,
-    pub select: Option<Gun>,
+    pub select: Option<Weapon>,
     pub cycle: bool,
     /// Ground point under the mouse cursor; when present, Granny faces it.
     pub aim_point: Option<Vec2>,
@@ -97,7 +96,7 @@ pub struct Player {
     pub grace_until: u64,
     /// Ticks into the current swing, `None` when idle.
     pub attack_tick: Option<u32>,
-    pub selected: Gun,
+    pub selected: Weapon,
     pub revolver_ammo: u32,
     pub shotgun_ammo: u32,
     pub gun_cooldown: u32,
@@ -117,7 +116,7 @@ impl Player {
             hp: PLAYER_HP,
             grace_until: 0,
             attack_tick: None,
-            selected: Gun::Revolver,
+            selected: Weapon::Revolver,
             revolver_ammo: REVOLVER.initial_ammo,
             shotgun_ammo: SHOTGUN.initial_ammo,
             gun_cooldown: 0,
@@ -144,8 +143,7 @@ impl Player {
 
     /// Swing progress `0..1`, or `None` when idle.
     pub fn swing_t(&self) -> Option<f32> {
-        self.attack_tick
-            .map(|t| t as f32 / ROLLING_PIN.total_ticks as f32)
+        self.attack_tick.map(|t| t as f32 / BAT.total_ticks as f32)
     }
 }
 
@@ -308,10 +306,10 @@ impl World {
         let tuning_speed = self.tuning.player_speed;
         let p = &mut self.player;
         if self.hitstop_ticks == 0 {
-            if let Some(gun) = input.select {
-                p.selected = gun;
+            if let Some(weapon) = input.select {
+                p.selected = weapon;
             } else if input.cycle {
-                p.selected = p.selected.other();
+                p.selected = p.selected.next();
             }
         }
         let cursor = input.aim_point.map(|a| a - p.pos);
@@ -334,10 +332,6 @@ impl World {
         }
         let walk = input.move_dir + Vec2::from_angle(p.facing) * throttle;
         p.vel = walk.clamp_length_max(1.0) * tuning_speed;
-        if input.melee_pulse && p.attack_tick.is_none() {
-            p.attack_tick = Some(0);
-            self.swing_id += 1;
-        }
     }
 
     fn ranged_system(&mut self, input: &InputSnapshot) {
@@ -356,24 +350,28 @@ impl World {
         if !fire || p.attack_tick.is_some() {
             return;
         }
-        let gun = p.selected;
+        // Space and LMB both use the selected weapon: the bat swings, a loaded gun shoots,
+        // and an empty gun falls back to a bat swing.
+        let loaded = p.selected.gun().filter(|g| p.ammo(*g) > 0);
         if input.auto_target {
-            let range = if p.ammo(gun) == 0 {
-                self.tuning.melee_range + SHAMBLER.radius
-            } else {
-                gun.spec().range
+            let range = match loaded {
+                Some(gun) => gun.spec().range,
+                None => self.tuning.melee_range + SHAMBLER.radius,
             };
             if let Some(facing) = self.nearest_visible_zombie(range) {
                 self.player.facing = facing;
             }
         }
-        let p = &mut self.player;
-        if p.ammo(gun) == 0 {
+        let Some(gun) = loaded else {
+            let p = &mut self.player;
             p.attack_tick = Some(0);
             self.swing_id += 1;
-            self.events.push(SimEvent::EmptyClick);
+            if p.selected.gun().is_some() {
+                self.events.push(SimEvent::EmptyClick);
+            }
             return;
-        }
+        };
+        let p = &mut self.player;
         if p.gun_cooldown > 0 {
             return;
         }
@@ -420,11 +418,11 @@ impl World {
         let Some(t) = self.player.attack_tick else {
             return;
         };
-        if t == ROLLING_PIN.active_tick {
+        if t == BAT.active_tick {
             self.resolve_swing();
         }
         let next = t + 1;
-        self.player.attack_tick = (next < ROLLING_PIN.total_ticks).then_some(next);
+        self.player.attack_tick = (next < BAT.total_ticks).then_some(next);
     }
 
     fn resolve_swing(&mut self) {
@@ -447,15 +445,7 @@ impl World {
             sum += at;
             count += 1;
             let (kb, stun) = (self.tuning.knockback_impulse, self.tuning.stun_ticks);
-            self.damage_zombie(
-                i,
-                ROLLING_PIN.damage,
-                origin,
-                aim,
-                kb,
-                stun,
-                DamageSource::Melee,
-            );
+            self.damage_zombie(i, BAT.damage, origin, aim, kb, stun, DamageSource::Melee);
         }
         if count > 0 {
             self.hitstop_ticks = self.tuning.hitstop_ticks;
@@ -1193,6 +1183,91 @@ mod tests {
     }
 
     #[test]
+    fn number_keys_pick_each_weapon_and_cycle_wraps() {
+        let mut w = world();
+        clear_horde(&mut w);
+        for weapon in Weapon::ALL {
+            w.step(&InputSnapshot {
+                select: Some(weapon),
+                ..default()
+            });
+            assert_eq!(w.player.selected, weapon);
+        }
+        w.step(&InputSnapshot {
+            select: Some(Weapon::Bat),
+            ..default()
+        });
+        let mut seen = Vec::new();
+        for _ in 0..3 {
+            w.step(&InputSnapshot {
+                cycle: true,
+                ..default()
+            });
+            seen.push(w.player.selected);
+        }
+        assert_eq!(seen, [Weapon::Revolver, Weapon::Shotgun, Weapon::Bat]);
+    }
+
+    #[test]
+    fn fire_with_the_bat_swings_and_never_shoots() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        w.step(&InputSnapshot {
+            select: Some(Weapon::Bat),
+            fire_pulse: true,
+            ..default()
+        });
+        assert!(w.player.attack_tick.is_some(), "the bat swings");
+        assert_eq!(w.player.revolver_ammo, REVOLVER.initial_ammo);
+        assert!(
+            !w.events
+                .iter()
+                .any(|e| matches!(e, SimEvent::GunShot { .. }))
+        );
+    }
+
+    #[test]
+    fn holding_fire_with_the_bat_keeps_swinging() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        let hold = InputSnapshot {
+            select: Some(Weapon::Bat),
+            fire_held: true,
+            ..default()
+        };
+        let mut swings = 0;
+        let mut was_swinging = false;
+        for _ in 0..(BAT.total_ticks as usize * 3) {
+            w.step(&hold);
+            let swinging = w.player.attack_tick.is_some();
+            if swinging && !was_swinging {
+                swings += 1;
+            }
+            was_swinging = swinging;
+        }
+        assert_eq!(swings, 3);
+    }
+
+    #[test]
+    fn auto_target_with_the_bat_turns_to_a_zombie_in_reach() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        place_zombie(&mut w, 0, Vec2::new(-1.5, 0.0));
+        w.step(&InputSnapshot {
+            select: Some(Weapon::Bat),
+            fire_pulse: true,
+            auto_target: true,
+            ..default()
+        });
+        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::NEG_X) > 0.999);
+        step_n(&mut w, 8, &InputSnapshot::default());
+        assert_eq!(w.zombies[0].hp, 25);
+    }
+
+    #[test]
     fn cursor_aim_sets_facing_independently_of_movement() {
         let mut w = world();
         clear_horde(&mut w);
@@ -1233,7 +1308,8 @@ mod tests {
         place_zombie(&mut w, 0, Vec2::new(-1.5, 0.0));
         let aim = Some(w.player.pos + Vec2::new(-3.0, 0.0));
         w.step(&InputSnapshot {
-            melee_pulse: true,
+            select: Some(Weapon::Bat),
+            fire_pulse: true,
             aim_point: aim,
             ..default()
         });
@@ -1374,7 +1450,8 @@ mod tests {
         place_zombie(&mut w, 0, Vec2::new(1.5, 0.0));
         place_zombie(&mut w, 1, Vec2::new(-1.5, 0.0));
         w.step(&InputSnapshot {
-            melee_pulse: true,
+            select: Some(Weapon::Bat),
+            fire_pulse: true,
             ..default()
         });
         let idle = InputSnapshot::default();
