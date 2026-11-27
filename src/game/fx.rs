@@ -5,10 +5,11 @@ use std::collections::HashMap;
 use std::f32::consts::FRAC_PI_2;
 
 use bevy::prelude::*;
+use bevy::transform::TransformSystems;
 use bevy::window::{CursorIcon, PrimaryWindow, SystemCursorIcon};
 
 use super::AppState;
-use super::actors::Muzzle;
+use super::actors::{GrannyActor, Muzzle, Rig};
 use super::assets::Ground;
 use super::run::{Aim, FrameEvents, Sim, SimAdvance, StepClock};
 use crate::sim::data::{Gun, PICKUP_TTL_TICKS, STEP_S};
@@ -35,6 +36,8 @@ impl Plugin for FxPlugin {
                     .chain()
                     .after(SimAdvance),
             )
+            // Shots read the muzzle after this frame's pose has been animated and propagated.
+            .add_systems(PostUpdate, spawn_shot_fx.after(TransformSystems::Propagate))
             .add_systems(OnEnter(AppState::Title), clear_fx);
     }
 }
@@ -210,92 +213,12 @@ fn spawn_event_fx(
     ground: Option<Res<Ground>>,
     fx: Option<ResMut<FxAssets>>,
     mut mats: ResMut<Assets<StandardMaterial>>,
-    muzzles: Query<(&Muzzle, &GlobalTransform)>,
 ) {
     let (Some(ground), Some(mut fx)) = (ground, fx) else {
         return;
     };
     for e in &events.0 {
         match e {
-            SimEvent::GunShot { gun, from, ends } => {
-                // Shots leave the gun model's muzzle when it is in Granny's hand.
-                let muzzle = muzzles
-                    .iter()
-                    .find(|(m, _)| m.0 == *gun)
-                    .map(|(_, t)| t.translation())
-                    .filter(|m| m.xz().distance(*from) < 2.5);
-                let start = muzzle
-                    .unwrap_or_else(|| ground_point(*from, ground.height(*from) + MUZZLE_HEIGHT));
-                let mut dir_sum = Vec3::ZERO;
-                for end in ends {
-                    let stop = ground_point(*end, start.y);
-                    let d = stop - start;
-                    let len = d.length().max(0.01);
-                    dir_sum += d / len;
-                    if (*end - *from).dot(stop.xz() - start.xz()) <= 0.0 {
-                        continue; // target closer than the muzzle: no tracer
-                    }
-                    let thick = if *gun == Gun::Revolver { 0.05 } else { 0.035 };
-                    let base = Vec3::new(thick, thick, len);
-                    commands.spawn((
-                        Mesh3d(fx.cube.clone()),
-                        MeshMaterial3d(if *gun == Gun::Revolver {
-                            fx.tracer.clone()
-                        } else {
-                            fx.tracer_shotgun.clone()
-                        }),
-                        Transform::from_translation(start + d * 0.5)
-                            .looking_to(d, Vec3::Y)
-                            .with_scale(base),
-                        Fx {
-                            life: 0.11,
-                            max: 0.11,
-                            kind: FxKind::Shrink {
-                                base,
-                                axes: Vec3::new(1.0, 1.0, 0.0),
-                            },
-                        },
-                    ));
-                }
-                let flash_at = if muzzle.is_some() {
-                    start
-                } else {
-                    start + dir_sum.normalize_or_zero() * 0.55
-                };
-                let size = if *gun == Gun::Revolver { 0.22 } else { 0.34 };
-                commands.spawn((
-                    Mesh3d(fx.sphere.clone()),
-                    MeshMaterial3d(fx.muzzle.clone()),
-                    Transform::from_translation(flash_at).with_scale(Vec3::splat(size)),
-                    Fx {
-                        life: 0.07,
-                        max: 0.07,
-                        kind: FxKind::Shrink {
-                            base: Vec3::splat(size),
-                            axes: Vec3::ONE,
-                        },
-                    },
-                ));
-                let peak = if *gun == Gun::Revolver {
-                    60_000.0
-                } else {
-                    110_000.0
-                };
-                commands.spawn((
-                    PointLight {
-                        color: Color::srgb(1.0, 0.75, 0.4),
-                        intensity: peak,
-                        range: 8.0,
-                        ..default()
-                    },
-                    Transform::from_translation(flash_at),
-                    Fx {
-                        life: 0.08,
-                        max: 0.08,
-                        kind: FxKind::Light { peak },
-                    },
-                ));
-            }
             SimEvent::ZombieHit { at, source, .. } => {
                 let center = ground_point(*at, ground.height(*at) + 1.0);
                 let count = if *source == DamageSource::Melee {
@@ -567,6 +490,136 @@ fn clear_fx(mut commands: Commands, fx: Query<Entity, Or<(With<Fx>, With<PickupV
     }
 }
 
+/// Where a tracer ends: the hit point at muzzle height, or `None` when the target is
+/// closer to Granny than the muzzle (the tracer would point backwards).
+pub fn tracer_stop(from: Vec2, start: Vec3, end: Vec2) -> Option<Vec3> {
+    let stop = ground_point(end, start.y);
+    ((end - from).dot(stop.xz() - start.xz()) > 0.0).then_some(stop)
+}
+
+/// The muzzle of `gun` in Granny's hand, in this frame's world space.
+fn granny_muzzle(
+    gun: Gun,
+    granny: &Query<&Rig, With<GrannyActor>>,
+    children: &Query<&Children>,
+    muzzles: &Query<&GlobalTransform, With<Muzzle>>,
+) -> Option<Vec3> {
+    let rig = granny.single().ok()?;
+    let (_, model) = rig.guns.iter().find(|(g, _)| *g == gun)?;
+    children
+        .iter_descendants(*model)
+        .find_map(|e| muzzles.get(e).ok())
+        .map(|t| t.translation())
+}
+
+/// Spawns an effect entity with its world transform already set, since it is created
+/// after this frame's transform propagation.
+fn spawn_now(commands: &mut Commands, bundle: impl Bundle, transform: Transform) {
+    commands.spawn((bundle, transform, GlobalTransform::from(transform)));
+}
+
+/// Tracers, muzzle flash and flash light for each shot, leaving from the gun's muzzle.
+fn spawn_shot_fx(
+    mut commands: Commands,
+    events: Res<FrameEvents>,
+    ground: Option<Res<Ground>>,
+    fx: Option<Res<FxAssets>>,
+    granny: Query<&Rig, With<GrannyActor>>,
+    children: Query<&Children>,
+    muzzles: Query<&GlobalTransform, With<Muzzle>>,
+) {
+    let (Some(ground), Some(fx)) = (ground, fx) else {
+        return;
+    };
+    for e in &events.0 {
+        let SimEvent::GunShot { gun, from, ends } = e else {
+            continue;
+        };
+        let muzzle = granny_muzzle(*gun, &granny, &children, &muzzles)
+            .filter(|m| m.xz().distance(*from) < 2.5);
+        let start =
+            muzzle.unwrap_or_else(|| ground_point(*from, ground.height(*from) + MUZZLE_HEIGHT));
+        let mut dir_sum = Vec3::ZERO;
+        for end in ends {
+            let Some(stop) = tracer_stop(*from, start, *end) else {
+                continue;
+            };
+            let d = stop - start;
+            let len = d.length().max(0.01);
+            dir_sum += d / len;
+            let thick = if *gun == Gun::Revolver { 0.05 } else { 0.035 };
+            let base = Vec3::new(thick, thick, len);
+            let material = if *gun == Gun::Revolver {
+                fx.tracer.clone()
+            } else {
+                fx.tracer_shotgun.clone()
+            };
+            spawn_now(
+                &mut commands,
+                (
+                    Mesh3d(fx.cube.clone()),
+                    MeshMaterial3d(material),
+                    Fx {
+                        life: 0.11,
+                        max: 0.11,
+                        kind: FxKind::Shrink {
+                            base,
+                            axes: Vec3::new(1.0, 1.0, 0.0),
+                        },
+                    },
+                ),
+                Transform::from_translation(start + d * 0.5)
+                    .looking_to(d, Vec3::Y)
+                    .with_scale(base),
+            );
+        }
+        let flash_at = if muzzle.is_some() {
+            start
+        } else {
+            start + dir_sum.normalize_or_zero() * 0.55
+        };
+        let size = if *gun == Gun::Revolver { 0.22 } else { 0.34 };
+        spawn_now(
+            &mut commands,
+            (
+                Mesh3d(fx.sphere.clone()),
+                MeshMaterial3d(fx.muzzle.clone()),
+                Fx {
+                    life: 0.07,
+                    max: 0.07,
+                    kind: FxKind::Shrink {
+                        base: Vec3::splat(size),
+                        axes: Vec3::ONE,
+                    },
+                },
+            ),
+            Transform::from_translation(flash_at).with_scale(Vec3::splat(size)),
+        );
+        let peak = if *gun == Gun::Revolver {
+            60_000.0
+        } else {
+            110_000.0
+        };
+        spawn_now(
+            &mut commands,
+            (
+                PointLight {
+                    color: Color::srgb(1.0, 0.75, 0.4),
+                    intensity: peak,
+                    range: 8.0,
+                    ..default()
+                },
+                Fx {
+                    life: 0.08,
+                    max: 0.08,
+                    kind: FxKind::Light { peak },
+                },
+            ),
+            Transform::from_translation(flash_at),
+        );
+    }
+}
+
 #[derive(Component)]
 struct Reticle;
 
@@ -625,4 +678,25 @@ fn cursor_icon(
         SystemCursorIcon::Default
     };
     commands.entity(window).insert(CursorIcon::from(icon));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tracer_runs_from_muzzle_to_the_hit_at_muzzle_height() {
+        let from = Vec2::ZERO;
+        let muzzle = Vec3::new(0.5, 1.2, 0.0);
+        let stop = tracer_stop(from, muzzle, Vec2::new(6.0, 0.0)).unwrap();
+        assert_eq!(stop, Vec3::new(6.0, 1.2, 0.0));
+    }
+
+    #[test]
+    fn no_tracer_when_the_target_is_closer_than_the_muzzle() {
+        let from = Vec2::ZERO;
+        let muzzle = Vec3::new(0.5, 1.2, 0.0);
+        assert_eq!(tracer_stop(from, muzzle, Vec2::new(0.3, 0.0)), None);
+        assert_eq!(tracer_stop(from, muzzle, Vec2::new(0.5, 0.0)), None);
+    }
 }
