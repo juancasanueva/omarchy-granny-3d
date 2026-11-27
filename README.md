@@ -1,6 +1,6 @@
 # Granny vs. The Neighborhood
 
-A 3D zombie-survival brawler for Omarchy, built with Rust and Bevy. Granny holds off a shambling horde on Maplewood Lane with a baseball bat, a revolver and a cane shotgun. This is a port of the web game in `~/Projects/web/granny3d`: the rules, balance and assets are the same. The UI has been redesigned, and aiming now uses the mouse (or auto-targeting on `F`), and movement is two keys: forward toward the aim and back away from it.
+A 3D zombie-survival brawler for Omarchy, built with Rust and Bevy. Granny holds off a shambling horde on Maplewood Lane with a baseball bat, a revolver and a cane shotgun. This is a port of the web game in `~/Projects/web/granny3d`: the rules and assets are the same, and the balance matches except for a harder-hitting cane shotgun (25 damage per pellet instead of 12). The UI has been redesigned, and aiming now uses the mouse (or auto-targeting on `F`), and movement is two keys: forward toward the aim and back away from it.
 
 ## Quick path
 

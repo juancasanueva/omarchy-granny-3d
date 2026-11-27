@@ -1184,6 +1184,44 @@ mod tests {
     }
 
     #[test]
+    fn one_shotgun_blast_kills_a_fresh_zombie_at_four_metres() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        w.player.selected = Weapon::Shotgun;
+        place_zombie(&mut w, 0, Vec2::new(4.0, 0.0));
+        w.step(&InputSnapshot {
+            fire_pulse: true,
+            ..default()
+        });
+        assert_eq!(w.player.shotgun_ammo, SHOTGUN.initial_ammo - 1, "one blast");
+        // Only the two centre pellets reach a zombie at 4 m: 2 x 25 = 50 kills it, where the old
+        // 2 x 12 = 24 did not. The spawner may refill slot 0 on the same tick, so read the events.
+        let hits_on_target: Vec<i32> = w
+            .events
+            .iter()
+            .filter_map(|e| match e {
+                SimEvent::ZombieHit {
+                    slot: 0, amount, ..
+                } => Some(*amount),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            hits_on_target,
+            [2 * SHOTGUN.damage],
+            "two pellets land, applied as one hit"
+        );
+        assert_eq!(2 * SHOTGUN.damage, 50, "exactly a fresh zombie's health");
+        assert!(
+            w.events
+                .iter()
+                .any(|e| matches!(e, SimEvent::ZombieDeath { slot: 0, .. }))
+        );
+        assert_eq!(w.kills, 1, "the blast kills it");
+    }
+
+    #[test]
     fn a_new_run_starts_with_the_bat() {
         let w = world();
         assert_eq!(w.player.selected, Weapon::Bat);
