@@ -1,0 +1,31 @@
+[package]
+name = "granny_vs_the_neighborhood"
+version = "0.1.0"
+edition = "2024"
+description = "Granny vs. The Neighborhood: a 3D zombie survival brawler for Omarchy, built with Bevy."
+license = "MIT"
+authors = ["Juan Casanueva"]
+
+[[bin]]
+name = "granny3d"
+path = "src/main.rs"
+
+[dependencies]
+bevy = { version = "0.20.1", default-features = false, features = ["3d", "ui"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.9"
+
+[features]
+dev = ["bevy/dynamic_linking"]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

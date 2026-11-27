@@ -1,0 +1,4429 @@
+{
+  "schemaVersion": 1,
+  "scene": "Maplewood Neighborhood",
+  "transform": {
+    "scale": 1.0,
+    "groundOffset": -0.05,
+    "render": "(Blender X, Blender Z - groundOffset, -Blender Y) * scale",
+    "simulation": "(render X, render Z)"
+  },
+  "bounds": {
+    "minX": -80,
+    "maxX": 80,
+    "minY": -80,
+    "maxY": 80
+  },
+  "playerSpawn": {
+    "x": -24,
+    "y": 0
+  },
+  "spawnPoints": [
+    {
+      "x": 24,
+      "y": 0
+    },
+    {
+      "x": -60,
+      "y": 0
+    },
+    {
+      "x": 60,
+      "y": 0
+    },
+    {
+      "x": 0,
+      "y": -24
+    },
+    {
+      "x": 0,
+      "y": 24
+    },
+    {
+      "x": 0,
+      "y": -60
+    },
+    {
+      "x": 0,
+      "y": 60
+    },
+    {
+      "x": -60,
+      "y": -60
+    },
+    {
+      "x": -60,
+      "y": 60
+    },
+    {
+      "x": 60,
+      "y": -60
+    },
+    {
+      "x": 60,
+      "y": 60
+    },
+    {
+      "x": -24,
+      "y": -24
+    },
+    {
+      "x": -24,
+      "y": 24
+    },
+    {
+      "x": 24,
+      "y": -24
+    },
+    {
+      "x": 24,
+      "y": 24
+    },
+    {
+      "x": -24,
+      "y": -60
+    },
+    {
+      "x": -24,
+      "y": 60
+    },
+    {
+      "x": 24,
+      "y": -60
+    },
+    {
+      "x": 24,
+      "y": 60
+    }
+  ],
+  "colliders": [
+    {
+      "id": "building:Expansion House1",
+      "kind": "building",
+      "sources": ["Expansion House1"],
+      "minX": -39.15447,
+      "maxX": -32.82165,
+      "minY": 33.59018,
+      "maxY": 40.43209
+    },
+    {
+      "id": "building:Expansion House1.001",
+      "kind": "building",
+      "sources": ["Expansion House1.001"],
+      "minX": -76.43209,
+      "maxX": -69.59018,
+      "minY": 32.84553,
+      "maxY": 39.17835
+    },
+    {
+      "id": "building:Expansion House1.002",
+      "kind": "building",
+      "sources": ["Expansion House1.002"],
+      "minX": 69.59018,
+      "maxX": 76.43209,
+      "minY": -3.17835,
+      "maxY": 3.15447
+    },
+    {
+      "id": "building:Expansion House10",
+      "kind": "building",
+      "sources": ["Expansion House10"],
+      "minX": 30.63758,
+      "maxX": 42.60773,
+      "minY": 43.87712,
+      "maxY": 54.24867
+    },
+    {
+      "id": "building:Expansion House10.001",
+      "kind": "building",
+      "sources": ["Expansion House10.001"],
+      "minX": -18.60773,
+      "maxX": -6.63757,
+      "minY": 67.39132,
+      "maxY": 77.76288
+    },
+    {
+      "id": "building:Expansion House10.002",
+      "kind": "building",
+      "sources": ["Expansion House10.002"],
+      "minX": 7.55732,
+      "maxX": 17.13345,
+      "minY": -76.96048,
+      "maxY": -68.66323
+    },
+    {
+      "id": "building:Expansion House11",
+      "kind": "building",
+      "sources": ["Expansion House11"],
+      "minX": -39.31274,
+      "maxX": -32.68727,
+      "minY": -40.68,
+      "maxY": -33.31999
+    },
+    {
+      "id": "building:Expansion House11.001",
+      "kind": "building",
+      "sources": ["Expansion House11.001"],
+      "minX": -76.68001,
+      "maxX": -69.31999,
+      "minY": -39.31274,
+      "maxY": -32.68726
+    },
+    {
+      "id": "building:Expansion House11.002",
+      "kind": "building",
+      "sources": ["Expansion House11.002"],
+      "minX": 69.31999,
+      "maxX": 76.68001,
+      "minY": -75.31273,
+      "maxY": -68.68726
+    },
+    {
+      "id": "building:Expansion House12",
+      "kind": "building",
+      "sources": ["Expansion House12"],
+      "minX": -74.63209,
+      "maxX": -71.22809,
+      "minY": 44.31999,
+      "maxY": 51.68001
+    },
+    {
+      "id": "building:Expansion House12.001",
+      "kind": "building",
+      "sources": ["Expansion House12.001"],
+      "minX": 70.22997,
+      "maxX": 75.55145,
+      "minY": 6.24702,
+      "maxY": 17.75298
+    },
+    {
+      "id": "building:Expansion House13",
+      "kind": "building",
+      "sources": ["Expansion House13"],
+      "minX": 32.31999,
+      "maxX": 39.67999,
+      "minY": -39.99846,
+      "maxY": -34.00154
+    },
+    {
+      "id": "building:Expansion House13.001",
+      "kind": "building",
+      "sources": ["Expansion House13.001"],
+      "minX": 32.24533,
+      "maxX": 39.75469,
+      "minY": 69.94068,
+      "maxY": 76.05932
+    },
+    {
+      "id": "building:Expansion House14",
+      "kind": "building",
+      "sources": ["Expansion House14"],
+      "minX": -50.17753,
+      "maxX": -45.82246,
+      "minY": -49.25515,
+      "maxY": -44.8217
+    },
+    {
+      "id": "building:Expansion House14.001",
+      "kind": "building",
+      "sources": ["Expansion House14.001"],
+      "minX": -50.3924,
+      "maxX": -45.60758,
+      "minY": 70.52233,
+      "maxY": 75.30717
+    },
+    {
+      "id": "building:Expansion House14.002",
+      "kind": "building",
+      "sources": ["Expansion House14.002"],
+      "minX": -14.39242,
+      "maxX": -9.6076,
+      "minY": -75.30717,
+      "maxY": -70.52233
+    },
+    {
+      "id": "building:Expansion House15",
+      "kind": "building",
+      "sources": ["Expansion House15"],
+      "minX": -50.39241,
+      "maxX": -45.60757,
+      "minY": 34.47908,
+      "maxY": 39.45745
+    },
+    {
+      "id": "building:Expansion House15.001",
+      "kind": "building",
+      "sources": ["Expansion House15.001"],
+      "minX": -75.45746,
+      "maxX": -70.47908,
+      "minY": -2.39241,
+      "maxY": 2.39244
+    },
+    {
+      "id": "building:Expansion House15.002",
+      "kind": "building",
+      "sources": ["Expansion House15.002"],
+      "minX": 70.47908,
+      "maxX": 75.45746,
+      "minY": -38.39244,
+      "maxY": -33.60759
+    },
+    {
+      "id": "building:Expansion House16",
+      "kind": "building",
+      "sources": ["Expansion House16"],
+      "minX": 46.09363,
+      "maxX": 49.90637,
+      "minY": -49.00876,
+      "maxY": -45.04181
+    },
+    {
+      "id": "building:Expansion House16.001",
+      "kind": "building",
+      "sources": ["Expansion House16.001"],
+      "minX": 70.47908,
+      "maxX": 75.45746,
+      "minY": 45.60758,
+      "maxY": 50.39242
+    },
+    {
+      "id": "building:Expansion House17",
+      "kind": "building",
+      "sources": ["Expansion House17"],
+      "minX": 44.32801,
+      "maxX": 51.67199,
+      "minY": 33.31999,
+      "maxY": 40.68001
+    },
+    {
+      "id": "building:Expansion House17.001",
+      "kind": "building",
+      "sources": ["Expansion House17.001"],
+      "minX": -4.38506,
+      "maxX": 4.45761,
+      "minY": 68.61494,
+      "maxY": 77.38506
+    },
+    {
+      "id": "building:Expansion House17.002",
+      "kind": "building",
+      "sources": ["Expansion House17.002"],
+      "minX": 31.54239,
+      "maxX": 40.38506,
+      "minY": -77.38506,
+      "maxY": -68.61494
+    },
+    {
+      "id": "building:Expansion House18",
+      "kind": "building",
+      "sources": ["Expansion House18"],
+      "minX": -38.63887,
+      "maxX": -33.29488,
+      "minY": -50.19807,
+      "maxY": -43.80193
+    },
+    {
+      "id": "building:Expansion House18.001",
+      "kind": "building",
+      "sources": ["Expansion House18.001"],
+      "minX": -76.19806,
+      "maxX": -69.80194,
+      "minY": -50.63887,
+      "maxY": -45.29488
+    },
+    {
+      "id": "building:Expansion House18.002",
+      "kind": "building",
+      "sources": ["Expansion House18.002"],
+      "minX": -50.70512,
+      "maxX": -45.36113,
+      "minY": -76.19806,
+      "maxY": -69.80194
+    },
+    {
+      "id": "building:Expansion House2",
+      "kind": "building",
+      "sources": ["Expansion House2"],
+      "minX": 31.48626,
+      "maxX": 40.67732,
+      "minY": -50.61656,
+      "maxY": -43.38341
+    },
+    {
+      "id": "building:Expansion House2.001",
+      "kind": "building",
+      "sources": ["Expansion House2.001"],
+      "minX": 43.48626,
+      "maxX": 52.67732,
+      "minY": 69.38344,
+      "maxY": 76.61659
+    },
+    {
+      "id": "building:Expansion House3",
+      "kind": "building",
+      "sources": ["Expansion House3"],
+      "minX": 31.64078,
+      "maxX": 41.7758,
+      "minY": 31.60987,
+      "maxY": 40.53114
+    },
+    {
+      "id": "building:Expansion House3.001",
+      "kind": "building",
+      "sources": ["Expansion House3.001"],
+      "minX": -38.41922,
+      "maxX": -28.2842,
+      "minY": 67.60987,
+      "maxY": 76.53114
+    },
+    {
+      "id": "building:Expansion House3.002",
+      "kind": "building",
+      "sources": ["Expansion House3.002"],
+      "minX": -7.7158,
+      "maxX": 2.41923,
+      "minY": -76.53114,
+      "maxY": -67.60987
+    },
+    {
+      "id": "building:Expansion House4",
+      "kind": "building",
+      "sources": ["Expansion House4"],
+      "minX": -51.17257,
+      "maxX": -45.03412,
+      "minY": 43.47551,
+      "maxY": 50.44512
+    },
+    {
+      "id": "building:Expansion House4.001",
+      "kind": "building",
+      "sources": ["Expansion House4.001"],
+      "minX": -77.09872,
+      "maxX": -68.98727,
+      "minY": -15.61605,
+      "maxY": -8.47193
+    },
+    {
+      "id": "building:Expansion House4.002",
+      "kind": "building",
+      "sources": ["Expansion House4.002"],
+      "minX": 68.98727,
+      "maxX": 77.09872,
+      "minY": -51.52807,
+      "maxY": -44.38395
+    },
+    {
+      "id": "building:Expansion House5",
+      "kind": "building",
+      "sources": ["Expansion House5"],
+      "minX": -76.44073,
+      "maxX": -69.53066,
+      "minY": 69.3945,
+      "maxY": 74.76425
+    },
+    {
+      "id": "building:Expansion House5.001",
+      "kind": "building",
+      "sources": ["Expansion House5.001"],
+      "minX": 69.53066,
+      "maxX": 76.44073,
+      "minY": 33.23575,
+      "maxY": 38.6055
+    },
+    {
+      "id": "building:Expansion House6",
+      "kind": "building",
+      "sources": ["Expansion House6"],
+      "minX": 45.23668,
+      "maxX": 50.47358,
+      "minY": 43.65532,
+      "maxY": 50.56904
+    },
+    {
+      "id": "building:Expansion House6.001",
+      "kind": "building",
+      "sources": ["Expansion House6.001"],
+      "minX": 9.52642,
+      "maxX": 14.76332,
+      "minY": 33.83097,
+      "maxY": 40.74468
+    },
+    {
+      "id": "building:Expansion House6.002",
+      "kind": "building",
+      "sources": ["Expansion House6.002"],
+      "minX": 45.23668,
+      "maxX": 50.47358,
+      "minY": -76.34468,
+      "maxY": -69.43096
+    },
+    {
+      "id": "building:Expansion House7",
+      "kind": "building",
+      "sources": ["Expansion House7"],
+      "minX": -51.61251,
+      "maxX": -44.81019,
+      "minY": -39.62614,
+      "maxY": -34.16855
+    },
+    {
+      "id": "building:Expansion House7.001",
+      "kind": "building",
+      "sources": ["Expansion House7.001"],
+      "minX": -76.59665,
+      "maxX": -69.28855,
+      "minY": -76.25818,
+      "maxY": -67.05246
+    },
+    {
+      "id": "building:Expansion House7.002",
+      "kind": "building",
+      "sources": ["Expansion House7.002"],
+      "minX": -40.94754,
+      "maxX": -31.74182,
+      "minY": -76.59665,
+      "maxY": -69.28855
+    },
+    {
+      "id": "building:Expansion House8",
+      "kind": "building",
+      "sources": ["Expansion House8"],
+      "minX": -37.30675,
+      "maxX": -34.65826,
+      "minY": 42.07383,
+      "maxY": 52.05497
+    },
+    {
+      "id": "building:Expansion House8.001",
+      "kind": "building",
+      "sources": ["Expansion House8.001"],
+      "minX": -78.47352,
+      "maxX": -67.38336,
+      "minY": 10.50917,
+      "maxY": 13.45195
+    },
+    {
+      "id": "building:Expansion House8.002",
+      "kind": "building",
+      "sources": ["Expansion House8.002"],
+      "minX": 67.38336,
+      "maxX": 78.47352,
+      "minY": -13.45195,
+      "maxY": -10.50917
+    },
+    {
+      "id": "building:Expansion House9",
+      "kind": "building",
+      "sources": ["Expansion House9"],
+      "minX": 45.99556,
+      "maxX": 49.89903,
+      "minY": -40.04187,
+      "maxY": -34.08403
+    },
+    {
+      "id": "building:Expansion House9.001",
+      "kind": "building",
+      "sources": ["Expansion House9.001"],
+      "minX": 69.31388,
+      "maxX": 76.84527,
+      "minY": 69.46617,
+      "maxY": 74.40059
+    },
+    {
+      "id": "building:polySurface1371.001",
+      "kind": "building",
+      "sources": ["polySurface1371.001"],
+      "minX": -18.53614,
+      "maxX": -6.56598,
+      "minY": 33.75172,
+      "maxY": 44.12327
+    },
+    {
+      "id": "building:polySurface1371.002",
+      "kind": "building",
+      "sources": ["polySurface1371.002"],
+      "minX": 32.80172,
+      "maxX": 43.17327,
+      "minY": -17.57402,
+      "maxY": -5.60387
+    },
+    {
+      "id": "building:polySurface1373.001",
+      "kind": "building",
+      "sources": ["polySurface1373.001"],
+      "minX": -4.26298,
+      "maxX": 7.24298,
+      "minY": 37.22996,
+      "maxY": 42.55145
+    },
+    {
+      "id": "building:polySurface1378.001",
+      "kind": "building",
+      "sources": ["polySurface1378.001"],
+      "minX": 8.27394,
+      "maxX": 15.72611,
+      "minY": 69.68586,
+      "maxY": 77.29736
+    },
+    {
+      "id": "building:polySurface1380.001",
+      "kind": "building",
+      "sources": ["polySurface1380.001"],
+      "minX": -2.47089,
+      "maxX": 2.63739,
+      "minY": -13.29467,
+      "maxY": -6.72106
+    },
+    {
+      "id": "building:polySurface1380.002",
+      "kind": "building",
+      "sources": ["polySurface1380.002"],
+      "minX": -43.27894,
+      "maxX": -36.70533,
+      "minY": -14.4709,
+      "maxY": -9.36261
+    },
+    {
+      "id": "building:polySurface514.001",
+      "kind": "building",
+      "sources": ["polySurface514.001"],
+      "minX": -15.47632,
+      "maxX": -8.54979,
+      "minY": 6.27809,
+      "maxY": 13.71289
+    },
+    {
+      "id": "building:polySurface514.002",
+      "kind": "building",
+      "sources": ["polySurface514.002"],
+      "minX": -15.47632,
+      "maxX": -8.54979,
+      "minY": -43.7219,
+      "maxY": -36.28711
+    },
+    {
+      "id": "building:polySurface736.001",
+      "kind": "building",
+      "sources": ["polySurface736.001"],
+      "minX": -3.8694,
+      "maxX": 4.025,
+      "minY": 6.89363,
+      "maxY": 13.10635
+    },
+    {
+      "id": "building:polySurface736.002",
+      "kind": "building",
+      "sources": ["polySurface736.002"],
+      "minX": -6.46821,
+      "maxX": 2.72285,
+      "minY": -43.46659,
+      "maxY": -36.23343
+    },
+    {
+      "id": "building:polySurface784.001",
+      "kind": "building",
+      "sources": ["polySurface784.001"],
+      "minX": 5.63033,
+      "maxX": 15.76536,
+      "minY": 6.22423,
+      "maxY": 15.14549
+    },
+    {
+      "id": "building:polySurface784.002",
+      "kind": "building",
+      "sources": ["polySurface784.002"],
+      "minX": 4.76033,
+      "maxX": 14.89536,
+      "minY": -43.69577,
+      "maxY": -34.77451
+    },
+    {
+      "id": "building:polySurface888.001",
+      "kind": "building",
+      "sources": ["polySurface888.001"],
+      "minX": -15.24393,
+      "maxX": -8.53001,
+      "minY": -13.7681,
+      "maxY": -6.14509
+    },
+    {
+      "id": "building:polySurface888.002",
+      "kind": "building",
+      "sources": ["polySurface888.002"],
+      "minX": -43.85491,
+      "maxX": -36.2319,
+      "minY": 8.75607,
+      "maxY": 15.46999
+    },
+    {
+      "id": "building:polySurface974.001",
+      "kind": "building",
+      "sources": ["polySurface974.001"],
+      "minX": 9.49405,
+      "maxX": 14.71255,
+      "minY": -13.80285,
+      "maxY": -6.2312
+    },
+    {
+      "id": "building:polySurface974.002",
+      "kind": "building",
+      "sources": ["polySurface974.002"],
+      "minX": 36.19715,
+      "maxX": 43.7688,
+      "minY": 9.28746,
+      "maxY": 14.50596
+    },
+    {
+      "id": "car:Car1A.002",
+      "kind": "car",
+      "sources": ["Car1A.002"],
+      "minX": -27.22482,
+      "maxX": -25.17518,
+      "minY": 40.1,
+      "maxY": 43.90001
+    },
+    {
+      "id": "car:Car1A.003",
+      "kind": "car",
+      "sources": ["Car1A.003"],
+      "minX": -22.82482,
+      "maxX": -20.77518,
+      "minY": -43.90001,
+      "maxY": -40.09999
+    },
+    {
+      "id": "car:Car1A.004",
+      "kind": "car",
+      "sources": ["Car1A.004"],
+      "minX": 20.77518,
+      "maxX": 22.82482,
+      "minY": -11.90001,
+      "maxY": -8.1
+    },
+    {
+      "id": "car:Car2A.002",
+      "kind": "car",
+      "sources": ["Car2A.002"],
+      "minX": -22.93183,
+      "maxX": -20.66817,
+      "minY": 6.09999,
+      "maxY": 9.9
+    },
+    {
+      "id": "car:Car2A.003",
+      "kind": "car",
+      "sources": ["Car2A.003"],
+      "minX": 20.64817,
+      "maxX": 22.91184,
+      "minY": 38.09999,
+      "maxY": 41.9
+    },
+    {
+      "id": "car:Car2A.004",
+      "kind": "car",
+      "sources": ["Car2A.004"],
+      "minX": 25.06817,
+      "maxX": 27.33183,
+      "minY": -41.9,
+      "maxY": -38.09999
+    },
+    {
+      "id": "car:Car3A.002",
+      "kind": "car",
+      "sources": ["Car3A.002"],
+      "minX": -27.38178,
+      "maxX": -25.01822,
+      "minY": -13.9,
+      "maxY": -10.09999
+    },
+    {
+      "id": "car:Car3A.003",
+      "kind": "car",
+      "sources": ["Car3A.003"],
+      "minX": 25.01822,
+      "maxX": 27.38178,
+      "minY": 6.1,
+      "maxY": 9.90001
+    },
+    {
+      "id": "car:Enrichment Car 001 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 001 Body"],
+      "minX": -63.12481,
+      "maxX": -61.07518,
+      "minY": 70.09999,
+      "maxY": 73.9
+    },
+    {
+      "id": "car:Enrichment Car 001 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 001 Part 2"],
+      "minX": -63.09145,
+      "maxX": -61.10855,
+      "minY": 72.93846,
+      "maxY": 73.52205
+    },
+    {
+      "id": "car:Enrichment Car 001 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 001 Part 3"],
+      "minX": -63.10433,
+      "maxX": -61.09567,
+      "minY": 70.51641,
+      "maxY": 71.10001
+    },
+    {
+      "id": "car:Enrichment Car 002 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 002 Body"],
+      "minX": 38.09999,
+      "maxX": 41.9,
+      "minY": -59.03183,
+      "maxY": -56.76817
+    },
+    {
+      "id": "car:Enrichment Car 002 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 002 Part 2"],
+      "minX": 40.7866,
+      "maxX": 41.45887,
+      "minY": -59.01052,
+      "maxY": -56.78948
+    },
+    {
+      "id": "car:Enrichment Car 002 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 002 Part 3"],
+      "minX": 38.52076,
+      "maxX": 39.19303,
+      "minY": -59.01052,
+      "maxY": -56.78948
+    },
+    {
+      "id": "car:Enrichment Car 003 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 003 Body"],
+      "minX": 46.09999,
+      "maxX": 49.9,
+      "minY": 60.91821,
+      "maxY": 63.28178
+    },
+    {
+      "id": "car:Enrichment Car 003 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 003 Part 2"],
+      "minX": 48.78084,
+      "maxX": 49.5024,
+      "minY": 60.93651,
+      "maxY": 63.26348
+    },
+    {
+      "id": "car:Enrichment Car 003 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 003 Part 3"],
+      "minX": 46.87548,
+      "maxX": 47.59703,
+      "minY": 60.93651,
+      "maxY": 63.26348
+    },
+    {
+      "id": "car:Enrichment Car 004 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 004 Body"],
+      "minX": -58.92482,
+      "maxX": -56.87518,
+      "minY": -41.9,
+      "maxY": -38.09999
+    },
+    {
+      "id": "car:Enrichment Car 004 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 004 Part 2"],
+      "minX": -58.89145,
+      "maxX": -56.90855,
+      "minY": -41.52206,
+      "maxY": -40.93846
+    },
+    {
+      "id": "car:Enrichment Car 004 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 004 Part 3"],
+      "minX": -58.90434,
+      "maxX": -56.89567,
+      "minY": -39.10001,
+      "maxY": -38.51641
+    },
+    {
+      "id": "car:Enrichment Car 005 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 005 Body"],
+      "minX": -1.9,
+      "maxX": 1.9,
+      "minY": 60.96817,
+      "maxY": 63.23183
+    },
+    {
+      "id": "car:Enrichment Car 005 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 005 Part 2"],
+      "minX": 0.7866,
+      "maxX": 1.45888,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Enrichment Car 005 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 005 Part 3"],
+      "minX": -1.47924,
+      "maxX": -0.80697,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Enrichment Car 006 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 006 Body"],
+      "minX": -41.9,
+      "maxX": -38.09999,
+      "minY": -63.28178,
+      "maxY": -60.91821
+    },
+    {
+      "id": "car:Enrichment Car 006 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 006 Part 2"],
+      "minX": -41.50239,
+      "maxX": -40.78084,
+      "minY": -63.26348,
+      "maxY": -60.93651
+    },
+    {
+      "id": "car:Enrichment Car 006 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 006 Part 3"],
+      "minX": -39.59703,
+      "maxX": -38.87548,
+      "minY": -63.26348,
+      "maxY": -60.93651
+    },
+    {
+      "id": "car:Enrichment Car 007 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 007 Body"],
+      "minX": 56.87518,
+      "maxX": 58.92482,
+      "minY": -49.90001,
+      "maxY": -46.1
+    },
+    {
+      "id": "car:Enrichment Car 007 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 007 Part 2"],
+      "minX": 56.90855,
+      "maxX": 58.89145,
+      "minY": -47.06154,
+      "maxY": -46.47794
+    },
+    {
+      "id": "car:Enrichment Car 007 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 007 Part 3"],
+      "minX": 56.89567,
+      "maxX": 58.90434,
+      "minY": -49.48359,
+      "maxY": -48.89999
+    },
+    {
+      "id": "car:Enrichment Car 008 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 008 Body"],
+      "minX": 70.1,
+      "maxX": 73.9,
+      "minY": -63.23183,
+      "maxY": -60.96817
+    },
+    {
+      "id": "car:Enrichment Car 008 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 008 Part 2"],
+      "minX": 70.54113,
+      "maxX": 71.2134,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Enrichment Car 008 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 008 Part 3"],
+      "minX": 72.80696,
+      "maxX": 73.47924,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Enrichment Car 009 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 009 Body"],
+      "minX": 60.91822,
+      "maxX": 63.28178,
+      "minY": -41.90001,
+      "maxY": -38.09999
+    },
+    {
+      "id": "car:Enrichment Car 009 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 009 Part 2"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": -41.5024,
+      "maxY": -40.78084
+    },
+    {
+      "id": "car:Enrichment Car 009 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 009 Part 3"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": -39.59704,
+      "maxY": -38.87548
+    },
+    {
+      "id": "car:Enrichment Car 010 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 010 Body"],
+      "minX": -41.90001,
+      "maxX": -38.1,
+      "minY": 56.87518,
+      "maxY": 58.92482
+    },
+    {
+      "id": "car:Enrichment Car 010 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 010 Part 2"],
+      "minX": -41.52207,
+      "maxX": -40.93847,
+      "minY": 56.90855,
+      "maxY": 58.89145
+    },
+    {
+      "id": "car:Enrichment Car 010 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 010 Part 3"],
+      "minX": -39.10002,
+      "maxX": -38.51642,
+      "minY": 56.89567,
+      "maxY": 58.90434
+    },
+    {
+      "id": "car:Enrichment Car 011 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 011 Body"],
+      "minX": 56.76817,
+      "maxX": 59.03183,
+      "minY": 70.09999,
+      "maxY": 73.9
+    },
+    {
+      "id": "car:Enrichment Car 011 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 011 Part 2"],
+      "minX": 56.78948,
+      "maxX": 59.01052,
+      "minY": 72.7866,
+      "maxY": 73.45887
+    },
+    {
+      "id": "car:Enrichment Car 011 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 011 Part 3"],
+      "minX": 56.78948,
+      "maxX": 59.01052,
+      "minY": 70.52076,
+      "maxY": 71.19304
+    },
+    {
+      "id": "car:Enrichment Car 012 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 012 Body"],
+      "minX": 60.91822,
+      "maxX": 63.28178,
+      "minY": -73.9,
+      "maxY": -70.09999
+    },
+    {
+      "id": "car:Enrichment Car 012 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 012 Part 2"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": -73.50239,
+      "maxY": -72.78084
+    },
+    {
+      "id": "car:Enrichment Car 012 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 012 Part 3"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": -71.59703,
+      "maxY": -70.87548
+    },
+    {
+      "id": "car:Enrichment Car 013 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 013 Body"],
+      "minX": 56.87518,
+      "maxX": 58.92482,
+      "minY": 46.1,
+      "maxY": 49.90001
+    },
+    {
+      "id": "car:Enrichment Car 013 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 013 Part 2"],
+      "minX": 56.90855,
+      "maxX": 58.89145,
+      "minY": 48.93847,
+      "maxY": 49.52207
+    },
+    {
+      "id": "car:Enrichment Car 013 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 013 Part 3"],
+      "minX": 56.89567,
+      "maxX": 58.90434,
+      "minY": 46.51642,
+      "maxY": 47.10002
+    },
+    {
+      "id": "car:Enrichment Car 014 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 014 Body"],
+      "minX": -49.9,
+      "maxX": -46.09999,
+      "minY": 56.76817,
+      "maxY": 59.03183
+    },
+    {
+      "id": "car:Enrichment Car 014 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 014 Part 2"],
+      "minX": -49.45887,
+      "maxX": -48.7866,
+      "minY": 56.78948,
+      "maxY": 59.01052
+    },
+    {
+      "id": "car:Enrichment Car 014 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 014 Part 3"],
+      "minX": -47.19303,
+      "maxX": -46.52076,
+      "minY": 56.78948,
+      "maxY": 59.01052
+    },
+    {
+      "id": "car:Enrichment Car 015 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 015 Body"],
+      "minX": -73.90001,
+      "maxX": -70.09999,
+      "minY": -59.08178,
+      "maxY": -56.71822
+    },
+    {
+      "id": "car:Enrichment Car 015 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 015 Part 2"],
+      "minX": -71.21915,
+      "maxX": -70.4976,
+      "minY": -59.06349,
+      "maxY": -56.73652
+    },
+    {
+      "id": "car:Enrichment Car 015 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 015 Part 3"],
+      "minX": -73.12452,
+      "maxX": -72.40296,
+      "minY": -59.06349,
+      "maxY": -56.73652
+    },
+    {
+      "id": "car:Enrichment Car 016 Body",
+      "kind": "car",
+      "sources": ["Enrichment Car 016 Body"],
+      "minX": -41.90001,
+      "maxX": -38.1,
+      "minY": 61.07518,
+      "maxY": 63.12482
+    },
+    {
+      "id": "car:Enrichment Car 016 Part 2",
+      "kind": "car",
+      "sources": ["Enrichment Car 016 Part 2"],
+      "minX": -39.06154,
+      "maxX": -38.47794,
+      "minY": 61.10855,
+      "maxY": 63.09145
+    },
+    {
+      "id": "car:Enrichment Car 016 Part 3",
+      "kind": "car",
+      "sources": ["Enrichment Car 016 Part 3"],
+      "minX": -41.48359,
+      "maxX": -40.89999,
+      "minY": 61.09566,
+      "maxY": 63.10433
+    },
+    {
+      "id": "car:Expansion Car1A",
+      "kind": "car",
+      "sources": ["Expansion Car1A"],
+      "minX": -63.12481,
+      "maxX": -61.07518,
+      "minY": -13.90001,
+      "maxY": -10.1
+    },
+    {
+      "id": "car:Expansion Car1A.001",
+      "kind": "car",
+      "sources": ["Expansion Car1A.001"],
+      "minX": -63.09145,
+      "maxX": -61.10855,
+      "minY": -13.52206,
+      "maxY": -12.93846
+    },
+    {
+      "id": "car:Expansion Car1A.002",
+      "kind": "car",
+      "sources": ["Expansion Car1A.002"],
+      "minX": -63.10433,
+      "maxX": -61.09567,
+      "minY": -11.10001,
+      "maxY": -10.51642
+    },
+    {
+      "id": "car:Expansion Car1A.003",
+      "kind": "car",
+      "sources": ["Expansion Car1A.003"],
+      "minX": 61.07518,
+      "maxX": 63.12482,
+      "minY": 46.09999,
+      "maxY": 49.9
+    },
+    {
+      "id": "car:Expansion Car1A.004",
+      "kind": "car",
+      "sources": ["Expansion Car1A.004"],
+      "minX": 61.10855,
+      "maxX": 63.09145,
+      "minY": 48.93846,
+      "maxY": 49.52206
+    },
+    {
+      "id": "car:Expansion Car1A.005",
+      "kind": "car",
+      "sources": ["Expansion Car1A.005"],
+      "minX": 61.09566,
+      "maxX": 63.10433,
+      "minY": 46.51641,
+      "maxY": 47.10001
+    },
+    {
+      "id": "car:Expansion Car1A.006",
+      "kind": "car",
+      "sources": ["Expansion Car1A.006"],
+      "minX": 61.07518,
+      "maxX": 63.12482,
+      "minY": -49.90001,
+      "maxY": -46.1
+    },
+    {
+      "id": "car:Expansion Car1A.007",
+      "kind": "car",
+      "sources": ["Expansion Car1A.007"],
+      "minX": 61.10855,
+      "maxX": 63.09145,
+      "minY": -47.06155,
+      "maxY": -46.47795
+    },
+    {
+      "id": "car:Expansion Car1A.008",
+      "kind": "car",
+      "sources": ["Expansion Car1A.008"],
+      "minX": 61.09566,
+      "maxX": 63.10433,
+      "minY": -49.4836,
+      "maxY": -48.9
+    },
+    {
+      "id": "car:Expansion Car2A",
+      "kind": "car",
+      "sources": ["Expansion Car2A"],
+      "minX": -63.23183,
+      "maxX": -60.96817,
+      "minY": 10.1,
+      "maxY": 13.90001
+    },
+    {
+      "id": "car:Expansion Car2A.001",
+      "kind": "car",
+      "sources": ["Expansion Car2A.001"],
+      "minX": -63.21052,
+      "maxX": -60.98948,
+      "minY": 10.54112,
+      "maxY": 11.2134
+    },
+    {
+      "id": "car:Expansion Car2A.002",
+      "kind": "car",
+      "sources": ["Expansion Car2A.002"],
+      "minX": -63.21052,
+      "maxX": -60.98948,
+      "minY": 12.80697,
+      "maxY": 13.47924
+    },
+    {
+      "id": "car:Expansion Car2A.003",
+      "kind": "car",
+      "sources": ["Expansion Car2A.003"],
+      "minX": -13.9,
+      "maxX": -10.1,
+      "minY": 60.96817,
+      "maxY": 63.23183
+    },
+    {
+      "id": "car:Expansion Car2A.004",
+      "kind": "car",
+      "sources": ["Expansion Car2A.004"],
+      "minX": -13.45888,
+      "maxX": -12.7866,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Expansion Car2A.005",
+      "kind": "car",
+      "sources": ["Expansion Car2A.005"],
+      "minX": -11.19303,
+      "maxX": -10.52076,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Expansion Car2A.006",
+      "kind": "car",
+      "sources": ["Expansion Car2A.006"],
+      "minX": 10.1,
+      "maxX": 13.9,
+      "minY": 60.96817,
+      "maxY": 63.23183
+    },
+    {
+      "id": "car:Expansion Car2A.007",
+      "kind": "car",
+      "sources": ["Expansion Car2A.007"],
+      "minX": 10.54112,
+      "maxX": 11.2134,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Expansion Car2A.008",
+      "kind": "car",
+      "sources": ["Expansion Car2A.008"],
+      "minX": 12.80697,
+      "maxX": 13.47924,
+      "minY": 60.98948,
+      "maxY": 63.21052
+    },
+    {
+      "id": "car:Expansion Car2A.009",
+      "kind": "car",
+      "sources": ["Expansion Car2A.009"],
+      "minX": 60.96817,
+      "maxX": 63.23183,
+      "minY": -13.90001,
+      "maxY": -10.1
+    },
+    {
+      "id": "car:Expansion Car2A.010",
+      "kind": "car",
+      "sources": ["Expansion Car2A.010"],
+      "minX": 60.98948,
+      "maxX": 63.21052,
+      "minY": -11.2134,
+      "maxY": -10.54112
+    },
+    {
+      "id": "car:Expansion Car2A.011",
+      "kind": "car",
+      "sources": ["Expansion Car2A.011"],
+      "minX": 60.98948,
+      "maxX": 63.21052,
+      "minY": -13.47924,
+      "maxY": -12.80697
+    },
+    {
+      "id": "car:Expansion Car2A.012",
+      "kind": "car",
+      "sources": ["Expansion Car2A.012"],
+      "minX": -13.9,
+      "maxX": -10.1,
+      "minY": -63.23183,
+      "maxY": -60.96817
+    },
+    {
+      "id": "car:Expansion Car2A.013",
+      "kind": "car",
+      "sources": ["Expansion Car2A.013"],
+      "minX": -11.2134,
+      "maxX": -10.54112,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Expansion Car2A.014",
+      "kind": "car",
+      "sources": ["Expansion Car2A.014"],
+      "minX": -13.47924,
+      "maxX": -12.80697,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Expansion Car2A.015",
+      "kind": "car",
+      "sources": ["Expansion Car2A.015"],
+      "minX": 10.1,
+      "maxX": 13.9,
+      "minY": -63.23183,
+      "maxY": -60.96817
+    },
+    {
+      "id": "car:Expansion Car2A.016",
+      "kind": "car",
+      "sources": ["Expansion Car2A.016"],
+      "minX": 12.7866,
+      "maxX": 13.45888,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Expansion Car2A.017",
+      "kind": "car",
+      "sources": ["Expansion Car2A.017"],
+      "minX": 10.52076,
+      "maxX": 11.19303,
+      "minY": -63.21052,
+      "maxY": -60.98948
+    },
+    {
+      "id": "car:Expansion Car3A",
+      "kind": "car",
+      "sources": ["Expansion Car3A"],
+      "minX": -63.28178,
+      "maxX": -60.91822,
+      "minY": 46.09999,
+      "maxY": 49.90001
+    },
+    {
+      "id": "car:Expansion Car3A.001",
+      "kind": "car",
+      "sources": ["Expansion Car3A.001"],
+      "minX": -63.26348,
+      "maxX": -60.93651,
+      "minY": 46.4976,
+      "maxY": 47.21916
+    },
+    {
+      "id": "car:Expansion Car3A.002",
+      "kind": "car",
+      "sources": ["Expansion Car3A.002"],
+      "minX": -63.26348,
+      "maxX": -60.93651,
+      "minY": 48.40296,
+      "maxY": 49.12452
+    },
+    {
+      "id": "car:Expansion Car3A.003",
+      "kind": "car",
+      "sources": ["Expansion Car3A.003"],
+      "minX": -63.28178,
+      "maxX": -60.91822,
+      "minY": -49.90001,
+      "maxY": -46.09999
+    },
+    {
+      "id": "car:Expansion Car3A.004",
+      "kind": "car",
+      "sources": ["Expansion Car3A.004"],
+      "minX": -63.26348,
+      "maxX": -60.93651,
+      "minY": -49.5024,
+      "maxY": -48.78084
+    },
+    {
+      "id": "car:Expansion Car3A.005",
+      "kind": "car",
+      "sources": ["Expansion Car3A.005"],
+      "minX": -63.26348,
+      "maxX": -60.93651,
+      "minY": -47.59704,
+      "maxY": -46.87548
+    },
+    {
+      "id": "car:Expansion Car3A.006",
+      "kind": "car",
+      "sources": ["Expansion Car3A.006"],
+      "minX": 60.91822,
+      "maxX": 63.28178,
+      "minY": 10.1,
+      "maxY": 13.90001
+    },
+    {
+      "id": "car:Expansion Car3A.007",
+      "kind": "car",
+      "sources": ["Expansion Car3A.007"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": 12.78085,
+      "maxY": 13.5024
+    },
+    {
+      "id": "car:Expansion Car3A.008",
+      "kind": "car",
+      "sources": ["Expansion Car3A.008"],
+      "minX": 60.93651,
+      "maxX": 63.26348,
+      "minY": 10.87548,
+      "maxY": 11.59704
+    },
+    {
+      "id": "car:wheels1.003",
+      "kind": "car",
+      "sources": ["wheels1.003"],
+      "minX": -27.19145,
+      "maxX": -25.20855,
+      "minY": 42.93846,
+      "maxY": 43.52206
+    },
+    {
+      "id": "car:wheels1.004",
+      "kind": "car",
+      "sources": ["wheels1.004"],
+      "minX": -22.91052,
+      "maxX": -20.68948,
+      "minY": 6.54112,
+      "maxY": 7.2134
+    },
+    {
+      "id": "car:wheels1.005",
+      "kind": "car",
+      "sources": ["wheels1.005"],
+      "minX": -27.36348,
+      "maxX": -25.03652,
+      "minY": -11.21915,
+      "maxY": -10.4976
+    },
+    {
+      "id": "car:wheels1.006",
+      "kind": "car",
+      "sources": ["wheels1.006"],
+      "minX": -22.79145,
+      "maxX": -20.80855,
+      "minY": -43.52206,
+      "maxY": -42.93846
+    },
+    {
+      "id": "car:wheels1.007",
+      "kind": "car",
+      "sources": ["wheels1.007"],
+      "minX": 20.68948,
+      "maxX": 22.91052,
+      "minY": 40.7866,
+      "maxY": 41.45887
+    },
+    {
+      "id": "car:wheels1.008",
+      "kind": "car",
+      "sources": ["wheels1.008"],
+      "minX": 25.03652,
+      "maxX": 27.36348,
+      "minY": 6.4976,
+      "maxY": 7.21916
+    },
+    {
+      "id": "car:wheels1.009",
+      "kind": "car",
+      "sources": ["wheels1.009"],
+      "minX": 20.80855,
+      "maxX": 22.79145,
+      "minY": -9.06154,
+      "maxY": -8.47794
+    },
+    {
+      "id": "car:wheels1.010",
+      "kind": "car",
+      "sources": ["wheels1.010"],
+      "minX": 25.08948,
+      "maxX": 27.31052,
+      "minY": -41.45887,
+      "maxY": -40.7866
+    },
+    {
+      "id": "car:wheels2.003",
+      "kind": "car",
+      "sources": ["wheels2.003"],
+      "minX": -27.20433,
+      "maxX": -25.19567,
+      "minY": 40.51641,
+      "maxY": 41.10001
+    },
+    {
+      "id": "car:wheels2.004",
+      "kind": "car",
+      "sources": ["wheels2.004"],
+      "minX": -22.91052,
+      "maxX": -20.68948,
+      "minY": 8.80697,
+      "maxY": 9.47924
+    },
+    {
+      "id": "car:wheels2.005",
+      "kind": "car",
+      "sources": ["wheels2.005"],
+      "minX": -27.36348,
+      "maxX": -25.03652,
+      "minY": -13.12452,
+      "maxY": -12.40296
+    },
+    {
+      "id": "car:wheels2.006",
+      "kind": "car",
+      "sources": ["wheels2.006"],
+      "minX": -22.80433,
+      "maxX": -20.79567,
+      "minY": -41.10001,
+      "maxY": -40.51641
+    },
+    {
+      "id": "car:wheels2.007",
+      "kind": "car",
+      "sources": ["wheels2.007"],
+      "minX": 20.68948,
+      "maxX": 22.91052,
+      "minY": 38.52076,
+      "maxY": 39.19303
+    },
+    {
+      "id": "car:wheels2.008",
+      "kind": "car",
+      "sources": ["wheels2.008"],
+      "minX": 25.03652,
+      "maxX": 27.36348,
+      "minY": 8.40296,
+      "maxY": 9.12452
+    },
+    {
+      "id": "car:wheels2.009",
+      "kind": "car",
+      "sources": ["wheels2.009"],
+      "minX": 20.79567,
+      "maxX": 22.80433,
+      "minY": -11.48359,
+      "maxY": -10.89999
+    },
+    {
+      "id": "car:wheels2.010",
+      "kind": "car",
+      "sources": ["wheels2.010"],
+      "minX": 25.08948,
+      "maxX": 27.31052,
+      "minY": -39.19303,
+      "maxY": -38.52076
+    },
+    {
+      "id": "solid:Expansion Bench1",
+      "kind": "solid",
+      "sources": ["Expansion Bench1"],
+      "minX": -10.0,
+      "maxX": -8.0,
+      "minY": 64.24879,
+      "maxY": 64.85122
+    },
+    {
+      "id": "solid:Expansion Bench1.001",
+      "kind": "solid",
+      "sources": ["Expansion Bench1.001"],
+      "minX": 14.0,
+      "maxX": 16.0,
+      "minY": 64.24879,
+      "maxY": 64.85122
+    },
+    {
+      "id": "solid:Expansion Bench1.002",
+      "kind": "solid",
+      "sources": ["Expansion Bench1.002"],
+      "minX": -10.0,
+      "maxX": -8.0,
+      "minY": -64.85122,
+      "maxY": -64.24879
+    },
+    {
+      "id": "solid:Expansion Bench1.003",
+      "kind": "solid",
+      "sources": ["Expansion Bench1.003"],
+      "minX": 14.0,
+      "maxX": 16.0,
+      "minY": -64.85122,
+      "maxY": -64.24879
+    },
+    {
+      "id": "solid:Expansion BusStop",
+      "kind": "solid",
+      "sources": ["Expansion BusStop"],
+      "minX": -65.15001,
+      "maxX": -63.95,
+      "minY": -7.31085,
+      "maxY": -4.68915
+    },
+    {
+      "id": "solid:Expansion BusStop.001",
+      "kind": "solid",
+      "sources": ["Expansion BusStop.001"],
+      "minX": 63.95,
+      "maxX": 65.15001,
+      "minY": -7.31085,
+      "maxY": -4.68915
+    },
+    {
+      "id": "solid:Expansion Grill",
+      "kind": "solid",
+      "sources": ["Expansion Grill"],
+      "minX": -32.475,
+      "maxX": -31.625,
+      "minY": 34.50848,
+      "maxY": 35.09152
+    },
+    {
+      "id": "solid:Expansion Grill.001",
+      "kind": "solid",
+      "sources": ["Expansion Grill.001"],
+      "minX": -52.375,
+      "maxX": -51.525,
+      "minY": 48.90848,
+      "maxY": 49.49152
+    },
+    {
+      "id": "solid:Expansion Grill.002",
+      "kind": "solid",
+      "sources": ["Expansion Grill.002"],
+      "minX": -52.375,
+      "maxX": -51.525,
+      "minY": -35.09152,
+      "maxY": -34.50848
+    },
+    {
+      "id": "solid:Expansion Grill.003",
+      "kind": "solid",
+      "sources": ["Expansion Grill.003"],
+      "minX": 31.625,
+      "maxX": 32.475,
+      "minY": 48.90848,
+      "maxY": 49.49152
+    },
+    {
+      "id": "solid:Expansion Grill.004",
+      "kind": "solid",
+      "sources": ["Expansion Grill.004"],
+      "minX": 31.625,
+      "maxX": 32.475,
+      "minY": -35.09152,
+      "maxY": -34.50848
+    },
+    {
+      "id": "solid:Expansion Grill.005",
+      "kind": "solid",
+      "sources": ["Expansion Grill.005"],
+      "minX": 51.525,
+      "maxX": 52.375,
+      "minY": -49.49152,
+      "maxY": -48.90848
+    },
+    {
+      "id": "solid:Expansion Grill.006",
+      "kind": "solid",
+      "sources": ["Expansion Grill.006"],
+      "minX": -71.09152,
+      "maxX": -70.50849,
+      "minY": 39.525,
+      "maxY": 40.375
+    },
+    {
+      "id": "solid:Expansion Grill.007",
+      "kind": "solid",
+      "sources": ["Expansion Grill.007"],
+      "minX": -71.09152,
+      "maxX": -70.50849,
+      "minY": -8.47501,
+      "maxY": -7.625
+    },
+    {
+      "id": "solid:Expansion Grill.008",
+      "kind": "solid",
+      "sources": ["Expansion Grill.008"],
+      "minX": -71.09152,
+      "maxX": -70.50849,
+      "minY": -68.47501,
+      "maxY": -67.625
+    },
+    {
+      "id": "solid:Expansion Grill.009",
+      "kind": "solid",
+      "sources": ["Expansion Grill.009"],
+      "minX": -8.47501,
+      "maxX": -7.625,
+      "minY": 70.50849,
+      "maxY": 71.09152
+    },
+    {
+      "id": "solid:Expansion Grill.010",
+      "kind": "solid",
+      "sources": ["Expansion Grill.010"],
+      "minX": 39.525,
+      "maxX": 40.375,
+      "minY": 70.50849,
+      "maxY": 71.09152
+    },
+    {
+      "id": "solid:Expansion Grill.011",
+      "kind": "solid",
+      "sources": ["Expansion Grill.011"],
+      "minX": 70.50849,
+      "maxX": 71.09152,
+      "minY": 43.625,
+      "maxY": 44.475
+    },
+    {
+      "id": "solid:Expansion Grill.012",
+      "kind": "solid",
+      "sources": ["Expansion Grill.012"],
+      "minX": 70.50849,
+      "maxX": 71.09152,
+      "minY": -4.375,
+      "maxY": -3.525
+    },
+    {
+      "id": "solid:Expansion Grill.013",
+      "kind": "solid",
+      "sources": ["Expansion Grill.013"],
+      "minX": 70.50849,
+      "maxX": 71.09152,
+      "minY": -52.375,
+      "maxY": -51.525
+    },
+    {
+      "id": "solid:Expansion Grill.014",
+      "kind": "solid",
+      "sources": ["Expansion Grill.014"],
+      "minX": -40.375,
+      "maxX": -39.525,
+      "minY": -71.09152,
+      "maxY": -70.50849
+    },
+    {
+      "id": "solid:Expansion Grill.015",
+      "kind": "solid",
+      "sources": ["Expansion Grill.015"],
+      "minX": 7.625,
+      "maxX": 8.47501,
+      "minY": -71.09152,
+      "maxY": -70.50849
+    },
+    {
+      "id": "solid:Expansion Hydrant",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant"],
+      "minX": -64.875,
+      "maxX": -64.425,
+      "minY": 50.80514,
+      "maxY": 51.19486
+    },
+    {
+      "id": "solid:Expansion Hydrant.001",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.001"],
+      "minX": -64.875,
+      "maxX": -64.425,
+      "minY": 14.80514,
+      "maxY": 15.19486
+    },
+    {
+      "id": "solid:Expansion Hydrant.002",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.002"],
+      "minX": -64.875,
+      "maxX": -64.425,
+      "minY": -9.19486,
+      "maxY": -8.80514
+    },
+    {
+      "id": "solid:Expansion Hydrant.003",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.003"],
+      "minX": -64.875,
+      "maxX": -64.425,
+      "minY": -45.19486,
+      "maxY": -44.80514
+    },
+    {
+      "id": "solid:Expansion Hydrant.004",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.004"],
+      "minX": 64.425,
+      "maxX": 64.875,
+      "minY": 50.80514,
+      "maxY": 51.19486
+    },
+    {
+      "id": "solid:Expansion Hydrant.005",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.005"],
+      "minX": 64.425,
+      "maxX": 64.875,
+      "minY": 14.80514,
+      "maxY": 15.19486
+    },
+    {
+      "id": "solid:Expansion Hydrant.006",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.006"],
+      "minX": 64.425,
+      "maxX": 64.875,
+      "minY": -9.19486,
+      "maxY": -8.80514
+    },
+    {
+      "id": "solid:Expansion Hydrant.007",
+      "kind": "solid",
+      "sources": ["Expansion Hydrant.007"],
+      "minX": 64.425,
+      "maxX": 64.875,
+      "minY": -45.19486,
+      "maxY": -44.80514
+    },
+    {
+      "id": "solid:Expansion Mailbox",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox"],
+      "minX": -37.58624,
+      "maxX": -37.31376,
+      "minY": 31.4378,
+      "maxY": 31.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.001",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.001"],
+      "minX": -34.68624,
+      "maxX": -34.41376,
+      "minY": 52.1378,
+      "maxY": 52.5622
+    },
+    {
+      "id": "solid:Expansion Mailbox.002",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.002"],
+      "minX": -49.58624,
+      "maxX": -49.31376,
+      "minY": 31.4378,
+      "maxY": 31.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.003",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.003"],
+      "minX": -46.68624,
+      "maxX": -46.41376,
+      "minY": 52.1378,
+      "maxY": 52.5622
+    },
+    {
+      "id": "solid:Expansion Mailbox.004",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.004"],
+      "minX": -34.68624,
+      "maxX": -34.41376,
+      "minY": -31.8622,
+      "maxY": -31.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.005",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.005"],
+      "minX": -37.58624,
+      "maxX": -37.31376,
+      "minY": -52.5622,
+      "maxY": -52.1378
+    },
+    {
+      "id": "solid:Expansion Mailbox.006",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.006"],
+      "minX": -46.68624,
+      "maxX": -46.41376,
+      "minY": -31.8622,
+      "maxY": -31.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.007",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.007"],
+      "minX": -49.58624,
+      "maxX": -49.31376,
+      "minY": -52.5622,
+      "maxY": -52.1378
+    },
+    {
+      "id": "solid:Expansion Mailbox.008",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.008"],
+      "minX": 34.41376,
+      "maxX": 34.68624,
+      "minY": 31.4378,
+      "maxY": 31.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.009",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.009"],
+      "minX": 37.31376,
+      "maxX": 37.58624,
+      "minY": 52.1378,
+      "maxY": 52.5622
+    },
+    {
+      "id": "solid:Expansion Mailbox.010",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.010"],
+      "minX": 46.41376,
+      "maxX": 46.68624,
+      "minY": 31.4378,
+      "maxY": 31.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.011",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.011"],
+      "minX": 49.31376,
+      "maxX": 49.58624,
+      "minY": 52.1378,
+      "maxY": 52.5622
+    },
+    {
+      "id": "solid:Expansion Mailbox.012",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.012"],
+      "minX": 37.31376,
+      "maxX": 37.58624,
+      "minY": -31.8622,
+      "maxY": -31.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.013",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.013"],
+      "minX": 34.41376,
+      "maxX": 34.68624,
+      "minY": -52.5622,
+      "maxY": -52.1378
+    },
+    {
+      "id": "solid:Expansion Mailbox.014",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.014"],
+      "minX": 49.31376,
+      "maxX": 49.58624,
+      "minY": -31.8622,
+      "maxY": -31.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.015",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.015"],
+      "minX": 46.41376,
+      "maxX": 46.68624,
+      "minY": -52.5622,
+      "maxY": -52.1378
+    },
+    {
+      "id": "solid:Expansion Mailbox.016",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.016"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": 70.41376,
+      "maxY": 70.68625
+    },
+    {
+      "id": "solid:Expansion Mailbox.017",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.017"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": 46.41376,
+      "maxY": 46.68624
+    },
+    {
+      "id": "solid:Expansion Mailbox.018",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.018"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": 34.41376,
+      "maxY": 34.68624
+    },
+    {
+      "id": "solid:Expansion Mailbox.019",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.019"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": 10.41376,
+      "maxY": 10.68624
+    },
+    {
+      "id": "solid:Expansion Mailbox.020",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.020"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": -1.58624,
+      "maxY": -1.31376
+    },
+    {
+      "id": "solid:Expansion Mailbox.021",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.021"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": -13.58624,
+      "maxY": -13.31376
+    },
+    {
+      "id": "solid:Expansion Mailbox.022",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.022"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": -37.58624,
+      "maxY": -37.31376
+    },
+    {
+      "id": "solid:Expansion Mailbox.023",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.023"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": -49.58624,
+      "maxY": -49.31376
+    },
+    {
+      "id": "solid:Expansion Mailbox.024",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.024"],
+      "minX": -67.8622,
+      "maxX": -67.4378,
+      "minY": -73.58624,
+      "maxY": -73.31375
+    },
+    {
+      "id": "solid:Expansion Mailbox.025",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.025"],
+      "minX": -49.58624,
+      "maxX": -49.31376,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.026",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.026"],
+      "minX": -37.58624,
+      "maxX": -37.31376,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.027",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.027"],
+      "minX": -13.58624,
+      "maxX": -13.31376,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.028",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.028"],
+      "minX": -1.58624,
+      "maxX": -1.31376,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.029",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.029"],
+      "minX": 10.41376,
+      "maxX": 10.68624,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.030",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.030"],
+      "minX": 34.41376,
+      "maxX": 34.68624,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.031",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.031"],
+      "minX": 46.41376,
+      "maxX": 46.68624,
+      "minY": 67.4378,
+      "maxY": 67.8622
+    },
+    {
+      "id": "solid:Expansion Mailbox.032",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.032"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": 73.31375,
+      "maxY": 73.58624
+    },
+    {
+      "id": "solid:Expansion Mailbox.033",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.033"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": 49.31376,
+      "maxY": 49.58624
+    },
+    {
+      "id": "solid:Expansion Mailbox.034",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.034"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": 37.31376,
+      "maxY": 37.58624
+    },
+    {
+      "id": "solid:Expansion Mailbox.035",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.035"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": 13.31376,
+      "maxY": 13.58624
+    },
+    {
+      "id": "solid:Expansion Mailbox.036",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.036"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": 1.31376,
+      "maxY": 1.58624
+    },
+    {
+      "id": "solid:Expansion Mailbox.037",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.037"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": -10.68624,
+      "maxY": -10.41376
+    },
+    {
+      "id": "solid:Expansion Mailbox.038",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.038"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": -34.68624,
+      "maxY": -34.41376
+    },
+    {
+      "id": "solid:Expansion Mailbox.039",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.039"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": -46.68624,
+      "maxY": -46.41376
+    },
+    {
+      "id": "solid:Expansion Mailbox.040",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.040"],
+      "minX": 67.4378,
+      "maxX": 67.8622,
+      "minY": -70.68625,
+      "maxY": -70.41376
+    },
+    {
+      "id": "solid:Expansion Mailbox.041",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.041"],
+      "minX": -46.68624,
+      "maxX": -46.41376,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.042",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.042"],
+      "minX": -34.68624,
+      "maxX": -34.41376,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.043",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.043"],
+      "minX": -10.68624,
+      "maxX": -10.41376,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.044",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.044"],
+      "minX": 1.31376,
+      "maxX": 1.58624,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.045",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.045"],
+      "minX": 13.31376,
+      "maxX": 13.58624,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.046",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.046"],
+      "minX": 37.31376,
+      "maxX": 37.58624,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Mailbox.047",
+      "kind": "solid",
+      "sources": ["Expansion Mailbox.047"],
+      "minX": 49.31376,
+      "maxX": 49.58624,
+      "minY": -67.8622,
+      "maxY": -67.4378
+    },
+    {
+      "id": "solid:Expansion Streetlight1A",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": 44.8667,
+      "maxY": 45.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.001",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.001"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": 32.8667,
+      "maxY": 33.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.002",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.002"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": 8.8667,
+      "maxY": 9.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.003",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.003"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": -15.1333,
+      "maxY": -14.8667
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.004",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.004"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": -39.1333,
+      "maxY": -38.8667
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.005",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.005"],
+      "minX": -64.80392,
+      "maxX": -64.49608,
+      "minY": -51.1333,
+      "maxY": -50.8667
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.006",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.006"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": 44.8667,
+      "maxY": 45.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.007",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.007"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": 32.8667,
+      "maxY": 33.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.008",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.008"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": 8.8667,
+      "maxY": 9.1333
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.009",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.009"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": -15.1333,
+      "maxY": -14.8667
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.010",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.010"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": -39.1333,
+      "maxY": -38.8667
+    },
+    {
+      "id": "solid:Expansion Streetlight1A.011",
+      "kind": "solid",
+      "sources": ["Expansion Streetlight1A.011"],
+      "minX": 64.49608,
+      "maxX": 64.80392,
+      "minY": -51.1333,
+      "maxY": -50.8667
+    },
+    {
+      "id": "solid:Expansion Umbrella1A",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A"],
+      "minX": -32.65,
+      "maxX": -31.44999,
+      "minY": 38.0,
+      "maxY": 39.2
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.001",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.001"],
+      "minX": -32.65,
+      "maxX": -31.44999,
+      "minY": -46.0,
+      "maxY": -44.8
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.002",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.002"],
+      "minX": 51.35,
+      "maxX": 52.55,
+      "minY": 38.0,
+      "maxY": 39.2
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.003",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.003"],
+      "minX": 51.35,
+      "maxX": 52.55,
+      "minY": -46.0,
+      "maxY": -44.8
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.004",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.004"],
+      "minX": -75.2,
+      "maxX": -74.0,
+      "minY": 3.35,
+      "maxY": 4.55001
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.005",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.005"],
+      "minX": -44.65,
+      "maxX": -43.45,
+      "minY": 74.0,
+      "maxY": 75.2
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.006",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.006"],
+      "minX": 39.35,
+      "maxX": 40.55,
+      "minY": 74.0,
+      "maxY": 75.2
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.007",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.007"],
+      "minX": 74.0,
+      "maxX": 75.2,
+      "minY": 7.45,
+      "maxY": 8.65001
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.008",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.008"],
+      "minX": 74.0,
+      "maxX": 75.2,
+      "minY": -76.55,
+      "maxY": -75.34999
+    },
+    {
+      "id": "solid:Expansion Umbrella1A.009",
+      "kind": "solid",
+      "sources": ["Expansion Umbrella1A.009"],
+      "minX": 7.45,
+      "maxX": 8.65001,
+      "minY": -75.2,
+      "maxY": -74.0
+    },
+    {
+      "id": "solid:polySurface132.002",
+      "kind": "solid",
+      "sources": ["polySurface132.002"],
+      "minX": -19.89789,
+      "maxX": -19.50211,
+      "minY": 34.82862,
+      "maxY": 35.17138
+    },
+    {
+      "id": "solid:polySurface132.003",
+      "kind": "solid",
+      "sources": ["polySurface132.003"],
+      "minX": -19.89789,
+      "maxX": -19.50211,
+      "minY": 14.82862,
+      "maxY": 15.17138
+    },
+    {
+      "id": "solid:polySurface132.004",
+      "kind": "solid",
+      "sources": ["polySurface132.004"],
+      "minX": -19.89789,
+      "maxX": -19.50211,
+      "minY": -7.17138,
+      "maxY": -6.82862
+    },
+    {
+      "id": "solid:polySurface132.005",
+      "kind": "solid",
+      "sources": ["polySurface132.005"],
+      "minX": -19.89789,
+      "maxX": -19.50211,
+      "minY": -35.17138,
+      "maxY": -34.82862
+    },
+    {
+      "id": "solid:polySurface132.006",
+      "kind": "solid",
+      "sources": ["polySurface132.006"],
+      "minX": 19.50211,
+      "maxX": 19.89789,
+      "minY": 34.82862,
+      "maxY": 35.17138
+    },
+    {
+      "id": "solid:polySurface132.007",
+      "kind": "solid",
+      "sources": ["polySurface132.007"],
+      "minX": 19.50211,
+      "maxX": 19.89789,
+      "minY": 14.82862,
+      "maxY": 15.17138
+    },
+    {
+      "id": "solid:polySurface132.008",
+      "kind": "solid",
+      "sources": ["polySurface132.008"],
+      "minX": 19.50211,
+      "maxX": 19.89789,
+      "minY": -7.17138,
+      "maxY": -6.82862
+    },
+    {
+      "id": "solid:polySurface132.009",
+      "kind": "solid",
+      "sources": ["polySurface132.009"],
+      "minX": 19.50211,
+      "maxX": 19.89789,
+      "minY": -35.17138,
+      "maxY": -34.82862
+    },
+    {
+      "id": "solid:polySurface136.001",
+      "kind": "solid",
+      "sources": ["polySurface136.001"],
+      "minX": -18.5423,
+      "maxX": -18.45769,
+      "minY": 19.54386,
+      "maxY": 19.62433
+    },
+    {
+      "id": "solid:polySurface136.002",
+      "kind": "solid",
+      "sources": ["polySurface136.002"],
+      "minX": -29.5423,
+      "maxX": -29.45769,
+      "minY": -19.65614,
+      "maxY": -19.57567
+    },
+    {
+      "id": "solid:polySurface137.001",
+      "kind": "solid",
+      "sources": ["polySurface137.001"],
+      "minX": 19.5577,
+      "maxX": 19.6423,
+      "minY": -18.55614,
+      "maxY": -18.47567
+    },
+    {
+      "id": "solid:polySurface137.002",
+      "kind": "solid",
+      "sources": ["polySurface137.002"],
+      "minX": 29.4577,
+      "maxX": 29.54231,
+      "minY": 19.54386,
+      "maxY": 19.62433
+    },
+    {
+      "id": "solid:polySurface1389.001",
+      "kind": "solid",
+      "sources": ["polySurface1389.001"],
+      "minX": -28.86106,
+      "maxX": -28.53894,
+      "minY": 41.74646,
+      "maxY": 42.02542
+    },
+    {
+      "id": "solid:polySurface1389.002",
+      "kind": "solid",
+      "sources": ["polySurface1389.002"],
+      "minX": -28.86106,
+      "maxX": -28.53894,
+      "minY": 5.74646,
+      "maxY": 6.02542
+    },
+    {
+      "id": "solid:polySurface1389.003",
+      "kind": "solid",
+      "sources": ["polySurface1389.003"],
+      "minX": -28.86106,
+      "maxX": -28.53894,
+      "minY": -30.25354,
+      "maxY": -29.97458
+    },
+    {
+      "id": "solid:polySurface1389.004",
+      "kind": "solid",
+      "sources": ["polySurface1389.004"],
+      "minX": -28.86106,
+      "maxX": -28.53894,
+      "minY": -66.25355,
+      "maxY": -65.97457
+    },
+    {
+      "id": "solid:polySurface1389.005",
+      "kind": "solid",
+      "sources": ["polySurface1389.005"],
+      "minX": 28.53894,
+      "maxX": 28.86106,
+      "minY": 41.74646,
+      "maxY": 42.02542
+    },
+    {
+      "id": "solid:polySurface1389.006",
+      "kind": "solid",
+      "sources": ["polySurface1389.006"],
+      "minX": 28.53894,
+      "maxX": 28.86106,
+      "minY": 5.74646,
+      "maxY": 6.02542
+    },
+    {
+      "id": "solid:polySurface1389.007",
+      "kind": "solid",
+      "sources": ["polySurface1389.007"],
+      "minX": 28.53894,
+      "maxX": 28.86106,
+      "minY": -30.25354,
+      "maxY": -29.97458
+    },
+    {
+      "id": "solid:polySurface1389.008",
+      "kind": "solid",
+      "sources": ["polySurface1389.008"],
+      "minX": 28.53894,
+      "maxX": 28.86106,
+      "minY": -66.25355,
+      "maxY": -65.97457
+    },
+    {
+      "id": "solid:polySurface1391.001",
+      "kind": "solid",
+      "sources": ["polySurface1391.001"],
+      "minX": -17.95838,
+      "maxX": -17.54162,
+      "minY": 19.41953,
+      "maxY": 19.78047
+    },
+    {
+      "id": "solid:polySurface1391.002",
+      "kind": "solid",
+      "sources": ["polySurface1391.002"],
+      "minX": 20.14162,
+      "maxX": 20.55839,
+      "minY": -18.68047,
+      "maxY": -18.31953
+    },
+    {
+      "id": "solid:polySurface1391.003",
+      "kind": "solid",
+      "sources": ["polySurface1391.003"],
+      "minX": -28.95838,
+      "maxX": -28.54162,
+      "minY": -19.78047,
+      "maxY": -19.41953
+    },
+    {
+      "id": "solid:polySurface1391.004",
+      "kind": "solid",
+      "sources": ["polySurface1391.004"],
+      "minX": 30.04162,
+      "maxX": 30.45838,
+      "minY": 19.41953,
+      "maxY": 19.78047
+    },
+    {
+      "id": "solid:polySurface1982.001",
+      "kind": "solid",
+      "sources": ["polySurface1982.001"],
+      "minX": -13.49244,
+      "maxX": -13.20757,
+      "minY": 17.47816,
+      "maxY": 17.92184
+    },
+    {
+      "id": "solid:polySurface1982.002",
+      "kind": "solid",
+      "sources": ["polySurface1982.002"],
+      "minX": -1.49244,
+      "maxX": -1.20756,
+      "minY": 17.47816,
+      "maxY": 17.92184
+    },
+    {
+      "id": "solid:polySurface1982.003",
+      "kind": "solid",
+      "sources": ["polySurface1982.003"],
+      "minX": 10.50756,
+      "maxX": 10.79243,
+      "minY": 17.47816,
+      "maxY": 17.92184
+    },
+    {
+      "id": "solid:polySurface1982.004",
+      "kind": "solid",
+      "sources": ["polySurface1982.004"],
+      "minX": -10.79243,
+      "maxX": -10.50756,
+      "minY": -17.92184,
+      "maxY": -17.47816
+    },
+    {
+      "id": "solid:polySurface1982.005",
+      "kind": "solid",
+      "sources": ["polySurface1982.005"],
+      "minX": 1.20756,
+      "maxX": 1.49244,
+      "minY": -17.92184,
+      "maxY": -17.47816
+    },
+    {
+      "id": "solid:polySurface1982.006",
+      "kind": "solid",
+      "sources": ["polySurface1982.006"],
+      "minX": 13.20757,
+      "maxX": 13.49244,
+      "minY": -17.92184,
+      "maxY": -17.47816
+    },
+    {
+      "id": "solid:polySurface1982.007",
+      "kind": "solid",
+      "sources": ["polySurface1982.007"],
+      "minX": -10.79243,
+      "maxX": -10.50756,
+      "minY": 32.07815,
+      "maxY": 32.52184
+    },
+    {
+      "id": "solid:polySurface1982.008",
+      "kind": "solid",
+      "sources": ["polySurface1982.008"],
+      "minX": 1.20756,
+      "maxX": 1.49244,
+      "minY": 32.07815,
+      "maxY": 32.52184
+    },
+    {
+      "id": "solid:polySurface1982.009",
+      "kind": "solid",
+      "sources": ["polySurface1982.009"],
+      "minX": 13.20757,
+      "maxX": 13.49244,
+      "minY": 32.07815,
+      "maxY": 32.52184
+    },
+    {
+      "id": "solid:polySurface1982.010",
+      "kind": "solid",
+      "sources": ["polySurface1982.010"],
+      "minX": -13.49244,
+      "maxX": -13.20757,
+      "minY": -32.52184,
+      "maxY": -32.07815
+    },
+    {
+      "id": "solid:polySurface1982.011",
+      "kind": "solid",
+      "sources": ["polySurface1982.011"],
+      "minX": -1.49244,
+      "maxX": -1.20756,
+      "minY": -32.52184,
+      "maxY": -32.07815
+    },
+    {
+      "id": "solid:polySurface1982.012",
+      "kind": "solid",
+      "sources": ["polySurface1982.012"],
+      "minX": 10.50756,
+      "maxX": 10.79243,
+      "minY": -32.52184,
+      "maxY": -32.07815
+    },
+    {
+      "id": "solid:polySurface1982.013",
+      "kind": "solid",
+      "sources": ["polySurface1982.013"],
+      "minX": -32.52184,
+      "maxX": -32.07815,
+      "minY": 13.20757,
+      "maxY": 13.49244
+    },
+    {
+      "id": "solid:polySurface1982.014",
+      "kind": "solid",
+      "sources": ["polySurface1982.014"],
+      "minX": -32.52184,
+      "maxX": -32.07815,
+      "minY": -10.79243,
+      "maxY": -10.50756
+    },
+    {
+      "id": "solid:polySurface1982.015",
+      "kind": "solid",
+      "sources": ["polySurface1982.015"],
+      "minX": 32.07815,
+      "maxX": 32.52184,
+      "minY": 10.50756,
+      "maxY": 10.79243
+    },
+    {
+      "id": "solid:polySurface1982.016",
+      "kind": "solid",
+      "sources": ["polySurface1982.016"],
+      "minX": 32.07815,
+      "maxX": 32.52184,
+      "minY": -13.49244,
+      "maxY": -13.20757
+    },
+    {
+      "id": "solid:polySurface2271.001",
+      "kind": "solid",
+      "sources": ["polySurface2271.001"],
+      "minX": -10.57548,
+      "maxX": -9.82452,
+      "minY": 4.17483,
+      "maxY": 4.82517
+    },
+    {
+      "id": "solid:polySurface2271.002",
+      "kind": "solid",
+      "sources": ["polySurface2271.002"],
+      "minX": -14.17548,
+      "maxX": -13.42452,
+      "minY": -4.82517,
+      "maxY": -4.17483
+    },
+    {
+      "id": "solid:polySurface2271.003",
+      "kind": "solid",
+      "sources": ["polySurface2271.003"],
+      "minX": -14.17548,
+      "maxX": -13.42452,
+      "minY": 45.17483,
+      "maxY": 45.82517
+    },
+    {
+      "id": "solid:polySurface2271.004",
+      "kind": "solid",
+      "sources": ["polySurface2271.004"],
+      "minX": -10.57548,
+      "maxX": -9.82452,
+      "minY": -45.82517,
+      "maxY": -45.17483
+    },
+    {
+      "id": "solid:polySurface2271.005",
+      "kind": "solid",
+      "sources": ["polySurface2271.005"],
+      "minX": -45.82517,
+      "maxX": -45.17483,
+      "minY": 9.82452,
+      "maxY": 10.57548
+    },
+    {
+      "id": "solid:polySurface2271.006",
+      "kind": "solid",
+      "sources": ["polySurface2271.006"],
+      "minX": 45.17483,
+      "maxX": 45.82517,
+      "minY": -10.57548,
+      "maxY": -9.82452
+    },
+    {
+      "id": "solid:polySurface2374.001",
+      "kind": "solid",
+      "sources": ["polySurface2374.001"],
+      "minX": -13.61378,
+      "maxX": -12.38622,
+      "minY": 4.579,
+      "maxY": 5.421
+    },
+    {
+      "id": "solid:polySurface2374.002",
+      "kind": "solid",
+      "sources": ["polySurface2374.002"],
+      "minX": -11.61378,
+      "maxX": -10.38622,
+      "minY": -5.421,
+      "maxY": -4.579
+    },
+    {
+      "id": "solid:polySurface2374.003",
+      "kind": "solid",
+      "sources": ["polySurface2374.003"],
+      "minX": -11.61378,
+      "maxX": -10.38622,
+      "minY": 44.579,
+      "maxY": 45.421
+    },
+    {
+      "id": "solid:polySurface2374.004",
+      "kind": "solid",
+      "sources": ["polySurface2374.004"],
+      "minX": -13.61378,
+      "maxX": -12.38622,
+      "minY": -45.421,
+      "maxY": -44.579
+    },
+    {
+      "id": "solid:polySurface2374.005",
+      "kind": "solid",
+      "sources": ["polySurface2374.005"],
+      "minX": -45.421,
+      "maxX": -44.579,
+      "minY": 12.38622,
+      "maxY": 13.61378
+    },
+    {
+      "id": "solid:polySurface2374.006",
+      "kind": "solid",
+      "sources": ["polySurface2374.006"],
+      "minX": 44.579,
+      "maxX": 45.421,
+      "minY": -13.61378,
+      "maxY": -12.38622
+    },
+    {
+      "id": "solid:polySurface71.001",
+      "kind": "solid",
+      "sources": ["polySurface71.001"],
+      "minX": 18.03123,
+      "maxX": 30.1325,
+      "minY": 4.10932,
+      "maxY": 5.89068
+    },
+    {
+      "id": "tree:Enrichment Tree 001",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 001"],
+      "minX": 70.91888,
+      "maxX": 71.75796,
+      "minY": -33.56379,
+      "maxY": -32.46328
+    },
+    {
+      "id": "tree:Enrichment Tree 002",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 002"],
+      "minX": -74.3196,
+      "maxX": -73.36143,
+      "minY": -15.92144,
+      "maxY": -15.33938
+    },
+    {
+      "id": "tree:Enrichment Tree 003",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 003"],
+      "minX": -33.81114,
+      "maxX": -32.87551,
+      "minY": 48.30941,
+      "maxY": 49.43377
+    },
+    {
+      "id": "tree:Enrichment Tree 004",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 004"],
+      "minX": -71.97882,
+      "maxX": -71.14479,
+      "minY": 8.93317,
+      "maxY": 10.03269
+    },
+    {
+      "id": "tree:Enrichment Tree 005",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 005"],
+      "minX": 47.38557,
+      "maxX": 48.3342,
+      "minY": 12.18107,
+      "maxY": 12.75638
+    },
+    {
+      "id": "tree:Enrichment Tree 006",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 006"],
+      "minX": 70.80028,
+      "maxX": 71.72179,
+      "minY": 68.0882,
+      "maxY": 68.64431
+    },
+    {
+      "id": "tree:Enrichment Tree 007",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 007"],
+      "minX": -72.22664,
+      "maxX": -71.07107,
+      "minY": 2.62669,
+      "maxY": 3.34849
+    },
+    {
+      "id": "tree:Enrichment Tree 008",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 008"],
+      "minX": -51.27783,
+      "maxX": -50.44598,
+      "minY": 35.13186,
+      "maxY": 36.23096
+    },
+    {
+      "id": "tree:Enrichment Tree 009",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 009"],
+      "minX": -74.2996,
+      "maxX": -73.37831,
+      "minY": -51.91175,
+      "maxY": -51.35578
+    },
+    {
+      "id": "tree:Enrichment Tree 010",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 010"],
+      "minX": -73.28907,
+      "maxX": -72.20279,
+      "minY": 68.0449,
+      "maxY": 68.71765
+    },
+    {
+      "id": "tree:Enrichment Tree 011",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 011"],
+      "minX": 68.5418,
+      "maxX": 69.57117,
+      "minY": 45.15986,
+      "maxY": 45.79233
+    },
+    {
+      "id": "tree:Enrichment Tree 012",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 012"],
+      "minX": 68.51995,
+      "maxX": 69.5896,
+      "minY": 9.14927,
+      "maxY": 9.81026
+    },
+    {
+      "id": "tree:Enrichment Tree 013",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 013"],
+      "minX": 71.80807,
+      "maxX": 72.89963,
+      "minY": 32.04352,
+      "maxY": 32.72
+    },
+    {
+      "id": "tree:Enrichment Tree 014",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 014"],
+      "minX": 74.07545,
+      "maxX": 75.04276,
+      "minY": -51.92384,
+      "maxY": -51.3353
+    },
+    {
+      "id": "tree:Enrichment Tree 015",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 015"],
+      "minX": 73.6453,
+      "maxX": 74.86325,
+      "minY": -14.65202,
+      "maxY": -13.49356
+    },
+    {
+      "id": "tree:Enrichment Tree 016",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 016"],
+      "minX": 71.55787,
+      "maxX": 73.02107,
+      "minY": -40.16432,
+      "maxY": -39.13799
+    },
+    {
+      "id": "tree:Enrichment Tree 017",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 017"],
+      "minX": -39.85439,
+      "maxX": -38.63685,
+      "minY": 48.64803,
+      "maxY": 49.80606
+    },
+    {
+      "id": "tree:Enrichment Tree 018",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 018"],
+      "minX": -74.59444,
+      "maxX": -73.58095,
+      "minY": 14.86799,
+      "maxY": 15.80608
+    },
+    {
+      "id": "tree:Enrichment Tree 019",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 019"],
+      "minX": 44.70817,
+      "maxX": 45.57084,
+      "minY": -49.94964,
+      "maxY": -48.8445
+    },
+    {
+      "id": "tree:Enrichment Tree 020",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 020"],
+      "minX": 73.00613,
+      "maxX": 73.91684,
+      "minY": 68.09103,
+      "maxY": 68.6395
+    },
+    {
+      "id": "tree:Enrichment Tree 021",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 021"],
+      "minX": -72.1263,
+      "maxX": -71.15576,
+      "minY": -3.92469,
+      "maxY": -3.33387
+    },
+    {
+      "id": "tree:Enrichment Tree 022",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 022"],
+      "minX": 12.33078,
+      "maxX": 13.14367,
+      "minY": -48.37952,
+      "maxY": -47.28413
+    },
+    {
+      "id": "tree:Enrichment Tree 023",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 023"],
+      "minX": 71.63065,
+      "maxX": 72.61213,
+      "minY": 50.85857,
+      "maxY": 51.77471
+    },
+    {
+      "id": "tree:Enrichment Tree 024",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 024"],
+      "minX": -45.0541,
+      "maxX": -44.09207,
+      "minY": -70.25353,
+      "maxY": -69.34436
+    },
+    {
+      "id": "tree:Enrichment Tree 025",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 025"],
+      "minX": 68.55857,
+      "maxX": 69.55702,
+      "minY": 13.56797,
+      "maxY": 14.17855
+    },
+    {
+      "id": "tree:Enrichment Tree 026",
+      "kind": "tree",
+      "sources": ["Enrichment Tree 026"],
+      "minX": 69.37558,
+      "maxX": 70.4273,
+      "minY": -9.13575,
+      "maxY": -8.15645
+    },
+    {
+      "id": "tree:Expansion Tree1",
+      "kind": "tree",
+      "sources": ["Expansion Tree1"],
+      "minX": -40.19463,
+      "maxX": -39.65604,
+      "minY": 39.26232,
+      "maxY": 39.99749
+    },
+    {
+      "id": "tree:Expansion Tree1.001",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.001"],
+      "minX": -44.34396,
+      "maxX": -43.80537,
+      "minY": 44.00251,
+      "maxY": 44.73768
+    },
+    {
+      "id": "tree:Expansion Tree1.002",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.002"],
+      "minX": -44.34396,
+      "maxX": -43.80537,
+      "minY": -39.99749,
+      "maxY": -39.26232
+    },
+    {
+      "id": "tree:Expansion Tree1.003",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.003"],
+      "minX": 39.65604,
+      "maxX": 40.19463,
+      "minY": 44.00251,
+      "maxY": 44.73768
+    },
+    {
+      "id": "tree:Expansion Tree1.004",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.004"],
+      "minX": 39.65604,
+      "maxX": 40.19463,
+      "minY": -39.99749,
+      "maxY": -39.26232
+    },
+    {
+      "id": "tree:Expansion Tree1.005",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.005"],
+      "minX": 43.80537,
+      "maxX": 44.34396,
+      "minY": -44.73768,
+      "maxY": -44.00251
+    },
+    {
+      "id": "tree:Expansion Tree1.006",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.006"],
+      "minX": -75.99749,
+      "maxX": -75.26232,
+      "minY": 31.80537,
+      "maxY": 32.34396
+    },
+    {
+      "id": "tree:Expansion Tree1.007",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.007"],
+      "minX": -75.99749,
+      "maxX": -75.26232,
+      "minY": -16.19463,
+      "maxY": -15.65604
+    },
+    {
+      "id": "tree:Expansion Tree1.008",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.008"],
+      "minX": -75.99749,
+      "maxX": -75.26232,
+      "minY": -76.19462,
+      "maxY": -75.65603
+    },
+    {
+      "id": "tree:Expansion Tree1.009",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.009"],
+      "minX": -16.19463,
+      "maxX": -15.65604,
+      "minY": 75.26232,
+      "maxY": 75.99749
+    },
+    {
+      "id": "tree:Expansion Tree1.010",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.010"],
+      "minX": 31.80537,
+      "maxX": 32.34396,
+      "minY": 75.26232,
+      "maxY": 75.99749
+    },
+    {
+      "id": "tree:Expansion Tree1.011",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.011"],
+      "minX": 75.27935,
+      "maxX": 76.5775,
+      "minY": 51.33437,
+      "maxY": 52.75347
+    },
+    {
+      "id": "tree:Expansion Tree1.012",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.012"],
+      "minX": 75.26232,
+      "maxX": 75.99749,
+      "minY": 3.65604,
+      "maxY": 4.19463
+    },
+    {
+      "id": "tree:Expansion Tree1.013",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.013"],
+      "minX": 75.26232,
+      "maxX": 75.99749,
+      "minY": -44.34396,
+      "maxY": -43.80537
+    },
+    {
+      "id": "tree:Expansion Tree1.014",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.014"],
+      "minX": -32.34396,
+      "maxX": -31.80537,
+      "minY": -75.99749,
+      "maxY": -75.26232
+    },
+    {
+      "id": "tree:Expansion Tree1.015",
+      "kind": "tree",
+      "sources": ["Expansion Tree1.015"],
+      "minX": 15.65604,
+      "maxX": 16.19463,
+      "minY": -75.99749,
+      "maxY": -75.26232
+    },
+    {
+      "id": "tree:Expansion Tree2",
+      "kind": "tree",
+      "sources": ["Expansion Tree2"],
+      "minX": -32.52067,
+      "maxX": -31.91202,
+      "minY": 44.22409,
+      "maxY": 44.93847
+    },
+    {
+      "id": "tree:Expansion Tree2.001",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.001"],
+      "minX": -32.52067,
+      "maxX": -31.91202,
+      "minY": -39.77591,
+      "maxY": -39.06153
+    },
+    {
+      "id": "tree:Expansion Tree2.002",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.002"],
+      "minX": -52.08798,
+      "maxX": -51.47933,
+      "minY": -44.93847,
+      "maxY": -44.22409
+    },
+    {
+      "id": "tree:Expansion Tree2.003",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.003"],
+      "minX": 43.91202,
+      "maxX": 44.52067,
+      "minY": 39.06153,
+      "maxY": 39.77591
+    },
+    {
+      "id": "tree:Expansion Tree2.004",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.004"],
+      "minX": 31.91202,
+      "maxX": 32.52067,
+      "minY": -44.93847,
+      "maxY": -44.22409
+    },
+    {
+      "id": "tree:Expansion Tree2.005",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.005"],
+      "minX": -75.77591,
+      "maxX": -75.06153,
+      "minY": 67.91203,
+      "maxY": 68.52067
+    },
+    {
+      "id": "tree:Expansion Tree2.006",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.006"],
+      "minX": -75.77591,
+      "maxX": -75.06153,
+      "minY": 7.91202,
+      "maxY": 8.52067
+    },
+    {
+      "id": "tree:Expansion Tree2.007",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.007"],
+      "minX": -75.77591,
+      "maxX": -75.06153,
+      "minY": -40.08798,
+      "maxY": -39.47933
+    },
+    {
+      "id": "tree:Expansion Tree2.008",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.008"],
+      "minX": -52.08798,
+      "maxX": -51.47933,
+      "minY": 75.06153,
+      "maxY": 75.77591
+    },
+    {
+      "id": "tree:Expansion Tree2.009",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.009"],
+      "minX": -4.08798,
+      "maxX": -3.47933,
+      "minY": 75.06153,
+      "maxY": 75.77591
+    },
+    {
+      "id": "tree:Expansion Tree2.010",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.010"],
+      "minX": 43.91202,
+      "maxX": 44.52067,
+      "minY": 75.06153,
+      "maxY": 75.77591
+    },
+    {
+      "id": "tree:Expansion Tree2.011",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.011"],
+      "minX": 74.2293,
+      "maxX": 76.26975,
+      "minY": 39.90288,
+      "maxY": 42.09934
+    },
+    {
+      "id": "tree:Expansion Tree2.012",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.012"],
+      "minX": 74.46265,
+      "maxX": 76.07971,
+      "minY": -9.13743,
+      "maxY": -7.44842
+    },
+    {
+      "id": "tree:Expansion Tree2.013",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.013"],
+      "minX": 75.06153,
+      "maxX": 75.77591,
+      "minY": -68.52067,
+      "maxY": -67.91203
+    },
+    {
+      "id": "tree:Expansion Tree2.014",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.014"],
+      "minX": -8.52067,
+      "maxX": -7.91202,
+      "minY": -75.77591,
+      "maxY": -75.06153
+    },
+    {
+      "id": "tree:Expansion Tree2.015",
+      "kind": "tree",
+      "sources": ["Expansion Tree2.015"],
+      "minX": 39.47933,
+      "maxX": 40.08798,
+      "minY": -75.77591,
+      "maxY": -75.06153
+    },
+    {
+      "id": "tree:Expansion Tree3",
+      "kind": "tree",
+      "sources": ["Expansion Tree3"],
+      "minX": -52.27921,
+      "maxX": -51.67213,
+      "minY": 39.4708,
+      "maxY": 39.80434
+    },
+    {
+      "id": "tree:Expansion Tree3.001",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.001"],
+      "minX": -40.27921,
+      "maxX": -39.67213,
+      "minY": -44.5292,
+      "maxY": -44.19566
+    },
+    {
+      "id": "tree:Expansion Tree3.002",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.002"],
+      "minX": 31.72079,
+      "maxX": 32.32787,
+      "minY": 39.4708,
+      "maxY": 39.80434
+    },
+    {
+      "id": "tree:Expansion Tree3.003",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.003"],
+      "minX": 51.67213,
+      "maxX": 52.27921,
+      "minY": 44.19566,
+      "maxY": 44.5292
+    },
+    {
+      "id": "tree:Expansion Tree3.004",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.004"],
+      "minX": 51.67213,
+      "maxX": 52.27921,
+      "minY": -39.80434,
+      "maxY": -39.4708
+    },
+    {
+      "id": "tree:Expansion Tree3.005",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.005"],
+      "minX": -75.80434,
+      "maxX": -75.4708,
+      "minY": 43.72079,
+      "maxY": 44.32787
+    },
+    {
+      "id": "tree:Expansion Tree3.006",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.006"],
+      "minX": -75.80434,
+      "maxX": -75.4708,
+      "minY": -4.27921,
+      "maxY": -3.67213
+    },
+    {
+      "id": "tree:Expansion Tree3.007",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.007"],
+      "minX": -75.80434,
+      "maxX": -75.4708,
+      "minY": -52.27921,
+      "maxY": -51.67213
+    },
+    {
+      "id": "tree:Expansion Tree3.008",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.008"],
+      "minX": -40.27921,
+      "maxX": -39.67213,
+      "minY": 75.4708,
+      "maxY": 75.80434
+    },
+    {
+      "id": "tree:Expansion Tree3.009",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.009"],
+      "minX": 7.72079,
+      "maxX": 8.32787,
+      "minY": 75.4708,
+      "maxY": 75.80434
+    },
+    {
+      "id": "tree:Expansion Tree3.010",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.010"],
+      "minX": 75.4708,
+      "maxX": 75.80434,
+      "minY": 75.67213,
+      "maxY": 76.27921
+    },
+    {
+      "id": "tree:Expansion Tree3.011",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.011"],
+      "minX": 75.4708,
+      "maxX": 75.80434,
+      "minY": 15.67213,
+      "maxY": 16.27921
+    },
+    {
+      "id": "tree:Expansion Tree3.012",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.012"],
+      "minX": 75.10547,
+      "maxX": 76.06079,
+      "minY": -32.60761,
+      "maxY": -31.11306
+    },
+    {
+      "id": "tree:Expansion Tree3.013",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.013"],
+      "minX": -44.32787,
+      "maxX": -43.72079,
+      "minY": -75.80434,
+      "maxY": -75.4708
+    },
+    {
+      "id": "tree:Expansion Tree3.014",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.014"],
+      "minX": 3.67213,
+      "maxX": 4.27921,
+      "minY": -75.80434,
+      "maxY": -75.4708
+    },
+    {
+      "id": "tree:Expansion Tree3.015",
+      "kind": "tree",
+      "sources": ["Expansion Tree3.015"],
+      "minX": 51.67213,
+      "maxX": 52.27921,
+      "minY": -75.80434,
+      "maxY": -75.4708
+    },
+    {
+      "id": "tree:Green Space Tree 001",
+      "kind": "tree",
+      "sources": ["Green Space Tree 001"],
+      "minX": -16.11905,
+      "maxX": -14.35503,
+      "minY": 50.122,
+      "maxY": 51.86632
+    },
+    {
+      "id": "tree:Green Space Tree 002",
+      "kind": "tree",
+      "sources": ["Green Space Tree 002"],
+      "minX": 50.74612,
+      "maxX": 51.91768,
+      "minY": -12.11785,
+      "maxY": -10.83006
+    },
+    {
+      "id": "tree:Green Space Tree 003",
+      "kind": "tree",
+      "sources": ["Green Space Tree 003"],
+      "minX": 3.83798,
+      "maxX": 5.04811,
+      "minY": -51.88492,
+      "maxY": -50.80291
+    },
+    {
+      "id": "tree:Green Space Tree 004",
+      "kind": "tree",
+      "sources": ["Green Space Tree 004"],
+      "minX": 50.21876,
+      "maxX": 51.86126,
+      "minY": 4.18733,
+      "maxY": 5.76735
+    },
+    {
+      "id": "tree:Green Space Tree 005",
+      "kind": "tree",
+      "sources": ["Green Space Tree 005"],
+      "minX": -9.82111,
+      "maxX": -8.36049,
+      "minY": 50.60739,
+      "maxY": 52.29735
+    },
+    {
+      "id": "tree:Green Space Tree 006",
+      "kind": "tree",
+      "sources": ["Green Space Tree 006"],
+      "minX": 50.89267,
+      "maxX": 52.25531,
+      "minY": 0.28347,
+      "maxY": 1.36006
+    },
+    {
+      "id": "tree:Green Space Tree 007",
+      "kind": "tree",
+      "sources": ["Green Space Tree 007"],
+      "minX": -49.95548,
+      "maxX": -48.58695,
+      "minY": 2.50826,
+      "maxY": 3.67479
+    },
+    {
+      "id": "tree:Green Space Tree 008",
+      "kind": "tree",
+      "sources": ["Green Space Tree 008"],
+      "minX": 48.40762,
+      "maxX": 50.22348,
+      "minY": -3.76897,
+      "maxY": -1.78345
+    },
+    {
+      "id": "tree:Green Space Tree 009",
+      "kind": "tree",
+      "sources": ["Green Space Tree 009"],
+      "minX": 17.22493,
+      "maxX": 17.87027,
+      "minY": -51.88052,
+      "maxY": -50.84561
+    },
+    {
+      "id": "tree:Green Space Tree 010",
+      "kind": "tree",
+      "sources": ["Green Space Tree 010"],
+      "minX": 50.96551,
+      "maxX": 51.92996,
+      "minY": 11.10422,
+      "maxY": 12.38687
+    },
+    {
+      "id": "tree:Green Space Tree 011",
+      "kind": "tree",
+      "sources": ["Green Space Tree 011"],
+      "minX": -3.47284,
+      "maxX": -2.23246,
+      "minY": 50.81136,
+      "maxY": 52.15285
+    },
+    {
+      "id": "tree:Green Space Tree 012",
+      "kind": "tree",
+      "sources": ["Green Space Tree 012"],
+      "minX": 4.64655,
+      "maxX": 5.75757,
+      "minY": 50.92763,
+      "maxY": 51.95938
+    },
+    {
+      "id": "tree:Green Space Tree 013",
+      "kind": "tree",
+      "sources": ["Green Space Tree 013"],
+      "minX": -9.47429,
+      "maxX": -8.82699,
+      "minY": 34.11835,
+      "maxY": 35.15337
+    },
+    {
+      "id": "tree:Green Space Tree 014",
+      "kind": "tree",
+      "sources": ["Green Space Tree 014"],
+      "minX": 0.2984,
+      "maxX": 1.82105,
+      "minY": -52.33585,
+      "maxY": -50.98108
+    },
+    {
+      "id": "tree:Green Space Tree 015",
+      "kind": "tree",
+      "sources": ["Green Space Tree 015"],
+      "minX": 13.59765,
+      "maxX": 14.73297,
+      "minY": -52.19908,
+      "maxY": -51.2411
+    },
+    {
+      "id": "tree:Green Space Tree 016",
+      "kind": "tree",
+      "sources": ["Green Space Tree 016"],
+      "minX": -10.10972,
+      "maxX": -9.23337,
+      "minY": -51.76667,
+      "maxY": -50.69647
+    },
+    {
+      "id": "tree:Green Space Tree 017",
+      "kind": "tree",
+      "sources": ["Green Space Tree 017"],
+      "minX": -45.29982,
+      "maxX": -44.67031,
+      "minY": -47.89583,
+      "maxY": -46.86594
+    },
+    {
+      "id": "tree:Green Space Tree 018",
+      "kind": "tree",
+      "sources": ["Green Space Tree 018"],
+      "minX": -13.99256,
+      "maxX": -12.96848,
+      "minY": 29.95083,
+      "maxY": 30.56993
+    },
+    {
+      "id": "tree:Green Space Tree 019",
+      "kind": "tree",
+      "sources": ["Green Space Tree 019"],
+      "minX": -0.23774,
+      "maxX": 1.13123,
+      "minY": 50.87536,
+      "maxY": 52.19869
+    },
+    {
+      "id": "tree:Green Space Tree 020",
+      "kind": "tree",
+      "sources": ["Green Space Tree 020"],
+      "minX": -51.59973,
+      "maxX": -50.65714,
+      "minY": -9.82717,
+      "maxY": -8.75782
+    },
+    {
+      "id": "tree:Green Space Tree 021",
+      "kind": "tree",
+      "sources": ["Green Space Tree 021"],
+      "minX": -5.15701,
+      "maxX": -4.03801,
+      "minY": -52.52893,
+      "maxY": -51.25565
+    },
+    {
+      "id": "tree:Green Space Tree 022",
+      "kind": "tree",
+      "sources": ["Green Space Tree 022"],
+      "minX": 8.7264,
+      "maxX": 11.02835,
+      "minY": 49.8539,
+      "maxY": 52.19404
+    },
+    {
+      "id": "tree:Green Space Tree 023",
+      "kind": "tree",
+      "sources": ["Green Space Tree 023"],
+      "minX": 13.92773,
+      "maxX": 16.27687,
+      "minY": 50.72756,
+      "maxY": 52.82686
+    },
+    {
+      "id": "tree:Green Space Tree 024",
+      "kind": "tree",
+      "sources": ["Green Space Tree 024"],
+      "minX": -35.22891,
+      "maxX": -34.36281,
+      "minY": -9.89842,
+      "maxY": -9.06632
+    },
+    {
+      "id": "tree:Green Space Tree 025",
+      "kind": "tree",
+      "sources": ["Green Space Tree 025"],
+      "minX": -52.53876,
+      "maxX": -51.1396,
+      "minY": 13.69205,
+      "maxY": 15.18705
+    },
+    {
+      "id": "tree:Green Space Tree 026",
+      "kind": "tree",
+      "sources": ["Green Space Tree 026"],
+      "minX": -16.08904,
+      "maxX": -14.82964,
+      "minY": -52.28862,
+      "maxY": -50.8113
+    },
+    {
+      "id": "tree:Green Space Tree 027",
+      "kind": "tree",
+      "sources": ["Green Space Tree 027"],
+      "minX": 50.95347,
+      "maxX": 52.02017,
+      "minY": -7.44143,
+      "maxY": -6.20496
+    },
+    {
+      "id": "tree:Green Space Tree 028",
+      "kind": "tree",
+      "sources": ["Green Space Tree 028"],
+      "minX": 8.41159,
+      "maxX": 10.25556,
+      "minY": -53.27926,
+      "maxY": -51.27114
+    },
+    {
+      "id": "tree:Green Space Tree 029",
+      "kind": "tree",
+      "sources": ["Green Space Tree 029"],
+      "minX": 50.73528,
+      "maxX": 52.02427,
+      "minY": 15.62246,
+      "maxY": 17.01617
+    },
+    {
+      "id": "tree:Green Space Tree 030",
+      "kind": "tree",
+      "sources": ["Green Space Tree 030"],
+      "minX": 50.33428,
+      "maxX": 51.53265,
+      "minY": -16.58544,
+      "maxY": -15.3003
+    },
+    {
+      "id": "tree:polySurface126.001",
+      "kind": "tree",
+      "sources": ["polySurface126.001"],
+      "minX": -54.16467,
+      "maxX": -52.70045,
+      "minY": 6.34711,
+      "maxY": 7.875
+    },
+    {
+      "id": "tree:polySurface126.002",
+      "kind": "tree",
+      "sources": ["polySurface126.002"],
+      "minX": -49.44846,
+      "maxX": -47.63032,
+      "minY": -5.04723,
+      "maxY": -3.14893
+    },
+    {
+      "id": "tree:polySurface127.001",
+      "kind": "tree",
+      "sources": ["polySurface127.001"],
+      "minX": -17.30545,
+      "maxX": -15.1127,
+      "minY": 2.94175,
+      "maxY": 5.26476
+    },
+    {
+      "id": "tree:polySurface127.002",
+      "kind": "tree",
+      "sources": ["polySurface127.002"],
+      "minX": -3.81123,
+      "maxX": -1.6479,
+      "minY": 4.48477,
+      "maxY": 6.77572
+    },
+    {
+      "id": "tree:polySurface127.003",
+      "kind": "tree",
+      "sources": ["polySurface127.003"],
+      "minX": 6.76051,
+      "maxX": 8.87315,
+      "minY": 2.94998,
+      "maxY": 5.18567
+    },
+    {
+      "id": "tree:polySurface127.004",
+      "kind": "tree",
+      "sources": ["polySurface127.004"],
+      "minX": -8.89246,
+      "maxX": -6.67046,
+      "minY": -5.29364,
+      "maxY": -2.93874
+    },
+    {
+      "id": "tree:polySurface127.005",
+      "kind": "tree",
+      "sources": ["polySurface127.005"],
+      "minX": 2.67786,
+      "maxX": 4.84138,
+      "minY": -17.11591,
+      "maxY": -14.82475
+    },
+    {
+      "id": "tree:polySurface127.006",
+      "kind": "tree",
+      "sources": ["polySurface127.006"],
+      "minX": 15.11123,
+      "maxX": 17.31232,
+      "minY": -5.27299,
+      "maxY": -2.94089
+    },
+    {
+      "id": "tree:polySurface127.007",
+      "kind": "tree",
+      "sources": ["polySurface127.007"],
+      "minX": -8.85174,
+      "maxX": -6.8603,
+      "minY": 44.93713,
+      "maxY": 47.03756
+    },
+    {
+      "id": "tree:polySurface127.008",
+      "kind": "tree",
+      "sources": ["polySurface127.008"],
+      "minX": 3.11704,
+      "maxX": 5.28525,
+      "minY": 44.75946,
+      "maxY": 47.05573
+    },
+    {
+      "id": "tree:polySurface127.009",
+      "kind": "tree",
+      "sources": ["polySurface127.009"],
+      "minX": 15.11844,
+      "maxX": 17.27872,
+      "minY": 44.76729,
+      "maxY": 47.05492
+    },
+    {
+      "id": "tree:polySurface127.010",
+      "kind": "tree",
+      "sources": ["polySurface127.010"],
+      "minX": -17.24758,
+      "maxX": -15.12512,
+      "minY": -47.05103,
+      "maxY": -44.80462
+    },
+    {
+      "id": "tree:polySurface127.011",
+      "kind": "tree",
+      "sources": ["polySurface127.011"],
+      "minX": -5.35059,
+      "maxX": -3.10302,
+      "minY": -47.06389,
+      "maxY": -44.68111
+    },
+    {
+      "id": "tree:polySurface127.012",
+      "kind": "tree",
+      "sources": ["polySurface127.012"],
+      "minX": 6.67266,
+      "maxX": 8.89199,
+      "minY": -47.06099,
+      "maxY": -44.70899
+    },
+    {
+      "id": "tree:polySurface127.013",
+      "kind": "tree",
+      "sources": ["polySurface127.013"],
+      "minX": -47.04823,
+      "maxX": -44.83148,
+      "minY": 15.12992,
+      "maxY": 17.22518
+    },
+    {
+      "id": "tree:polySurface127.014",
+      "kind": "tree",
+      "sources": ["polySurface127.014"],
+      "minX": -47.04668,
+      "maxX": -44.84639,
+      "minY": -8.86741,
+      "maxY": -6.78725
+    },
+    {
+      "id": "tree:polySurface127.015",
+      "kind": "tree",
+      "sources": ["polySurface127.015"],
+      "minX": 44.76121,
+      "maxX": 47.05555,
+      "minY": 6.71621,
+      "maxY": 8.88265
+    },
+    {
+      "id": "tree:polySurface127.016",
+      "kind": "tree",
+      "sources": ["polySurface127.016"],
+      "minX": 44.71954,
+      "maxX": 47.05989,
+      "minY": -17.31855,
+      "maxY": -15.10989
+    },
+    {
+      "id": "tree:polySurface131.001",
+      "kind": "tree",
+      "sources": ["polySurface131.001"],
+      "minX": -54.82542,
+      "maxX": -50.69185,
+      "minY": -0.32563,
+      "maxY": 3.8888
+    },
+    {
+      "id": "tree:polySurface131.002",
+      "kind": "tree",
+      "sources": ["polySurface131.002"],
+      "minX": -49.78202,
+      "maxX": -45.71073,
+      "minY": 6.1509,
+      "maxY": 10.45544
+    },
+    {
+      "id": "tree:polySurface131.003",
+      "kind": "tree",
+      "sources": ["polySurface131.003"],
+      "minX": -54.64528,
+      "maxX": -50.69711,
+      "minY": -15.74358,
+      "maxY": -11.69496
+    },
+    {
+      "id": "tree:polySurface131.004",
+      "kind": "tree",
+      "sources": ["polySurface131.004"],
+      "minX": -36.0528,
+      "maxX": -32.40982,
+      "minY": -0.17781,
+      "maxY": 3.65203
+    },
+    {
+      "id": "tree:polySurface131.005",
+      "kind": "tree",
+      "sources": ["polySurface131.005"],
+      "minX": -45.1145,
+      "maxX": -41.37158,
+      "minY": -0.17369,
+      "maxY": 3.54962
+    },
+    {
+      "id": "tree:polySurface131.006",
+      "kind": "tree",
+      "sources": ["polySurface131.006"],
+      "minX": -42.67193,
+      "maxX": -38.05049,
+      "minY": -3.91254,
+      "maxY": 0.32763
+    },
+    {
+      "id": "tree:polySurface131.007",
+      "kind": "tree",
+      "sources": ["polySurface131.007"],
+      "minX": 32.63815,
+      "maxX": 36.50507,
+      "minY": -0.11046,
+      "maxY": 3.62111
+    },
+    {
+      "id": "tree:polySurface131.008",
+      "kind": "tree",
+      "sources": ["polySurface131.008"],
+      "minX": 40.25929,
+      "maxX": 44.55105,
+      "minY": 0.1811,
+      "maxY": 4.356
+    },
+    {
+      "id": "tree:polySurface131.009",
+      "kind": "tree",
+      "sources": ["polySurface131.009"],
+      "minX": 37.63538,
+      "maxX": 41.59741,
+      "minY": -3.72173,
+      "maxY": 0.23223
+    },
+    {
+      "id": "tree:polySurface427.001",
+      "kind": "tree",
+      "sources": ["polySurface427.001"],
+      "minX": -8.67418,
+      "maxX": -8.19577,
+      "minY": 2.3725,
+      "maxY": 2.8275
+    },
+    {
+      "id": "tree:polySurface427.002",
+      "kind": "tree",
+      "sources": ["polySurface427.002"],
+      "minX": 3.31908,
+      "maxX": 3.81548,
+      "minY": 2.36395,
+      "maxY": 2.83605
+    },
+    {
+      "id": "tree:polySurface427.003",
+      "kind": "tree",
+      "sources": ["polySurface427.003"],
+      "minX": 15.34363,
+      "maxX": 15.77451,
+      "minY": 2.3951,
+      "maxY": 2.8049
+    },
+    {
+      "id": "tree:polySurface427.004",
+      "kind": "tree",
+      "sources": ["polySurface427.004"],
+      "minX": -15.76484,
+      "maxX": -15.34943,
+      "minY": -2.79754,
+      "maxY": -2.40246
+    },
+    {
+      "id": "tree:polySurface427.005",
+      "kind": "tree",
+      "sources": ["polySurface427.005"],
+      "minX": -0.08351,
+      "maxX": 0.32978,
+      "minY": -3.26653,
+      "maxY": -2.87347
+    },
+    {
+      "id": "tree:polySurface427.006",
+      "kind": "tree",
+      "sources": ["polySurface427.006"],
+      "minX": 8.1968,
+      "maxX": 8.67356,
+      "minY": -2.82671,
+      "maxY": -2.37329
+    },
+    {
+      "id": "tree:polySurface427.007",
+      "kind": "tree",
+      "sources": ["polySurface427.007"],
+      "minX": -15.79833,
+      "maxX": -15.32935,
+      "minY": 47.17699,
+      "maxY": 47.62301
+    },
+    {
+      "id": "tree:polySurface427.008",
+      "kind": "tree",
+      "sources": ["polySurface427.008"],
+      "minX": -3.81584,
+      "maxX": -3.31886,
+      "minY": 47.16368,
+      "maxY": 47.63633
+    },
+    {
+      "id": "tree:polySurface427.009",
+      "kind": "tree",
+      "sources": ["polySurface427.009"],
+      "minX": 8.22918,
+      "maxX": 8.65416,
+      "minY": 47.19791,
+      "maxY": 47.60209
+    },
+    {
+      "id": "tree:polySurface427.010",
+      "kind": "tree",
+      "sources": ["polySurface427.010"],
+      "minX": -8.65021,
+      "maxX": -8.23577,
+      "minY": -47.59708,
+      "maxY": -47.20292
+    },
+    {
+      "id": "tree:polySurface427.011",
+      "kind": "tree",
+      "sources": ["polySurface427.011"],
+      "minX": 3.33686,
+      "maxX": 3.78581,
+      "minY": -47.61349,
+      "maxY": -47.18651
+    },
+    {
+      "id": "tree:polySurface427.012",
+      "kind": "tree",
+      "sources": ["polySurface427.012"],
+      "minX": 15.34244,
+      "maxX": 15.77649,
+      "minY": -47.60641,
+      "maxY": -47.1936
+    },
+    {
+      "id": "tree:polySurface427.013",
+      "kind": "tree",
+      "sources": ["polySurface427.013"],
+      "minX": -47.61094,
+      "maxX": -47.18907,
+      "minY": 8.21755,
+      "maxY": 8.66113
+    },
+    {
+      "id": "tree:polySurface427.014",
+      "kind": "tree",
+      "sources": ["polySurface427.014"],
+      "minX": -47.615,
+      "maxX": -47.185,
+      "minY": -15.78779,
+      "maxY": -15.33567
+    },
+    {
+      "id": "tree:polySurface427.015",
+      "kind": "tree",
+      "sources": ["polySurface427.015"],
+      "minX": 47.18736,
+      "maxX": 47.61264,
+      "minY": 15.33753,
+      "maxY": 15.78469
+    },
+    {
+      "id": "tree:polySurface427.016",
+      "kind": "tree",
+      "sources": ["polySurface427.016"],
+      "minX": 47.19912,
+      "maxX": 47.60088,
+      "minY": -8.6532,
+      "maxY": -8.23077
+    },
+    {
+      "id": "tree:polySurface428.001",
+      "kind": "tree",
+      "sources": ["polySurface428.001"],
+      "minX": -53.27668,
+      "maxX": -52.55156,
+      "minY": 16.71878,
+      "maxY": 17.48122
+    },
+    {
+      "id": "tree:polySurface428.002",
+      "kind": "tree",
+      "sources": ["polySurface428.002"],
+      "minX": -53.33737,
+      "maxX": -52.63168,
+      "minY": -4.881,
+      "maxY": -4.13899
+    },
+    {
+      "id": "tree:polySurface428.003",
+      "kind": "tree",
+      "sources": ["polySurface428.003"],
+      "minX": -48.38731,
+      "maxX": -47.57741,
+      "minY": -14.42579,
+      "maxY": -13.57421
+    },
+    {
+      "id": "tree:polySurface428.004",
+      "kind": "tree",
+      "sources": ["polySurface428.004"],
+      "minX": -38.31764,
+      "maxX": -37.65953,
+      "minY": 2.63635,
+      "maxY": 3.29998
+    },
+    {
+      "id": "tree:polySurface428.005",
+      "kind": "tree",
+      "sources": ["polySurface428.005"],
+      "minX": -35.3304,
+      "maxX": -34.55445,
+      "minY": -2.38889,
+      "maxY": -1.57768
+    },
+    {
+      "id": "tree:polySurface428.006",
+      "kind": "tree",
+      "sources": ["polySurface428.006"],
+      "minX": -44.33603,
+      "maxX": -43.60165,
+      "minY": -3.40181,
+      "maxY": -2.67267
+    },
+    {
+      "id": "tree:polySurface428.007",
+      "kind": "tree",
+      "sources": ["polySurface428.007"],
+      "minX": 37.66352,
+      "maxX": 38.45327,
+      "minY": 2.59862,
+      "maxY": 3.4228
+    },
+    {
+      "id": "tree:polySurface428.008",
+      "kind": "tree",
+      "sources": ["polySurface428.008"],
+      "minX": 34.6738,
+      "maxX": 35.31749,
+      "minY": -2.31963,
+      "maxY": -1.69734
+    },
+    {
+      "id": "tree:polySurface428.009",
+      "kind": "tree",
+      "sources": ["polySurface428.009"],
+      "minX": 43.70989,
+      "maxX": 44.36644,
+      "minY": -3.35821,
+      "maxY": -2.68915
+    }
+  ]
+}
