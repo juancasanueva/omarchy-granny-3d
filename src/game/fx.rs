@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 use std::f32::consts::FRAC_PI_2;
 
+use bevy::camera::visibility::VisibilitySystems;
 use bevy::prelude::*;
 use bevy::transform::TransformSystems;
 use bevy::window::{CursorIcon, PrimaryWindow, SystemCursorIcon};
@@ -37,7 +38,14 @@ impl Plugin for FxPlugin {
                     .after(SimAdvance),
             )
             // Shots read the muzzle after this frame's pose has been animated and propagated.
-            .add_systems(PostUpdate, spawn_shot_fx.after(TransformSystems::Propagate))
+            .add_systems(
+                PostUpdate,
+                spawn_shot_fx
+                    .after(TransformSystems::Propagate)
+                    // Spawn before bounds and visibility run, so effects show on their first frame.
+                    .before(VisibilitySystems::CalculateBounds)
+                    .before(VisibilitySystems::VisibilityPropagate),
+            )
             .add_systems(OnEnter(AppState::Title), clear_fx);
     }
 }
@@ -513,7 +521,7 @@ fn granny_muzzle(
 }
 
 /// Spawns an effect entity with its world transform already set, since it is created
-/// after this frame's transform propagation.
+/// after this frame's transform propagation (but before bounds and visibility checks).
 fn spawn_now(commands: &mut Commands, bundle: impl Bundle, transform: Transform) {
     commands.spawn((bundle, transform, GlobalTransform::from(transform)));
 }

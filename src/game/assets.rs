@@ -432,18 +432,15 @@ pub fn failure_report(states: &[(&str, Option<String>)]) -> Vec<String> {
 }
 
 fn loading_failures(loading: &Loading, server: &AssetServer) -> Vec<String> {
-    let paths = [
-        GRANNY_GLB,
-        ZOMBIE_GLB,
-        TOWN_GLB,
-        LAMP_GLB,
-        REVOLVER_GLB,
-        SHOTGUN_GLB,
-    ];
-    let states: Vec<(&str, Option<String>)> = paths
-        .iter()
-        .zip(loading.handles())
-        .map(|(path, id)| {
+    // Each failure is named by the asset server's own path for that handle.
+    let states: Vec<(String, Option<String>)> = loading
+        .handles()
+        .into_iter()
+        .map(|id| {
+            let path = server
+                .get_path(id)
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| format!("{id:?}"));
             let error = match (
                 server.load_state(id),
                 server.recursive_dependency_load_state(id),
@@ -452,10 +449,25 @@ fn loading_failures(loading: &Loading, server: &AssetServer) -> Vec<String> {
                 (_, RecursiveDependencyLoadState::Failed(e)) => Some(e.to_string()),
                 _ => None,
             };
-            (*path, error)
+            (path, error)
         })
         .collect();
-    failure_report(&states)
+    let borrowed: Vec<(&str, Option<String>)> = states
+        .iter()
+        .map(|(p, e)| (p.as_str(), e.clone()))
+        .collect();
+    failure_report(&borrowed)
+}
+
+/// Failures in `current` that were not reported yet; remembers them in `reported`.
+fn newly_failed(reported: &mut Vec<String>, current: &[String]) -> Vec<String> {
+    let fresh: Vec<String> = current
+        .iter()
+        .filter(|f| !reported.contains(f))
+        .cloned()
+        .collect();
+    reported.extend(fresh.iter().cloned());
+    fresh
 }
 
 /// Fraction of the model files that finished loading, for the loading screen.
@@ -480,17 +492,15 @@ fn finish_loading(
     clips: Res<Assets<AnimationClip>>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
     mut next: ResMut<NextState<AppState>>,
-    mut reported: Local<bool>,
+    mut reported: Local<Vec<String>>,
 ) {
-    if !*reported {
-        let failures = loading_failures(&loading, &server);
-        if !failures.is_empty() {
-            for line in &failures {
-                error!("could not load {line}");
-            }
-            commands.insert_resource(LoadFailures(failures));
-            *reported = true;
+    // Keep scanning while loading: a dependency can fail on a later frame than another model.
+    let fresh = newly_failed(&mut reported, &loading_failures(&loading, &server));
+    if !fresh.is_empty() {
+        for line in &fresh {
+            error!("could not load {line}");
         }
+        commands.insert_resource(LoadFailures(reported.clone()));
     }
     if loading_progress(&loading, &server) < 1.0 {
         return;
@@ -596,6 +606,26 @@ fn finish_loading(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failures_found_on_later_frames_are_still_reported() {
+        let mut reported = Vec::new();
+        let first = vec!["models/shotgun.glb: missing".to_string()];
+        assert_eq!(newly_failed(&mut reported, &first), first);
+        assert!(
+            newly_failed(&mut reported, &first).is_empty(),
+            "each failure is logged once"
+        );
+        let later = vec![
+            "models/shotgun.glb: missing".to_string(),
+            "models/granny.glb: bad texture".to_string(),
+        ];
+        assert_eq!(
+            newly_failed(&mut reported, &later),
+            vec!["models/granny.glb: bad texture".to_string()]
+        );
+        assert_eq!(reported.len(), 2);
+    }
 
     #[test]
     fn failed_models_are_named_with_their_error() {
