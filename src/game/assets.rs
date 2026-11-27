@@ -659,14 +659,18 @@ mod tests {
     }
 
     /// Granny's node tree as `(name, children)`, read from the shipped `granny.glb`.
-    fn granny_tree() -> Vec<(String, Vec<usize>)> {
-        let bytes = std::fs::read(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/assets/models/granny.glb"
-        ))
-        .unwrap();
+    /// A shipped model's glTF JSON and its binary chunk.
+    fn glb(name: &str) -> (serde_json::Value, Vec<u8>) {
+        let path = format!("{}/assets/models/{name}", env!("CARGO_MANIFEST_DIR"));
+        let bytes = std::fs::read(&path).unwrap_or_else(|e| panic!("{path}: {e}"));
         let len = u32::from_le_bytes(bytes[12..16].try_into().unwrap()) as usize;
-        let json: serde_json::Value = serde_json::from_slice(&bytes[20..20 + len]).unwrap();
+        let json = serde_json::from_slice(&bytes[20..20 + len]).unwrap();
+        let bin = bytes[20 + len + 8..].to_vec();
+        (json, bin)
+    }
+
+    fn granny_tree() -> Vec<(String, Vec<usize>)> {
+        let (json, _) = glb("granny.glb");
         json["nodes"]
             .as_array()
             .unwrap()
@@ -680,6 +684,109 @@ mod tests {
                 (name, kids)
             })
             .collect()
+    }
+
+    /// First keyframe of `bone`'s rotation in the named clip.
+    fn first_rotation(json: &serde_json::Value, bin: &[u8], clip: &str, bone: &str) -> [f32; 4] {
+        let nodes = json["nodes"].as_array().unwrap();
+        let anim = json["animations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|a| a["name"] == clip)
+            .unwrap();
+        let channel = anim["channels"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|c| {
+                c["target"]["path"] == "rotation"
+                    && nodes[c["target"]["node"].as_u64().unwrap() as usize]["name"] == bone
+            })
+            .unwrap_or_else(|| panic!("{clip} has no {bone} rotation"));
+        let sampler = &anim["samplers"][channel["sampler"].as_u64().unwrap() as usize];
+        let accessor = &json["accessors"][sampler["output"].as_u64().unwrap() as usize];
+        let view = &json["bufferViews"][accessor["bufferView"].as_u64().unwrap() as usize];
+        let offset = view["byteOffset"].as_u64().unwrap_or(0) as usize
+            + accessor["byteOffset"].as_u64().unwrap_or(0) as usize;
+        std::array::from_fn(|i| {
+            f32::from_le_bytes(bin[offset + 4 * i..offset + 4 * i + 4].try_into().unwrap())
+        })
+    }
+
+    #[test]
+    fn every_clip_the_game_plays_is_in_granny_glb() {
+        let (json, _) = glb("granny.glb");
+        let names: Vec<&str> = json["animations"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter_map(|a| a["name"].as_str())
+            .collect();
+        for clip in Clip::ALL {
+            let (name, _) = clip.granny_source();
+            assert!(
+                names.contains(&name),
+                "granny.glb is missing the {name} clip"
+            );
+        }
+    }
+
+    #[test]
+    fn weapon_holds_are_real_poses_not_idle() {
+        let (json, bin) = glb("granny.glb");
+        let idle = first_rotation(&json, &bin, "Idle", "hand.R");
+        for hold in ["AimBat", "AimRevolver", "AimShotgun"] {
+            let q = first_rotation(&json, &bin, hold, "hand.R");
+            let dot: f32 = q.iter().zip(idle).map(|(a, b)| a * b).sum();
+            assert!(dot.abs() < 0.99, "{hold} holds the hand like Idle");
+        }
+    }
+
+    #[test]
+    fn bat_is_bat_sized_with_its_handle_in_the_hand() {
+        let (json, _) = glb("bat.glb");
+        let pos = &json["accessors"][json["meshes"][0]["primitives"][0]["attributes"]["POSITION"]
+            .as_u64()
+            .unwrap() as usize];
+        let min: Vec<f64> = pos["min"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_f64().unwrap())
+            .collect();
+        let max: Vec<f64> = pos["max"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|v| v.as_f64().unwrap())
+            .collect();
+        let size: f64 = (0..3)
+            .map(|i| (max[i] - min[i]).powi(2))
+            .sum::<f64>()
+            .sqrt();
+        assert!((0.55..0.8).contains(&size), "bat length {size}");
+        // The bat is exported in the hand bone's frame, so the palm (near the origin) is inside its bounds.
+        let palm = [0.0, 0.06, 0.0];
+        for i in 0..3 {
+            assert!(
+                min[i] - 0.05 <= palm[i] && palm[i] <= max[i] + 0.05,
+                "handle not at the palm on axis {i}"
+            );
+        }
+    }
+
+    #[test]
+    fn guns_carry_a_muzzle_point() {
+        for gun in ["revolver.glb", "shotgun.glb"] {
+            let (json, _) = glb(gun);
+            let has_muzzle = json["nodes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|n| n["name"] == "Muzzle");
+            assert!(has_muzzle, "{gun} has no Muzzle node");
+        }
     }
 
     #[test]
