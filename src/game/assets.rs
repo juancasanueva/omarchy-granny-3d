@@ -143,7 +143,7 @@ impl Clip {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Layer {
     Full,
     Upper,
@@ -209,29 +209,74 @@ impl GameAssets {
 }
 
 /// Every node's name path from its scene root, as Bevy builds animation target ids.
-fn node_paths(gltf: &Gltf, nodes: &Assets<GltfNode>) -> Vec<(Vec<Name>, String)> {
-    let children: std::collections::HashSet<AssetId<GltfNode>> = gltf
+fn node_paths(gltf: &Gltf, nodes: &Assets<GltfNode>) -> Vec<(Vec<String>, String)> {
+    let index: std::collections::HashMap<AssetId<GltfNode>, usize> = gltf
         .nodes
         .iter()
-        .filter_map(|h| nodes.get(h))
-        .flat_map(|n| n.children.iter().map(|c| c.id()))
+        .enumerate()
+        .map(|(i, h)| (h.id(), i))
         .collect();
+    let tree: Vec<(String, Vec<usize>)> = gltf
+        .nodes
+        .iter()
+        .map(|h| match nodes.get(h) {
+            Some(n) => (
+                n.name.clone(),
+                n.children
+                    .iter()
+                    .filter_map(|c| index.get(&c.id()).copied())
+                    .collect(),
+            ),
+            None => (String::new(), Vec::new()),
+        })
+        .collect();
+    name_paths(&tree)
+}
+
+/// Name paths for a node tree given as `(name, child indices)`, walking down from the roots.
+fn name_paths(tree: &[(String, Vec<usize>)]) -> Vec<(Vec<String>, String)> {
+    let mut is_child = vec![false; tree.len()];
+    for (_, kids) in tree {
+        for &k in kids {
+            if let Some(flag) = is_child.get_mut(k) {
+                *flag = true;
+            }
+        }
+    }
     let mut out = Vec::new();
-    let mut stack: Vec<(AssetId<GltfNode>, Vec<Name>)> = gltf
-        .nodes
-        .iter()
-        .filter(|h| !children.contains(&h.id()))
-        .map(|h| (h.id(), Vec::new()))
+    let mut stack: Vec<(usize, Vec<String>)> = (0..tree.len())
+        .filter(|&i| !is_child[i])
+        .map(|i| (i, Vec::new()))
         .collect();
-    while let Some((id, mut path)) = stack.pop() {
-        let Some(node) = nodes.get(id) else { continue };
-        path.push(Name::new(node.name.clone()));
-        out.push((path.clone(), node.name.clone()));
-        for c in &node.children {
-            stack.push((c.id(), path.clone()));
+    while let Some((i, mut path)) = stack.pop() {
+        let (name, kids) = &tree[i];
+        path.push(name.clone());
+        out.push((path.clone(), name.clone()));
+        for &k in kids {
+            if k < tree.len() {
+                stack.push((k, path.clone()));
+            }
         }
     }
     out
+}
+
+/// Which mask group a bone belongs to.
+fn mask_group(bone: &str) -> u32 {
+    if UPPER_BONES.contains(&bone) {
+        UPPER_GROUP
+    } else {
+        LOWER_GROUP
+    }
+}
+
+/// The groups a layer must not drive.
+fn layer_mask(layer: Layer) -> AnimationMask {
+    match layer {
+        Layer::Full => 0,
+        Layer::Upper => 1 << LOWER_GROUP,
+        Layer::Lower => 1 << UPPER_GROUP,
+    }
 }
 
 /// Granny's graph: full-body clips, plus gun layers masked to the upper body over
@@ -253,20 +298,15 @@ fn granny_kit(
             continue;
         };
         durations[clip as usize] = clips.get(&handle).map(|c| c.duration()).unwrap_or(1.0);
-        let mask = match layer {
-            Layer::Full => 0,
-            Layer::Upper => 1 << LOWER_GROUP,
-            Layer::Lower => 1 << UPPER_GROUP,
-        };
-        kit_nodes[clip as usize] = Some(graph.add_clip_with_mask(handle, mask, 1.0, root));
+        kit_nodes[clip as usize] =
+            Some(graph.add_clip_with_mask(handle, layer_mask(layer), 1.0, root));
     }
     for (path, name) in node_paths(gltf, nodes) {
-        let group = if UPPER_BONES.contains(&name.as_str()) {
-            UPPER_GROUP
-        } else {
-            LOWER_GROUP
-        };
-        graph.add_target_to_mask_group(AnimationTargetId::from_names(path.iter()), group);
+        let names: Vec<Name> = path.into_iter().map(Name::new).collect();
+        graph.add_target_to_mask_group(
+            AnimationTargetId::from_names(names.iter()),
+            mask_group(&name),
+        );
     }
     ActorKit {
         scene: gltf.scenes[0].clone(),
@@ -499,6 +539,81 @@ fn finish_loading(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Granny's node tree as `(name, children)`, read from the shipped `granny.glb`.
+    fn granny_tree() -> Vec<(String, Vec<usize>)> {
+        let bytes = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/assets/models/granny.glb"
+        ))
+        .unwrap();
+        let len = u32::from_le_bytes(bytes[12..16].try_into().unwrap()) as usize;
+        let json: serde_json::Value = serde_json::from_slice(&bytes[20..20 + len]).unwrap();
+        json["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|n| {
+                let name = n["name"].as_str().unwrap_or_default().to_string();
+                let kids = n["children"]
+                    .as_array()
+                    .map(|c| c.iter().map(|i| i.as_u64().unwrap() as usize).collect())
+                    .unwrap_or_default();
+                (name, kids)
+            })
+            .collect()
+    }
+
+    #[test]
+    fn every_upper_bone_exists_in_granny_with_its_full_path() {
+        let paths = name_paths(&granny_tree());
+        for bone in UPPER_BONES {
+            assert!(
+                paths.iter().any(|(_, name)| name == bone),
+                "{bone} missing from granny.glb"
+            );
+        }
+        let hand = paths.iter().find(|(_, n)| n == "hand.R").unwrap();
+        assert_eq!(
+            hand.0,
+            [
+                "GrannyRig",
+                "root",
+                "hips",
+                "spine",
+                "chest",
+                "shoulder.R",
+                "upper_arm.R",
+                "forearm.R",
+                "hand.R"
+            ]
+        );
+    }
+
+    #[test]
+    fn arms_and_torso_are_upper_and_legs_are_lower() {
+        assert_eq!(mask_group("hand.R"), UPPER_GROUP);
+        assert_eq!(mask_group("chest"), UPPER_GROUP);
+        for leg in ["root", "hips", "thigh.L", "shin.R", "foot.L"] {
+            assert_eq!(mask_group(leg), LOWER_GROUP, "{leg}");
+        }
+        let groups: std::collections::HashSet<u32> = name_paths(&granny_tree())
+            .iter()
+            .map(|(_, n)| mask_group(n))
+            .collect();
+        assert!(groups.contains(&UPPER_GROUP) && groups.contains(&LOWER_GROUP));
+    }
+
+    #[test]
+    fn gun_layers_skip_the_legs_and_leg_layers_skip_the_upper_body() {
+        assert_eq!(layer_mask(Layer::Full), 0);
+        assert_eq!(layer_mask(Layer::Upper), 1 << LOWER_GROUP);
+        assert_eq!(layer_mask(Layer::Lower), 1 << UPPER_GROUP);
+        assert_eq!(Clip::AimRevolver.granny_source().1, Layer::Upper);
+        assert_eq!(Clip::FireShotgun.granny_source().1, Layer::Upper);
+        assert_eq!(Clip::WalkLower.granny_source().1, Layer::Lower);
+        assert_eq!(Clip::Attack.granny_source().1, Layer::Full);
+    }
 
     #[test]
     fn heightmap_keeps_highest_flat_surface_and_ignores_walls() {
