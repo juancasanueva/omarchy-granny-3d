@@ -1,4 +1,4 @@
-//! World-space combat feedback: tracers, muzzle flashes, impact shards,
+//! World-space combat feedback: tracers, muzzle flashes, impact shards, blood,
 //! rings, and the glowing pickups. Presentation only; nothing feeds back into the sim.
 
 use std::collections::HashMap;
@@ -31,6 +31,7 @@ impl Plugin for FxPlugin {
                     spawn_event_fx,
                     sync_pickups,
                     tick_fx,
+                    cap_blood,
                     aim_reticle,
                     cursor_icon,
                 )
@@ -63,6 +64,8 @@ struct FxAssets {
     muzzle: Handle<StandardMaterial>,
     shard_cream: Handle<StandardMaterial>,
     shard_amber: Handle<StandardMaterial>,
+    blood_drop: Handle<StandardMaterial>,
+    blood_pool: [Handle<StandardMaterial>; 2],
     pickup: HashMap<&'static str, Handle<StandardMaterial>>,
     glow: HashMap<&'static str, Handle<StandardMaterial>>,
     rng: Rng,
@@ -89,7 +92,26 @@ enum FxKind {
     },
     /// A flash of light that decays to zero.
     Light { peak: f32 },
+    /// A blood droplet falling ballistically; it may leave a splat where it lands.
+    Drop { vel: Vec3 },
+    /// A blood splat on the ground: holds its size, then shrinks away at the end of its life.
+    Splat { base: Vec3 },
 }
+
+/// Marks the ground splats so their number can be capped.
+#[derive(Component)]
+struct BloodSplat;
+
+/// Most blood splats on the ground at once; the oldest go first.
+const MAX_BLOOD_SPLATS: usize = 400;
+/// How long a blood splat stays on the ground, in seconds.
+const SPLAT_LIFE: f32 = 14.0;
+/// Fraction of a splat's life spent shrinking away.
+const SPLAT_FADE: f32 = 0.2;
+/// Chance that a landing droplet leaves a splat.
+const DROP_SPLAT_CHANCE: f32 = 0.45;
+/// Height of the hit wound above the ground.
+const WOUND_HEIGHT: f32 = 1.0;
 
 #[derive(Component)]
 struct PickupView {
@@ -175,6 +197,25 @@ fn build_fx_assets(
             emissive: LinearRgba::rgb(1.6, 0.8, 0.2),
             ..default()
         }),
+        blood_drop: mats.add(StandardMaterial {
+            base_color: Color::srgb_u8(0xb4, 0x08, 0x14),
+            emissive: LinearRgba::rgb(0.45, 0.0, 0.03),
+            perceptual_roughness: 0.3,
+            ..default()
+        }),
+        blood_pool: [
+            Color::srgb_u8(0x7a, 0x04, 0x0e),
+            Color::srgb_u8(0x5a, 0x02, 0x08),
+        ]
+        .map(|c| {
+            mats.add(StandardMaterial {
+                base_color: c,
+                emissive: LinearRgba::rgb(0.12, 0.0, 0.01),
+                perceptual_roughness: 0.18,
+                reflectance: 0.7,
+                ..default()
+            })
+        }),
         pickup,
         glow,
         rng: Rng::new(0xC0FFEE),
@@ -215,9 +256,88 @@ fn ring(
     ));
 }
 
+/// How many blood droplets a hit sprays: melee splashes more, and bigger hits bleed more.
+fn blood_drops(source: DamageSource, amount: i32) -> usize {
+    let base = if source == DamageSource::Melee {
+        30
+    } else {
+        22
+    };
+    base + (amount.max(0) as usize / 4).min(30)
+}
+
+/// A flat blood splat on the ground at `at`, `size` metres in radius, of random shape and shade.
+fn blood_splat(commands: &mut Commands, fx: &mut FxAssets, ground: &Ground, at: Vec2, size: f32) {
+    let stretch = 0.7 + fx.rng.next_f32() * 0.6;
+    let base = Vec3::new(size * stretch, size / stretch, 1.0);
+    // Stagger heights so overlapping splats don't flicker against each other.
+    let y = ground.height(at) + 0.02 + fx.rng.next_f32() * 0.025;
+    let shade = (fx.rng.next_f32() * 2.0) as usize % 2;
+    commands.spawn((
+        BloodSplat,
+        Mesh3d(fx.disc.clone()),
+        MeshMaterial3d(fx.blood_pool[shade].clone()),
+        Transform::from_translation(ground_point(at, y))
+            .with_rotation(
+                Quat::from_rotation_y(fx.rng.next_f32() * std::f32::consts::TAU)
+                    * Quat::from_rotation_x(-FRAC_PI_2),
+            )
+            .with_scale(base),
+        Fx {
+            life: SPLAT_LIFE,
+            max: SPLAT_LIFE,
+            kind: FxKind::Splat { base },
+        },
+    ));
+}
+
+/// Sprays droplets from a wound, mostly away from Granny, and splashes the ground below.
+fn blood_spray(
+    commands: &mut Commands,
+    fx: &mut FxAssets,
+    ground: &Ground,
+    at: Vec2,
+    away: Vec2,
+    drops: usize,
+) {
+    let center = ground_point(at, ground.height(at) + WOUND_HEIGHT);
+    for _ in 0..drops {
+        let a = fx.rng.next_f32() * std::f32::consts::TAU;
+        let spread = fx.rng.next_f32() * 2.4;
+        let push = 1.2 + fx.rng.next_f32() * 3.4;
+        let h = away * push + Vec2::new(a.cos(), a.sin()) * spread;
+        let vel = Vec3::new(h.x, 0.8 + fx.rng.next_f32() * 3.6, h.y);
+        let size = 0.035 + fx.rng.next_f32() * 0.06;
+        commands.spawn((
+            Mesh3d(fx.sphere.clone()),
+            MeshMaterial3d(fx.blood_drop.clone()),
+            Transform::from_translation(center).with_scale(Vec3::splat(size)),
+            Fx {
+                life: 1.6,
+                max: 1.6,
+                kind: FxKind::Drop { vel },
+            },
+        ));
+    }
+    let splats = 2 + (fx.rng.next_f32() * 3.0) as usize;
+    for _ in 0..splats {
+        let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 0.6 + away * 0.5;
+        let size = 0.22 + fx.rng.next_f32() * 0.4;
+        blood_splat(commands, fx, ground, at + off, size);
+    }
+}
+
+/// Direction from Granny to a hit zombie, so blood sprays out of the far side.
+fn away_from(player: Option<Vec2>, at: Vec2) -> Vec2 {
+    player
+        .map(|p| (at - p).normalize_or_zero())
+        .unwrap_or(Vec2::ZERO)
+}
+
 fn spawn_event_fx(
     mut commands: Commands,
     events: Res<FrameEvents>,
+    sim: Option<Res<Sim>>,
     ground: Option<Res<Ground>>,
     fx: Option<ResMut<FxAssets>>,
     mut mats: ResMut<Assets<StandardMaterial>>,
@@ -225,10 +345,22 @@ fn spawn_event_fx(
     let (Some(ground), Some(mut fx)) = (ground, fx) else {
         return;
     };
+    let player = sim.map(|s| s.world.player.pos);
     for e in &events.0 {
         match e {
-            SimEvent::ZombieHit { at, source, .. } => {
-                let center = ground_point(*at, ground.height(*at) + 1.0);
+            SimEvent::ZombieHit {
+                at, amount, source, ..
+            } => {
+                let away = away_from(player, *at);
+                blood_spray(
+                    &mut commands,
+                    &mut fx,
+                    &ground,
+                    *at,
+                    away,
+                    blood_drops(*source, *amount),
+                );
+                let center = ground_point(*at, ground.height(*at) + WOUND_HEIGHT);
                 let count = if *source == DamageSource::Melee {
                     10
                 } else {
@@ -258,6 +390,14 @@ fn spawn_event_fx(
                 }
             }
             SimEvent::ZombieDeath { at, .. } => {
+                let away = away_from(player, *at);
+                let size = 1.0 + fx.rng.next_f32() * 0.5;
+                blood_splat(&mut commands, &mut fx, &ground, *at + away * 0.4, size);
+                for _ in 0..4 {
+                    let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 1.1;
+                    let size = 0.3 + fx.rng.next_f32() * 0.4;
+                    blood_splat(&mut commands, &mut fx, &ground, *at + off, size);
+                }
                 let p = ground_point(*at, ground.height(*at) + 0.06);
                 ring(
                     &mut commands,
@@ -446,6 +586,8 @@ fn tick_fx(
     mut commands: Commands,
     time: Res<Time>,
     state: Res<State<AppState>>,
+    ground: Option<Res<Ground>>,
+    mut assets: Option<ResMut<FxAssets>>,
     mut q: Query<(Entity, &mut Fx, &mut Transform, Option<&mut PointLight>)>,
     mut mats: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -453,6 +595,7 @@ fn tick_fx(
         return;
     }
     let dt = time.delta_secs();
+    let mut landed = Vec::new();
     for (e, mut fx, mut tf, light) in &mut q {
         fx.life -= dt;
         if fx.life <= 0.0 {
@@ -488,7 +631,49 @@ fn tick_fx(
                     l.intensity = *peak * k;
                 }
             }
+            FxKind::Drop { vel } => {
+                vel.y -= 14.0 * dt;
+                tf.translation += *vel * dt;
+                let at = tf.translation.xz();
+                let floor = ground.as_ref().map_or(0.0, |g| g.height(at));
+                if vel.y < 0.0 && tf.translation.y <= floor + 0.03 {
+                    landed.push((at, tf.scale.x));
+                    commands.entity(e).despawn();
+                }
+            }
+            FxKind::Splat { base } => {
+                tf.scale = *base * (k / SPLAT_FADE).min(1.0);
+            }
         }
+    }
+    if let (Some(ground), Some(fx)) = (ground, assets.as_mut()) {
+        for (at, drop) in landed {
+            if fx.rng.next_f32() < DROP_SPLAT_CHANCE {
+                let size = drop * (2.0 + fx.rng.next_f32() * 3.0);
+                blood_splat(&mut commands, fx, &ground, at, size);
+            }
+        }
+    }
+}
+
+/// The `n` entries with the least life left, where `n` is how far `items` exceeds `cap`.
+fn oldest_beyond<T: Copy>(items: &mut [(T, f32)], cap: usize) -> Vec<T> {
+    let excess = items.len().saturating_sub(cap);
+    if excess == 0 {
+        return Vec::new();
+    }
+    items.sort_by(|a, b| a.1.total_cmp(&b.1));
+    items[..excess].iter().map(|(t, _)| *t).collect()
+}
+
+/// Keeps the ground from drowning in splats: the oldest go once there are too many.
+fn cap_blood(mut commands: Commands, splats: Query<(Entity, &Fx), With<BloodSplat>>) {
+    if splats.iter().len() <= MAX_BLOOD_SPLATS {
+        return;
+    }
+    let mut items: Vec<_> = splats.iter().map(|(e, fx)| (e, fx.life)).collect();
+    for e in oldest_beyond(&mut items, MAX_BLOOD_SPLATS) {
+        commands.entity(e).despawn();
     }
 }
 
@@ -698,6 +883,28 @@ mod tests {
         let muzzle = Vec3::new(0.5, 1.2, 0.0);
         let stop = tracer_stop(from, muzzle, Vec2::new(6.0, 0.0)).unwrap();
         assert_eq!(stop, Vec3::new(6.0, 1.2, 0.0));
+    }
+
+    #[test]
+    fn bigger_and_melee_hits_bleed_more() {
+        let gun = DamageSource::Gun(Gun::Revolver);
+        assert!(blood_drops(DamageSource::Melee, 20) > blood_drops(gun, 20));
+        assert!(blood_drops(gun, 80) > blood_drops(gun, 10));
+        assert_eq!(blood_drops(gun, 10_000), blood_drops(gun, 1_000));
+    }
+
+    #[test]
+    fn blood_sprays_away_from_granny() {
+        let away = away_from(Some(Vec2::ZERO), Vec2::new(0.0, 3.0));
+        assert_eq!(away, Vec2::Y);
+        assert_eq!(away_from(None, Vec2::new(0.0, 3.0)), Vec2::ZERO);
+    }
+
+    #[test]
+    fn splat_cap_drops_the_oldest_first() {
+        let mut items = [(1, 9.0), (2, 0.5), (3, 4.0), (4, 1.0)];
+        assert_eq!(oldest_beyond(&mut items, 2), vec![2, 4]);
+        assert!(oldest_beyond(&mut items, 4).is_empty());
     }
 
     #[test]
