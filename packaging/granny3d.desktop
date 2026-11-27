@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Granny vs. The Neighborhood
+GenericName=Zombie Survival Game
+Comment=Hold off the shambling horde with a rolling pin, a revolver and a cane shotgun
+Exec=granny3d
+Icon=granny3d
+Terminal=false
+Categories=Game;ActionGame;
+Keywords=zombie;granny;survival;3d;action;
+StartupWMClass=granny3d
