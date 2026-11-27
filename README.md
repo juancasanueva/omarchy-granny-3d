@@ -25,6 +25,7 @@ Moving or clicking the mouse switches to mouse aim; pressing `F` switches back t
 
 ## How a run works
 
+- Granny starts every run with the baseball bat in hand.
 - The horde starts at 20, grows by 10 a minute up to 40, then gets tougher.
 - Kills drop cash, plus ammo every 3 kills and health every 10. Pickups are pulled toward you once you're close.
 - An empty gun swings the bat instead. The revolver regains 1 round every 3 seconds.

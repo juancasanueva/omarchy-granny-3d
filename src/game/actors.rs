@@ -77,9 +77,10 @@ struct Blend {
 
 impl Default for Blend {
     fn default() -> Self {
+        // Matches the starting weapon (the bat) so the first frames don't blend from another hold.
         Self {
             walk: 0.0,
-            hold: [0.0, 1.0, 0.0],
+            hold: [1.0, 0.0, 0.0],
         }
     }
 }
