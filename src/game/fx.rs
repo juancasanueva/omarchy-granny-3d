@@ -321,8 +321,8 @@ fn blood_spray(
     }
     let splats = 2 + (fx.rng.next_f32() * 3.0) as usize;
     for _ in 0..splats {
-        let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 0.6 + away * 0.5;
-        let size = 0.22 + fx.rng.next_f32() * 0.4;
+        let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 0.5 + away * 0.4;
+        let size = 0.11 + fx.rng.next_f32() * 0.2;
         blood_splat(commands, fx, ground, at + off, size);
     }
 }
@@ -391,11 +391,11 @@ fn spawn_event_fx(
             }
             SimEvent::ZombieDeath { at, .. } => {
                 let away = away_from(player, *at);
-                let size = 1.0 + fx.rng.next_f32() * 0.5;
-                blood_splat(&mut commands, &mut fx, &ground, *at + away * 0.4, size);
+                let size = 0.5 + fx.rng.next_f32() * 0.25;
+                blood_splat(&mut commands, &mut fx, &ground, *at + away * 0.3, size);
                 for _ in 0..4 {
-                    let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 1.1;
-                    let size = 0.3 + fx.rng.next_f32() * 0.4;
+                    let off = Vec2::new(fx.rng.signed(), fx.rng.signed()) * 0.7;
+                    let size = 0.15 + fx.rng.next_f32() * 0.2;
                     blood_splat(&mut commands, &mut fx, &ground, *at + off, size);
                 }
                 let p = ground_point(*at, ground.height(*at) + 0.06);
@@ -649,7 +649,7 @@ fn tick_fx(
     if let (Some(ground), Some(fx)) = (ground, assets.as_mut()) {
         for (at, drop) in landed {
             if fx.rng.next_f32() < DROP_SPLAT_CHANCE {
-                let size = drop * (2.0 + fx.rng.next_f32() * 3.0);
+                let size = drop * (1.0 + fx.rng.next_f32() * 1.5);
                 blood_splat(&mut commands, fx, &ground, at, size);
             }
         }
