@@ -358,7 +358,11 @@ impl World {
         }
         let gun = p.selected;
         if input.auto_target {
-            let range = if p.ammo(gun) == 0 { self.tuning.melee_range + SHAMBLER.radius } else { gun.spec().range };
+            let range = if p.ammo(gun) == 0 {
+                self.tuning.melee_range + SHAMBLER.radius
+            } else {
+                gun.spec().range
+            };
             if let Some(facing) = self.nearest_visible_zombie(range) {
                 self.player.facing = facing;
             }
@@ -1194,10 +1198,17 @@ mod tests {
         clear_horde(&mut w);
         open_street(&mut w);
         let target = w.player.pos + Vec2::new(0.0, 5.0);
-        let input = InputSnapshot { move_dir: Vec2::NEG_X, aim_point: Some(target), ..default() };
+        let input = InputSnapshot {
+            move_dir: Vec2::NEG_X,
+            aim_point: Some(target),
+            ..default()
+        };
         w.step(&input);
         let facing = Vec2::from_angle(w.player.facing);
-        assert!(facing.dot(Vec2::Y) > 0.999, "faces the cursor, got {facing}");
+        assert!(
+            facing.dot(Vec2::Y) > 0.999,
+            "faces the cursor, got {facing}"
+        );
         assert!(w.player.vel.x < 0.0, "still walks the other way");
     }
 
@@ -1206,7 +1217,10 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
-        let input = InputSnapshot { move_dir: Vec2::Y, ..default() };
+        let input = InputSnapshot {
+            move_dir: Vec2::Y,
+            ..default()
+        };
         step_n(&mut w, 30, &input);
         assert!(Vec2::from_angle(w.player.facing).dot(Vec2::Y) > 0.99);
     }
@@ -1218,8 +1232,19 @@ mod tests {
         open_street(&mut w);
         place_zombie(&mut w, 0, Vec2::new(-1.5, 0.0));
         let aim = Some(w.player.pos + Vec2::new(-3.0, 0.0));
-        w.step(&InputSnapshot { melee_pulse: true, aim_point: aim, ..default() });
-        step_n(&mut w, 8, &InputSnapshot { aim_point: aim, ..default() });
+        w.step(&InputSnapshot {
+            melee_pulse: true,
+            aim_point: aim,
+            ..default()
+        });
+        step_n(
+            &mut w,
+            8,
+            &InputSnapshot {
+                aim_point: aim,
+                ..default()
+            },
+        );
         assert_eq!(w.zombies[0].hp, 25, "zombie behind the old facing is hit");
     }
 
@@ -1230,9 +1255,16 @@ mod tests {
         open_street(&mut w);
         place_zombie(&mut w, 0, Vec2::new(-5.0, 0.0));
         place_zombie(&mut w, 1, Vec2::new(0.0, 9.0));
-        let input = InputSnapshot { fire_held: true, auto_target: true, ..default() };
+        let input = InputSnapshot {
+            fire_held: true,
+            auto_target: true,
+            ..default()
+        };
         w.step(&input);
-        assert_eq!(w.zombies[0].hp, 25, "nearest zombie, directly behind, is shot");
+        assert_eq!(
+            w.zombies[0].hp, 25,
+            "nearest zombie, directly behind, is shot"
+        );
         assert_eq!(w.zombies[1].hp, 50);
         assert!(Vec2::from_angle(w.player.facing).dot(Vec2::NEG_X) > 0.999);
     }
@@ -1242,7 +1274,11 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
-        let input = InputSnapshot { fire_held: true, auto_target: true, ..default() };
+        let input = InputSnapshot {
+            fire_held: true,
+            auto_target: true,
+            ..default()
+        };
         w.step(&input);
         assert_eq!(w.player.facing, 0.0);
         assert_eq!(w.player.revolver_ammo, REVOLVER.initial_ammo - 1);
@@ -1255,13 +1291,38 @@ mod tests {
         open_street(&mut w);
         let start = w.player.pos;
         let aim = Some(start + Vec2::new(0.0, 6.0));
-        step_n(&mut w, 30, &InputSnapshot { throttle: 1.0, aim_point: aim, ..default() });
-        assert!(w.player.pos.y > start.y + 1.5, "forward moves toward the cursor");
+        step_n(
+            &mut w,
+            30,
+            &InputSnapshot {
+                throttle: 1.0,
+                aim_point: aim,
+                ..default()
+            },
+        );
+        assert!(
+            w.player.pos.y > start.y + 1.5,
+            "forward moves toward the cursor"
+        );
         assert!((w.player.pos.x - start.x).abs() < 1e-3);
         let mid = w.player.pos;
-        step_n(&mut w, 30, &InputSnapshot { throttle: -1.0, aim_point: aim, ..default() });
-        assert!(w.player.pos.y < mid.y - 1.5, "back moves away from the cursor");
-        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::Y) > 0.999, "still faces the cursor");
+        step_n(
+            &mut w,
+            30,
+            &InputSnapshot {
+                throttle: -1.0,
+                aim_point: aim,
+                ..default()
+            },
+        );
+        assert!(
+            w.player.pos.y < mid.y - 1.5,
+            "back moves away from the cursor"
+        );
+        assert!(
+            Vec2::from_angle(w.player.facing).dot(Vec2::Y) > 0.999,
+            "still faces the cursor"
+        );
     }
 
     #[test]
@@ -1270,9 +1331,20 @@ mod tests {
         clear_horde(&mut w);
         open_street(&mut w);
         let aim = w.player.pos + Vec2::new(2.0, 0.0);
-        step_n(&mut w, 120, &InputSnapshot { throttle: 1.0, aim_point: Some(aim), ..default() });
+        step_n(
+            &mut w,
+            120,
+            &InputSnapshot {
+                throttle: 1.0,
+                aim_point: Some(aim),
+                ..default()
+            },
+        );
         assert!(w.player.pos.distance(aim) < 0.6, "arrives at the cursor");
-        assert!(Vec2::from_angle(w.player.facing).dot(Vec2::X) > 0.99, "keeps facing the same way");
+        assert!(
+            Vec2::from_angle(w.player.facing).dot(Vec2::X) > 0.99,
+            "keeps facing the same way"
+        );
     }
 
     #[test]
@@ -1282,11 +1354,17 @@ mod tests {
         open_street(&mut w);
         w.player.facing = std::f32::consts::FRAC_PI_2;
         let start = w.player.pos;
-        step_n(&mut w, 30, &InputSnapshot { throttle: 1.0, ..default() });
+        step_n(
+            &mut w,
+            30,
+            &InputSnapshot {
+                throttle: 1.0,
+                ..default()
+            },
+        );
         assert!(w.player.pos.y > start.y + 1.5);
         assert!((w.player.pos.x - start.x).abs() < 1e-3);
     }
-
 
     #[test]
     fn melee_hits_in_front_with_hitstop_and_knockback() {

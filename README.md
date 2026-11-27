@@ -55,6 +55,7 @@ Optional environment variables for unattended checks:
 |----------|--------|
 | `GRANNY3D_AUTOSTART=play\|pause\|summary` | Skip the title screen and go to that screen |
 | `GRANNY3D_AUTOPLAY=1` | Drive Granny with scripted input |
+| `GRANNY3D_AUTOPLAY_GUN=shotgun\|revolver` | Gun the scripted run holds |
 | `GRANNY3D_SHOT=/path.png` | Save a screenshot after `GRANNY3D_SHOT_AFTER` seconds (default 6), then quit |
 | `GRANNY3D_SAVE=/path.json` | Use a different save file |
 | `GRANNY3D_ASSETS=/dir` | Load models from another directory |

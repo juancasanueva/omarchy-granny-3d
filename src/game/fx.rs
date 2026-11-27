@@ -8,6 +8,7 @@ use bevy::prelude::*;
 use bevy::window::{CursorIcon, PrimaryWindow, SystemCursorIcon};
 
 use super::AppState;
+use super::actors::Muzzle;
 use super::assets::Ground;
 use super::run::{Aim, FrameEvents, Sim, SimAdvance, StepClock};
 use crate::sim::data::{Gun, PICKUP_TTL_TICKS, STEP_S};
@@ -24,7 +25,13 @@ impl Plugin for FxPlugin {
         app.add_systems(Startup, build_fx_assets)
             .add_systems(
                 Update,
-                (spawn_event_fx, sync_pickups, tick_fx, aim_reticle, cursor_icon)
+                (
+                    spawn_event_fx,
+                    sync_pickups,
+                    tick_fx,
+                    aim_reticle,
+                    cursor_icon,
+                )
                     .chain()
                     .after(SimAdvance),
             )
@@ -203,6 +210,7 @@ fn spawn_event_fx(
     ground: Option<Res<Ground>>,
     fx: Option<ResMut<FxAssets>>,
     mut mats: ResMut<Assets<StandardMaterial>>,
+    muzzles: Query<(&Muzzle, &GlobalTransform)>,
 ) {
     let (Some(ground), Some(mut fx)) = (ground, fx) else {
         return;
@@ -210,13 +218,23 @@ fn spawn_event_fx(
     for e in &events.0 {
         match e {
             SimEvent::GunShot { gun, from, ends } => {
-                let start = ground_point(*from, ground.height(*from) + MUZZLE_HEIGHT);
+                // Shots leave the gun model's muzzle when it is in Granny's hand.
+                let muzzle = muzzles
+                    .iter()
+                    .find(|(m, _)| m.0 == *gun)
+                    .map(|(_, t)| t.translation())
+                    .filter(|m| m.xz().distance(*from) < 2.5);
+                let start = muzzle
+                    .unwrap_or_else(|| ground_point(*from, ground.height(*from) + MUZZLE_HEIGHT));
                 let mut dir_sum = Vec3::ZERO;
                 for end in ends {
-                    let stop = ground_point(*end, ground.height(*from) + MUZZLE_HEIGHT);
+                    let stop = ground_point(*end, start.y);
                     let d = stop - start;
                     let len = d.length().max(0.01);
                     dir_sum += d / len;
+                    if (*end - *from).dot(stop.xz() - start.xz()) <= 0.0 {
+                        continue; // target closer than the muzzle: no tracer
+                    }
                     let thick = if *gun == Gun::Revolver { 0.05 } else { 0.035 };
                     let base = Vec3::new(thick, thick, len);
                     commands.spawn((
@@ -239,12 +257,16 @@ fn spawn_event_fx(
                         },
                     ));
                 }
-                let muzzle = start + dir_sum.normalize_or_zero() * 0.55;
+                let flash_at = if muzzle.is_some() {
+                    start
+                } else {
+                    start + dir_sum.normalize_or_zero() * 0.55
+                };
                 let size = if *gun == Gun::Revolver { 0.22 } else { 0.34 };
                 commands.spawn((
                     Mesh3d(fx.sphere.clone()),
                     MeshMaterial3d(fx.muzzle.clone()),
-                    Transform::from_translation(muzzle).with_scale(Vec3::splat(size)),
+                    Transform::from_translation(flash_at).with_scale(Vec3::splat(size)),
                     Fx {
                         life: 0.07,
                         max: 0.07,
@@ -266,7 +288,7 @@ fn spawn_event_fx(
                         range: 8.0,
                         ..default()
                     },
-                    Transform::from_translation(muzzle),
+                    Transform::from_translation(flash_at),
                     Fx {
                         life: 0.08,
                         max: 0.08,
@@ -559,7 +581,9 @@ fn aim_reticle(
     mut mats: ResMut<Assets<StandardMaterial>>,
     mut reticle: Query<(&mut Transform, &mut Visibility), With<Reticle>>,
 ) {
-    let (Some(ground), Some(fx)) = (ground, fx) else { return };
+    let (Some(ground), Some(fx)) = (ground, fx) else {
+        return;
+    };
     let Ok((mut tf, mut vis)) = reticle.single_mut() else {
         let material = mats.add(unlit(LinearRgba::rgb(1.6, 1.3, 0.9), AlphaMode::Add));
         commands.spawn((
@@ -595,6 +619,10 @@ fn cursor_icon(
     }
     let Ok(window) = window.single() else { return };
     *last = Some(playing);
-    let icon = if playing { SystemCursorIcon::Crosshair } else { SystemCursorIcon::Default };
+    let icon = if playing {
+        SystemCursorIcon::Crosshair
+    } else {
+        SystemCursorIcon::Default
+    };
     commands.entity(window).insert(CursorIcon::from(icon));
 }

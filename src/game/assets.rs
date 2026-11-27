@@ -1,11 +1,13 @@
 //! Asset loading: glTF models, animation graphs, fonts and the walkable-ground heightmap.
 
+use bevy::animation::AnimationTargetId;
 use bevy::asset::UntypedAssetId;
-use bevy::gltf::Gltf;
+use bevy::gltf::{Gltf, GltfNode};
 use bevy::mesh::{Indices, VertexAttributeValues};
 use bevy::prelude::*;
 
 use super::AppState;
+use crate::sim::data::Gun;
 use crate::sim::layout::Layout;
 
 pub struct AssetsPlugin;
@@ -61,15 +63,19 @@ pub struct Loading {
     pub zombie: Handle<Gltf>,
     pub town: Handle<Gltf>,
     pub lamp: Handle<Gltf>,
+    pub revolver: Handle<Gltf>,
+    pub shotgun: Handle<Gltf>,
 }
 
 impl Loading {
-    fn handles(&self) -> [UntypedAssetId; 4] {
+    fn handles(&self) -> [UntypedAssetId; 6] {
         [
             self.granny.id().untyped(),
             self.zombie.id().untyped(),
             self.town.id().untyped(),
             self.lamp.id().untyped(),
+            self.revolver.id().untyped(),
+            self.shotgun.id().untyped(),
         ]
     }
 }
@@ -77,26 +83,104 @@ impl Loading {
 /// Clip slots shared by Granny and the shamblers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Clip {
-    Idle = 0,
-    Walk = 1,
-    Attack = 2,
-    Die = 3,
+    Idle,
+    Walk,
+    Attack,
+    Die,
+    /// Granny's gun layers: upper body only.
+    AimRevolver,
+    FireRevolver,
+    AimShotgun,
+    FireShotgun,
+    /// Idle and walk restricted to the legs, under the gun layers.
+    IdleLower,
+    WalkLower,
 }
 
 impl Clip {
-    pub const ALL: [Clip; 4] = [Clip::Idle, Clip::Walk, Clip::Attack, Clip::Die];
+    pub const COUNT: usize = 10;
+    pub const ALL: [Clip; Clip::COUNT] = [
+        Clip::Idle,
+        Clip::Walk,
+        Clip::Attack,
+        Clip::Die,
+        Clip::AimRevolver,
+        Clip::FireRevolver,
+        Clip::AimShotgun,
+        Clip::FireShotgun,
+        Clip::IdleLower,
+        Clip::WalkLower,
+    ];
+
+    pub fn aim(gun: Gun) -> Clip {
+        match gun {
+            Gun::Revolver => Clip::AimRevolver,
+            Gun::Shotgun => Clip::AimShotgun,
+        }
+    }
+
+    pub fn fire(gun: Gun) -> Clip {
+        match gun {
+            Gun::Revolver => Clip::FireRevolver,
+            Gun::Shotgun => Clip::FireShotgun,
+        }
+    }
+
+    /// Source clip name in Granny's glTF, and which body part it may drive.
+    fn granny_source(self) -> (&'static str, Layer) {
+        match self {
+            Clip::Idle => ("Idle", Layer::Full),
+            Clip::Walk => ("Walk", Layer::Full),
+            Clip::Attack => ("Attack", Layer::Full),
+            Clip::Die => ("Die", Layer::Full),
+            Clip::AimRevolver => ("AimRevolver", Layer::Upper),
+            Clip::FireRevolver => ("FireRevolver", Layer::Upper),
+            Clip::AimShotgun => ("AimShotgun", Layer::Upper),
+            Clip::FireShotgun => ("FireShotgun", Layer::Upper),
+            Clip::IdleLower => ("Idle", Layer::Lower),
+            Clip::WalkLower => ("Walk", Layer::Lower),
+        }
+    }
 }
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Layer {
+    Full,
+    Upper,
+    Lower,
+}
+
+/// Mask groups: a set bit in a clip's mask stops it from driving that group.
+const UPPER_GROUP: u32 = 0;
+const LOWER_GROUP: u32 = 1;
+
+/// Bones the gun layers own: everything from the spine up.
+const UPPER_BONES: [&str; 13] = [
+    "spine",
+    "chest",
+    "neck",
+    "head",
+    "glasses",
+    "shoulder.L",
+    "upper_arm.L",
+    "forearm.L",
+    "hand.L",
+    "shoulder.R",
+    "upper_arm.R",
+    "forearm.R",
+    "hand.R",
+];
 
 #[derive(Clone)]
 pub struct ActorKit {
     pub scene: Handle<WorldAsset>,
     pub graph: Handle<AnimationGraph>,
-    pub nodes: [AnimationNodeIndex; 4],
-    pub durations: [f32; 4],
+    nodes: [Option<AnimationNodeIndex>; Clip::COUNT],
+    durations: [f32; Clip::COUNT],
 }
 
 impl ActorKit {
-    pub fn node(&self, clip: Clip) -> AnimationNodeIndex {
+    pub fn node(&self, clip: Clip) -> Option<AnimationNodeIndex> {
         self.nodes[clip as usize]
     }
 
@@ -111,6 +195,85 @@ pub struct GameAssets {
     pub zombie: ActorKit,
     pub town: Handle<WorldAsset>,
     pub lamp: Handle<WorldAsset>,
+    pub revolver: Handle<WorldAsset>,
+    pub shotgun: Handle<WorldAsset>,
+}
+
+impl GameAssets {
+    pub fn gun(&self, gun: Gun) -> Handle<WorldAsset> {
+        match gun {
+            Gun::Revolver => self.revolver.clone(),
+            Gun::Shotgun => self.shotgun.clone(),
+        }
+    }
+}
+
+/// Every node's name path from its scene root, as Bevy builds animation target ids.
+fn node_paths(gltf: &Gltf, nodes: &Assets<GltfNode>) -> Vec<(Vec<Name>, String)> {
+    let children: std::collections::HashSet<AssetId<GltfNode>> = gltf
+        .nodes
+        .iter()
+        .filter_map(|h| nodes.get(h))
+        .flat_map(|n| n.children.iter().map(|c| c.id()))
+        .collect();
+    let mut out = Vec::new();
+    let mut stack: Vec<(AssetId<GltfNode>, Vec<Name>)> = gltf
+        .nodes
+        .iter()
+        .filter(|h| !children.contains(&h.id()))
+        .map(|h| (h.id(), Vec::new()))
+        .collect();
+    while let Some((id, mut path)) = stack.pop() {
+        let Some(node) = nodes.get(id) else { continue };
+        path.push(Name::new(node.name.clone()));
+        out.push((path.clone(), node.name.clone()));
+        for c in &node.children {
+            stack.push((c.id(), path.clone()));
+        }
+    }
+    out
+}
+
+/// Granny's graph: full-body clips, plus gun layers masked to the upper body over
+/// idle/walk masked to the legs, so she can aim and fire while walking.
+fn granny_kit(
+    gltf: &Gltf,
+    nodes: &Assets<GltfNode>,
+    clips: &Assets<AnimationClip>,
+    graphs: &mut Assets<AnimationGraph>,
+) -> ActorKit {
+    let mut graph = AnimationGraph::new();
+    let root = graph.root;
+    let mut kit_nodes = [None; Clip::COUNT];
+    let mut durations = [1.0; Clip::COUNT];
+    for clip in Clip::ALL {
+        let (name, layer) = clip.granny_source();
+        let Some(handle) = gltf.named_animations.get(name).cloned() else {
+            warn!("granny.glb has no {name} clip");
+            continue;
+        };
+        durations[clip as usize] = clips.get(&handle).map(|c| c.duration()).unwrap_or(1.0);
+        let mask = match layer {
+            Layer::Full => 0,
+            Layer::Upper => 1 << LOWER_GROUP,
+            Layer::Lower => 1 << UPPER_GROUP,
+        };
+        kit_nodes[clip as usize] = Some(graph.add_clip_with_mask(handle, mask, 1.0, root));
+    }
+    for (path, name) in node_paths(gltf, nodes) {
+        let group = if UPPER_BONES.contains(&name.as_str()) {
+            UPPER_GROUP
+        } else {
+            LOWER_GROUP
+        };
+        graph.add_target_to_mask_group(AnimationTargetId::from_names(path.iter()), group);
+    }
+    ActorKit {
+        scene: gltf.scenes[0].clone(),
+        graph: graphs.add(graph),
+        nodes: kit_nodes,
+        durations,
+    }
 }
 
 /// Walkable surface height sampled from the town mesh (sidewalks and lawns sit up to ~0.37 m).
@@ -204,17 +367,19 @@ fn start_loading(mut commands: Commands, server: Res<AssetServer>) {
         zombie: server.load("models/GrannyZombie_Animated.glb"),
         town: server.load("models/maplewood-town.glb"),
         lamp: server.load("models/streetlamp.glb"),
+        revolver: server.load("models/revolver.glb"),
+        shotgun: server.load("models/shotgun.glb"),
     });
 }
 
-/// Fraction of the four model files that finished loading, for the loading screen.
+/// Fraction of the model files that finished loading, for the loading screen.
 pub fn loading_progress(loading: &Loading, server: &AssetServer) -> f32 {
     let done = loading
         .handles()
         .iter()
         .filter(|id| server.is_loaded_with_dependencies(**id))
         .count();
-    done as f32 / 4.0
+    done as f32 / loading.handles().len() as f32
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -251,18 +416,31 @@ fn finish_loading(
                     .unwrap_or_else(|| panic!("missing clip {n}"))
             })
             .collect();
-        let durations =
-            std::array::from_fn(|i| clips.get(&handles[i]).map(|c| c.duration()).unwrap_or(1.0));
+        let mut durations = [1.0; Clip::COUNT];
+        for (i, h) in handles.iter().enumerate() {
+            durations[i] = clips.get(h).map(|c| c.duration()).unwrap_or(1.0);
+        }
         let (graph, nodes) = AnimationGraph::from_clips(handles);
+        let mut kit_nodes = [None; Clip::COUNT];
+        for (i, n) in nodes.into_iter().enumerate() {
+            kit_nodes[i] = Some(n);
+        }
         ActorKit {
             scene: gltf.scenes[0].clone(),
             graph: graphs.add(graph),
-            nodes: [nodes[0], nodes[1], nodes[2], nodes[3]],
+            nodes: kit_nodes,
             durations,
         }
     };
+    let (Some(revolver), Some(shotgun)) =
+        (gltfs.get(&loading.revolver), gltfs.get(&loading.shotgun))
+    else {
+        return;
+    };
     let assets = GameAssets {
-        granny: kit(granny, ["Idle", "Walk", "Attack", "Die"], &mut graphs),
+        granny: granny_kit(granny, &gltf_nodes, &clips, &mut graphs),
+        revolver: revolver.scenes[0].clone(),
+        shotgun: shotgun.scenes[0].clone(),
         zombie: kit(
             zombie,
             [
