@@ -136,7 +136,14 @@ pub const SHOTGUN: RangedWeapon = RangedWeapon {
     ammo_cap: 24,
     knockback: 5.0,
     stun_ticks: 12,
-    pellet_angles: &[-15.0 * DEG, -9.0 * DEG, -3.0 * DEG, 3.0 * DEG, 9.0 * DEG, 15.0 * DEG],
+    pellet_angles: &[
+        -15.0 * DEG,
+        -9.0 * DEG,
+        -3.0 * DEG,
+        3.0 * DEG,
+        9.0 * DEG,
+        15.0 * DEG,
+    ],
 };
 
 /// Ammo regen and drops.
@@ -208,7 +215,8 @@ pub fn difficulty_target(gameplay_ticks: u64) -> usize {
 }
 
 fn overflow_ticks(gameplay_ticks: u64) -> u64 {
-    let start = (ZOMBIE_POOL_CAPACITY as u64 - ACTIVE_HORDE_TARGET as u64) * DIFFICULTY_TICKS_PER_BUDGET;
+    let start =
+        (ZOMBIE_POOL_CAPACITY as u64 - ACTIVE_HORDE_TARGET as u64) * DIFFICULTY_TICKS_PER_BUDGET;
     gameplay_ticks.saturating_sub(start)
 }
 

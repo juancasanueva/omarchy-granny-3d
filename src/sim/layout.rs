@@ -18,7 +18,10 @@ pub struct Aabb {
 
 impl Aabb {
     pub fn center(&self) -> Vec2 {
-        Vec2::new((self.min_x + self.max_x) * 0.5, (self.min_y + self.max_y) * 0.5)
+        Vec2::new(
+            (self.min_x + self.max_x) * 0.5,
+            (self.min_y + self.max_y) * 0.5,
+        )
     }
 
     pub fn around(c: Vec2, half: f32) -> Self {

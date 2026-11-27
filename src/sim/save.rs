@@ -65,19 +65,40 @@ impl SaveStore {
     }
 
     pub fn load(path: Option<PathBuf>) -> Self {
-        let fresh = SaveData { version: VERSION, ..Default::default() };
+        let fresh = SaveData {
+            version: VERSION,
+            ..Default::default()
+        };
         let Some(path) = path else {
-            return Self { data: fresh, status: SaveStatus::Temporary, path: None };
+            return Self {
+                data: fresh,
+                status: SaveStatus::Temporary,
+                path: None,
+            };
         };
         match std::fs::read_to_string(&path) {
             Ok(text) => match serde_json::from_str::<SaveData>(&text) {
-                Ok(data) => Self { data, status: SaveStatus::Ready, path: Some(path) },
-                Err(_) => Self { data: fresh, status: SaveStatus::Preserved, path: None },
+                Ok(data) => Self {
+                    data,
+                    status: SaveStatus::Ready,
+                    path: Some(path),
+                },
+                Err(_) => Self {
+                    data: fresh,
+                    status: SaveStatus::Preserved,
+                    path: None,
+                },
             },
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                Self { data: fresh, status: SaveStatus::Ready, path: Some(path) }
-            }
-            Err(_) => Self { data: fresh, status: SaveStatus::Preserved, path: None },
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Self {
+                data: fresh,
+                status: SaveStatus::Ready,
+                path: Some(path),
+            },
+            Err(_) => Self {
+                data: fresh,
+                status: SaveStatus::Preserved,
+                path: None,
+            },
         }
     }
 
@@ -162,6 +183,9 @@ impl SaveStore {
 }
 
 fn default_path() -> Option<PathBuf> {
+    if let Some(path) = std::env::var_os("GRANNY3D_SAVE") {
+        return Some(PathBuf::from(path));
+    }
     let base = std::env::var_os("XDG_DATA_HOME")
         .map(PathBuf::from)
         .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share")))?;
@@ -176,7 +200,10 @@ mod tests {
         let dir = std::env::temp_dir().join(format!(
             "granny3d-test-{}-{}",
             std::process::id(),
-            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
         ));
         dir.join("save.json")
     }

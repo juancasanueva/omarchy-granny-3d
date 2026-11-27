@@ -46,12 +46,36 @@ pub enum DamageSource {
 /// Presentation events emitted during a step; drained by the renderer and UI.
 #[derive(Debug, Clone, PartialEq)]
 pub enum SimEvent {
-    GunShot { gun: Gun, from: Vec2, ends: Vec<Vec2> },
-    MeleeHit { count: u32, at: Vec2, intensity: f32 },
-    ZombieHit { slot: usize, at: Vec2, amount: i32, source: DamageSource },
-    ZombieDeath { slot: usize, at: Vec2, facing: f32 },
-    PlayerHurt { at: Vec2, amount: i32 },
-    PickupCollected { kind: PickupKind, amount: u32, at: Vec2 },
+    GunShot {
+        gun: Gun,
+        from: Vec2,
+        ends: Vec<Vec2>,
+    },
+    MeleeHit {
+        count: u32,
+        at: Vec2,
+        intensity: f32,
+    },
+    ZombieHit {
+        slot: usize,
+        at: Vec2,
+        amount: i32,
+        source: DamageSource,
+    },
+    ZombieDeath {
+        slot: usize,
+        at: Vec2,
+        facing: f32,
+    },
+    PlayerHurt {
+        at: Vec2,
+        amount: i32,
+    },
+    PickupCollected {
+        kind: PickupKind,
+        amount: u32,
+        at: Vec2,
+    },
     EmptyClick,
     RunEnded,
 }
@@ -119,7 +143,8 @@ impl Player {
 
     /// Swing progress `0..1`, or `None` when idle.
     pub fn swing_t(&self) -> Option<f32> {
-        self.attack_tick.map(|t| t as f32 / ROLLING_PIN.total_ticks as f32)
+        self.attack_tick
+            .map(|t| t as f32 / ROLLING_PIN.total_ticks as f32)
     }
 }
 
@@ -149,7 +174,8 @@ pub struct Zombie {
 
 impl Zombie {
     pub fn swipe_t(&self) -> Option<f32> {
-        self.attack_tick.map(|t| t as f32 / SHAMBLER.swipe_ticks as f32)
+        self.attack_tick
+            .map(|t| t as f32 / SHAMBLER.swipe_ticks as f32)
     }
 }
 
@@ -347,10 +373,22 @@ impl World {
         let dir = Vec2::from_angle(facing);
         for (i, amount) in damage.into_iter().enumerate() {
             if amount > 0 {
-                self.damage_zombie(i, amount, origin, dir, weapon.knockback, weapon.stun_ticks, DamageSource::Gun(gun));
+                self.damage_zombie(
+                    i,
+                    amount,
+                    origin,
+                    dir,
+                    weapon.knockback,
+                    weapon.stun_ticks,
+                    DamageSource::Gun(gun),
+                );
             }
         }
-        self.events.push(SimEvent::GunShot { gun, from: origin, ends });
+        self.events.push(SimEvent::GunShot {
+            gun,
+            from: origin,
+            ends,
+        });
     }
 
     fn combat_system(&mut self) {
@@ -384,12 +422,24 @@ impl World {
             sum += at;
             count += 1;
             let (kb, stun) = (self.tuning.knockback_impulse, self.tuning.stun_ticks);
-            self.damage_zombie(i, ROLLING_PIN.damage, origin, aim, kb, stun, DamageSource::Melee);
+            self.damage_zombie(
+                i,
+                ROLLING_PIN.damage,
+                origin,
+                aim,
+                kb,
+                stun,
+                DamageSource::Melee,
+            );
         }
         if count > 0 {
             self.hitstop_ticks = self.tuning.hitstop_ticks;
             let intensity = (0.5 + 0.25 * (count - 1) as f32).min(1.0);
-            self.events.push(SimEvent::MeleeHit { count, at: sum / count as f32, intensity });
+            self.events.push(SimEvent::MeleeHit {
+                count,
+                at: sum / count as f32,
+                intensity,
+            });
         }
     }
 
@@ -417,7 +467,12 @@ impl World {
         z.since_hit = 0;
         let at = z.pos;
         self.damage_dealt += dealt as u64;
-        self.events.push(SimEvent::ZombieHit { slot, at, amount: dealt, source });
+        self.events.push(SimEvent::ZombieHit {
+            slot,
+            at,
+            amount: dealt,
+            source,
+        });
         if z.hp == 0 {
             let facing = z.facing;
             z.active = false;
@@ -433,7 +488,10 @@ impl World {
     }
 
     fn ai_system(&mut self) {
-        let speed = self.tuning.zombie_speed.min(self.tuning.player_speed * MAX_ZOMBIE_TO_PLAYER_SPEED_RATIO);
+        let speed = self
+            .tuning
+            .zombie_speed
+            .min(self.tuning.player_speed * MAX_ZOMBIE_TO_PLAYER_SPEED_RATIO);
         let sep_radius = self.tuning.separation_radius;
         let sep_weight = self.tuning.separation_weight;
         for i in 0..self.zombies.len() {
@@ -474,7 +532,11 @@ impl World {
             let mut steer = chase + sep * sep_weight;
             let radius = self.zombies[i].radius;
             let intent = steer.length();
-            let reach = if intent == 0.0 { 0.0 } else { speed * AVOID_PROBE_SECONDS / intent };
+            let reach = if intent == 0.0 {
+                0.0
+            } else {
+                speed * AVOID_PROBE_SECONDS / intent
+            };
             let probe = me + steer * reach;
             let perp = Vec2::new(-chase.y, chase.x);
             for b in &self.layout.colliders {
@@ -526,7 +588,10 @@ impl World {
         p.hp = (p.hp - damage).max(0);
         p.grace_until = self.gameplay_ticks + PLAYER_GRACE_TICKS;
         let at = p.pos;
-        self.events.push(SimEvent::PlayerHurt { at, amount: before - p.hp });
+        self.events.push(SimEvent::PlayerHurt {
+            at,
+            amount: before - p.hp,
+        });
         if p.hp == 0 {
             self.end_run();
         }
@@ -547,7 +612,10 @@ impl World {
     }
 
     fn movement_system(&mut self) {
-        let (damping, friction) = (self.tuning.knockback_damping, self.tuning.knockback_friction);
+        let (damping, friction) = (
+            self.tuning.knockback_damping,
+            self.tuning.knockback_friction,
+        );
         self.player.pos += self.player.vel * STEP_S;
         for z in self.zombies.iter_mut().filter(|z| z.active) {
             z.pos += (z.vel + z.kb_vel) * STEP_S;
@@ -570,9 +638,14 @@ impl World {
                     continue;
                 }
                 let (pos, r) = (self.zombies[i].pos, self.zombies[i].radius);
-                if let Some((push_a, push_b)) =
-                    separate(self.player.pos, PLAYER_RADIUS, PLAYER_MASS, pos, r, ZOMBIE_MASS)
-                {
+                if let Some((push_a, push_b)) = separate(
+                    self.player.pos,
+                    PLAYER_RADIUS,
+                    PLAYER_MASS,
+                    pos,
+                    r,
+                    ZOMBIE_MASS,
+                ) {
                     self.player.pos += push_a;
                     self.zombies[i].pos += push_b;
                 }
@@ -581,7 +654,9 @@ impl World {
                         continue;
                     }
                     let (a, b) = (self.zombies[i].pos, self.zombies[j].pos);
-                    if let Some((pa, pb)) = separate(a, r, ZOMBIE_MASS, b, self.zombies[j].radius, ZOMBIE_MASS) {
+                    if let Some((pa, pb)) =
+                        separate(a, r, ZOMBIE_MASS, b, self.zombies[j].radius, ZOMBIE_MASS)
+                    {
                         self.zombies[i].pos += pa;
                         self.zombies[j].pos += pb;
                     }
@@ -649,15 +724,24 @@ impl World {
                 }
             };
             self.pickups.swap_remove(i);
-            self.events.push(SimEvent::PickupCollected { kind, amount, at });
+            self.events
+                .push(SimEvent::PickupCollected { kind, amount, at });
         }
     }
 
     fn spawn_kill_drops(&mut self, at: Vec2) {
         if self.kills.is_multiple_of(AMMO_DROP_EVERY_KILLS) {
-            let gun = if self.ammo_drop_count.is_multiple_of(2) { Gun::Revolver } else { Gun::Shotgun };
+            let gun = if self.ammo_drop_count.is_multiple_of(2) {
+                Gun::Revolver
+            } else {
+                Gun::Shotgun
+            };
             self.ammo_drop_count += 1;
-            let amount = if gun == Gun::Revolver { REVOLVER_DROP } else { SHOTGUN_DROP };
+            let amount = if gun == Gun::Revolver {
+                REVOLVER_DROP
+            } else {
+                SHOTGUN_DROP
+            };
             self.spawn_pickup(PickupKind::Ammo(gun), amount, at);
         }
         if self.kills.is_multiple_of(HEALTH_EVERY_KILLS) {
@@ -682,7 +766,14 @@ impl World {
             return;
         }
         self.next_pickup_id += 1;
-        self.pickups.push(Pickup { kind, amount, pos: at, prev_pos: at, age_ticks: 0, id: self.next_pickup_id });
+        self.pickups.push(Pickup {
+            kind,
+            amount,
+            pos: at,
+            prev_pos: at,
+            age_ticks: 0,
+            id: self.next_pickup_id,
+        });
     }
 
     fn spawn_system(&mut self) {
@@ -873,7 +964,14 @@ impl World {
 }
 
 /// Circle versus finite sector around a unit aim direction (`combatSystem.ts`).
-pub fn in_melee_sector(origin: Vec2, aim: Vec2, cos_half: f32, range: f32, target: Vec2, target_r: f32) -> bool {
+pub fn in_melee_sector(
+    origin: Vec2,
+    aim: Vec2,
+    cos_half: f32,
+    range: f32,
+    target: Vec2,
+    target_r: f32,
+) -> bool {
     let d = target - origin;
     let dist_sq = d.length_squared();
     let reach = range + target_r;
@@ -920,7 +1018,10 @@ fn ray_circle(o: Vec2, dir: Vec2, c: Vec2, r: f32) -> f32 {
 fn ray_box(o: Vec2, dir: Vec2, b: &Aabb) -> f32 {
     let mut near = 0.0f32;
     let mut far = f32::INFINITY;
-    for (oc, dc, lo, hi) in [(o.x, dir.x, b.min_x, b.max_x), (o.y, dir.y, b.min_y, b.max_y)] {
+    for (oc, dc, lo, hi) in [
+        (o.x, dir.x, b.min_x, b.max_x),
+        (o.y, dir.y, b.min_y, b.max_y),
+    ] {
         if dc == 0.0 {
             if oc < lo || oc > hi {
                 return f32::INFINITY;
@@ -957,7 +1058,12 @@ fn resolve_static(pos: &mut Vec2, r: f32, colliders: &[Aabb], bounds: Aabb) {
         if pos.x <= lo_x || pos.x >= hi_x || pos.y <= lo_y || pos.y >= hi_y {
             continue;
         }
-        let pushes = [(lo_x - pos.x, 0), (hi_x - pos.x, 0), (lo_y - pos.y, 1), (hi_y - pos.y, 1)];
+        let pushes = [
+            (lo_x - pos.x, 0),
+            (hi_x - pos.x, 0),
+            (lo_y - pos.y, 1),
+            (hi_y - pos.y, 1),
+        ];
         let (amount, axis) = pushes
             .into_iter()
             .min_by(|a, b| a.0.abs().total_cmp(&b.0.abs()))
@@ -1027,7 +1133,11 @@ mod tests {
     fn same_seed_is_deterministic() {
         let mut a = world();
         let mut b = world();
-        let input = InputSnapshot { move_dir: Vec2::X, fire_held: true, ..default() };
+        let input = InputSnapshot {
+            move_dir: Vec2::X,
+            fire_held: true,
+            ..default()
+        };
         step_n(&mut a, 600, &input);
         step_n(&mut b, 600, &input);
         assert_eq!(a.player.pos, b.player.pos);
@@ -1043,7 +1153,10 @@ mod tests {
         assert!((up.length() - 1.0).abs() < 1e-5);
         let diag = InputSnapshot::compose_move(true, false, false, true);
         assert!((diag.length() - 1.0).abs() < 1e-5);
-        assert_eq!(InputSnapshot::compose_move(true, false, true, false), Vec2::ZERO);
+        assert_eq!(
+            InputSnapshot::compose_move(true, false, true, false),
+            Vec2::ZERO
+        );
     }
 
     #[test]
@@ -1053,7 +1166,10 @@ mod tests {
         open_street(&mut w);
         place_zombie(&mut w, 0, Vec2::new(1.5, 0.0));
         place_zombie(&mut w, 1, Vec2::new(-1.5, 0.0));
-        w.step(&InputSnapshot { melee_pulse: true, ..default() });
+        w.step(&InputSnapshot {
+            melee_pulse: true,
+            ..default()
+        });
         let idle = InputSnapshot::default();
         let mut hit = false;
         for _ in 0..10 {
@@ -1068,7 +1184,11 @@ mod tests {
         assert_eq!(w.zombies[1].hp, 50, "zombie behind is untouched");
         assert_eq!(w.hitstop_ticks, w.tuning.hitstop_ticks);
         assert!(w.zombies[0].kb_vel.x > 0.0);
-        assert!(w.events.iter().any(|e| matches!(e, SimEvent::MeleeHit { count: 1, .. })));
+        assert!(
+            w.events
+                .iter()
+                .any(|e| matches!(e, SimEvent::MeleeHit { count: 1, .. }))
+        );
     }
 
     #[test]
@@ -1077,7 +1197,10 @@ mod tests {
         clear_horde(&mut w);
         open_street(&mut w);
         place_zombie(&mut w, 0, Vec2::new(5.0, 0.0));
-        let fire = InputSnapshot { fire_held: true, ..default() };
+        let fire = InputSnapshot {
+            fire_held: true,
+            ..default()
+        };
         step_n(&mut w, 30, &fire);
         assert_eq!(w.kills, 1);
         assert_eq!(w.player.revolver_ammo, REVOLVER.initial_ammo - 2);
@@ -1091,7 +1214,10 @@ mod tests {
         open_street(&mut w);
         w.player.revolver_ammo = 0;
         w.player.reserve_ticks = 0;
-        w.step(&InputSnapshot { fire_pulse: true, ..default() });
+        w.step(&InputSnapshot {
+            fire_pulse: true,
+            ..default()
+        });
         assert!(w.player.attack_tick.is_some());
     }
 
@@ -1140,7 +1266,10 @@ mod tests {
     fn player_cannot_walk_through_buildings_or_bounds() {
         let mut w = world();
         clear_horde(&mut w);
-        let input = InputSnapshot { move_dir: Vec2::new(0.0, 1.0), ..default() };
+        let input = InputSnapshot {
+            move_dir: Vec2::new(0.0, 1.0),
+            ..default()
+        };
         step_n(&mut w, 60 * 60, &input);
         let p = w.player.pos;
         assert!(p.y <= w.layout.bounds.max_y - PLAYER_RADIUS + 1e-3);
@@ -1154,9 +1283,30 @@ mod tests {
     fn sector_rejects_behind_and_accepts_edge_graze() {
         let aim = Vec2::X;
         let cos = 70f32.to_radians().cos();
-        assert!(in_melee_sector(Vec2::ZERO, aim, cos, 2.2, Vec2::new(1.0, 0.0), 0.4));
-        assert!(!in_melee_sector(Vec2::ZERO, aim, cos, 2.2, Vec2::new(-1.5, 0.0), 0.4));
-        assert!(!in_melee_sector(Vec2::ZERO, aim, cos, 2.2, Vec2::new(3.0, 0.0), 0.4));
+        assert!(in_melee_sector(
+            Vec2::ZERO,
+            aim,
+            cos,
+            2.2,
+            Vec2::new(1.0, 0.0),
+            0.4
+        ));
+        assert!(!in_melee_sector(
+            Vec2::ZERO,
+            aim,
+            cos,
+            2.2,
+            Vec2::new(-1.5, 0.0),
+            0.4
+        ));
+        assert!(!in_melee_sector(
+            Vec2::ZERO,
+            aim,
+            cos,
+            2.2,
+            Vec2::new(3.0, 0.0),
+            0.4
+        ));
     }
 
     fn default() -> InputSnapshot {
