@@ -116,7 +116,8 @@ impl Player {
             hp: PLAYER_HP,
             grace_until: 0,
             attack_tick: None,
-            selected: Weapon::Revolver,
+            // Every run (and the title screen) starts with the bat in hand.
+            selected: Weapon::Bat,
             revolver_ammo: REVOLVER.initial_ammo,
             shotgun_ammo: SHOTGUN.initial_ammo,
             gun_cooldown: 0,
@@ -1183,6 +1184,16 @@ mod tests {
     }
 
     #[test]
+    fn a_new_run_starts_with_the_bat() {
+        let w = world();
+        assert_eq!(w.player.selected, Weapon::Bat);
+        assert_eq!(
+            w.player.revolver_ammo, REVOLVER.initial_ammo,
+            "guns still start loaded"
+        );
+    }
+
+    #[test]
     fn number_keys_pick_each_weapon_and_cycle_wraps() {
         let mut w = world();
         clear_horde(&mut w);
@@ -1333,6 +1344,7 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
+        w.player.selected = Weapon::Revolver;
         place_zombie(&mut w, 0, Vec2::new(-5.0, 0.0));
         place_zombie(&mut w, 1, Vec2::new(0.0, 9.0));
         let input = InputSnapshot {
@@ -1354,6 +1366,7 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
+        w.player.selected = Weapon::Revolver;
         let input = InputSnapshot {
             fire_held: true,
             auto_target: true,
@@ -1484,6 +1497,7 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
+        w.player.selected = Weapon::Revolver;
         place_zombie(&mut w, 0, Vec2::new(5.0, 0.0));
         let fire = InputSnapshot {
             fire_held: true,
@@ -1500,6 +1514,7 @@ mod tests {
         let mut w = world();
         clear_horde(&mut w);
         open_street(&mut w);
+        w.player.selected = Weapon::Revolver;
         w.player.revolver_ammo = 0;
         w.player.reserve_ticks = 0;
         w.step(&InputSnapshot {
