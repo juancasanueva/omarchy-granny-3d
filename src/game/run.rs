@@ -159,8 +159,12 @@ fn sample_input(
         pending.fire = true;
         pending.auto_target = true;
     }
-    // Space and LMB both use the selected weapon.
-    if mouse.just_pressed(MouseButton::Left) || keys.just_pressed(KeyCode::Space) {
+    // Space and LMB both use the selected weapon; only the mouse button aims at the cursor
+    // instead of an F auto-target.
+    if keys.just_pressed(KeyCode::Space) {
+        pending.fire = true;
+    }
+    if mouse.just_pressed(MouseButton::Left) {
         pending.fire = true;
         pending.auto_target = false;
     }
@@ -223,14 +227,14 @@ fn advance_sim(
     // Two-key movement: forward toward where Granny aims, back away from it.
     let throttle = held(&[KeyCode::KeyW, KeyCode::ArrowUp]) as i32 as f32
         - held(&[KeyCode::KeyS, KeyCode::ArrowDown]) as i32 as f32;
-    let mouse_fire = mouse.pressed(MouseButton::Left) || keys.pressed(KeyCode::Space);
+    let lmb_held = mouse.pressed(MouseButton::Left);
     let key_fire = keys.pressed(KeyCode::KeyF);
-    let mut fire_held = mouse_fire || key_fire;
-    // Holding F auto-targets unless the mouse button is also held.
-    let auto_held = key_fire && !mouse_fire;
+    let mut fire_held = lmb_held || keys.pressed(KeyCode::Space) || key_fire;
+    let auto_held = auto_target_held(key_fire, lmb_held);
     let mut move_dir = Vec2::ZERO;
     let scripted = super::dev::autoplay();
-    let scripted_gun = scripted.then(super::dev::autoplay_gun).flatten();
+    let scripted_gun =
+        scripted.then(|| scripted_weapon(super::dev::autoplay_gun(), sim.world.tick as f32 / 60.0));
     if scripted {
         let t = sim.world.tick as f32 / 60.0;
         move_dir = Vec2::from_angle(t * 0.5) * if (t as u32) % 4 == 3 { 0.0 } else { 1.0 };
@@ -322,6 +326,21 @@ fn apply_run_commands(
     }
 }
 
+/// Holding F auto-targets; only a held mouse button (which aims at the cursor) overrides it.
+fn auto_target_held(f_held: bool, lmb_held: bool) -> bool {
+    f_held && !lmb_held
+}
+
+/// The weapon a scripted run holds at `secs`: the chosen one, or the revolver with a
+/// two-second bat spell every six seconds so unattended runs exercise both paths.
+fn scripted_weapon(chosen: Option<Weapon>, secs: f32) -> Weapon {
+    chosen.unwrap_or(if (secs as u32) % 6 >= 4 {
+        Weapon::Bat
+    } else {
+        Weapon::Revolver
+    })
+}
+
 /// The scripted gun, only when Granny is not already holding it.
 fn scripted_select(wanted: Option<Weapon>, current: Weapon) -> Option<Weapon> {
     wanted.filter(|g| *g != current)
@@ -330,6 +349,24 @@ fn scripted_select(wanted: Option<Weapon>, current: Weapon) -> Option<Weapon> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn holding_space_with_f_keeps_auto_target_but_the_mouse_button_cancels_it() {
+        assert!(
+            auto_target_held(true, false),
+            "F alone (with or without Space)"
+        );
+        assert!(!auto_target_held(true, true), "LMB aims at the cursor");
+        assert!(!auto_target_held(false, false));
+    }
+
+    #[test]
+    fn scripted_runs_alternate_guns_with_bat_spells_unless_a_weapon_is_chosen() {
+        assert_eq!(scripted_weapon(None, 1.0), Weapon::Revolver);
+        assert_eq!(scripted_weapon(None, 4.5), Weapon::Bat);
+        assert_eq!(scripted_weapon(None, 6.2), Weapon::Revolver);
+        assert_eq!(scripted_weapon(Some(Weapon::Shotgun), 4.5), Weapon::Shotgun);
+    }
 
     #[test]
     fn scripted_gun_is_selected_only_when_it_differs() {

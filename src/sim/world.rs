@@ -1225,6 +1225,10 @@ mod tests {
                 .iter()
                 .any(|e| matches!(e, SimEvent::GunShot { .. }))
         );
+        assert!(
+            !w.events.contains(&SimEvent::EmptyClick),
+            "the bat never clicks empty"
+        );
     }
 
     #[test]
@@ -1503,6 +1507,10 @@ mod tests {
             ..default()
         });
         assert!(w.player.attack_tick.is_some());
+        assert!(
+            w.events.contains(&SimEvent::EmptyClick),
+            "an empty gun still clicks"
+        );
     }
 
     #[test]
