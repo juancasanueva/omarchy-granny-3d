@@ -1184,6 +1184,22 @@ mod tests {
     }
 
     #[test]
+    fn one_shotgun_blast_kills_a_fresh_zombie_at_four_metres() {
+        let mut w = world();
+        clear_horde(&mut w);
+        open_street(&mut w);
+        w.player.selected = Weapon::Shotgun;
+        place_zombie(&mut w, 0, Vec2::new(4.0, 0.0));
+        w.step(&InputSnapshot {
+            fire_pulse: true,
+            ..default()
+        });
+        assert_eq!(w.player.shotgun_ammo, SHOTGUN.initial_ammo - 1, "one blast");
+        // The slot may be refilled by the spawner on the same tick, so count the kill instead.
+        assert_eq!(w.kills, 1, "the blast kills it");
+    }
+
+    #[test]
     fn a_new_run_starts_with_the_bat() {
         let w = world();
         assert_eq!(w.player.selected, Weapon::Bat);

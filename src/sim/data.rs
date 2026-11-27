@@ -174,8 +174,9 @@ pub const REVOLVER: RangedWeapon = RangedWeapon {
     pellet_angles: &[0.0],
 };
 
+/// Per pellet; six pellets per blast. Raised from the web game's 12 so a close blast is decisive.
 pub const SHOTGUN: RangedWeapon = RangedWeapon {
-    damage: 12,
+    damage: 25,
     range: 7.0,
     cooldown_ticks: 54,
     initial_ammo: 8,
