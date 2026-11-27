@@ -172,7 +172,8 @@ fn spawn_title(
                     column_gap: px(18),
                     align_items: AlignItems::Center,
                     flex_wrap: FlexWrap::Wrap,
-                    max_width: px(900),
+                    max_width: percent(40),
+                    row_gap: px(10),
                     ..default()
                 },
             ))

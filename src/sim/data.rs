@@ -258,9 +258,23 @@ pub fn camera_offset() -> (f32, f32, f32) {
     (horizontal * yaw.sin(), rise, horizontal * yaw.cos())
 }
 
+/// Heading (sim radians) that turns a character to face the fixed camera.
+pub fn facing_camera() -> f32 {
+    let (x, _, z) = camera_offset();
+    z.atan2(x)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn facing_camera_points_at_the_camera_on_the_ground_plane() {
+        let (x, _, z) = camera_offset();
+        let to_camera = bevy::math::Vec2::new(x, z).normalize();
+        let facing = bevy::math::Vec2::from_angle(facing_camera());
+        assert!(facing.dot(to_camera) > 0.9999, "{facing} vs {to_camera}");
+    }
 
     #[test]
     fn horde_grows_ten_per_minute_until_cap() {

@@ -7,7 +7,7 @@ use bevy::window::WindowFocused;
 
 use super::AppState;
 use super::assets::LayoutRes;
-use crate::sim::data::{Gun, STEP_S, perk_tuning};
+use crate::sim::data::{Gun, STEP_S, facing_camera, perk_tuning};
 use crate::sim::save::{SaveStore, Settlement};
 use crate::sim::world::{InputSnapshot, Phase, SimEvent, World};
 
@@ -58,7 +58,11 @@ pub struct Sim {
 }
 
 impl Sim {
-    fn new(world: World, showcase: bool) -> Self {
+    fn new(mut world: World, showcase: bool) -> Self {
+        if showcase {
+            // The title screen shows Granny's face, not her back.
+            world.player.facing = facing_camera();
+        }
         static NEXT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
         let run_id = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Self {
