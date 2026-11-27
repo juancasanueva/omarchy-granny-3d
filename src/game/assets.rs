@@ -1,7 +1,7 @@
 //! Asset loading: glTF models, animation graphs, fonts and the walkable-ground heightmap.
 
 use bevy::animation::AnimationTargetId;
-use bevy::asset::UntypedAssetId;
+use bevy::asset::{LoadState, RecursiveDependencyLoadState, UntypedAssetId};
 use bevy::gltf::{Gltf, GltfNode};
 use bevy::mesh::{Indices, VertexAttributeValues};
 use bevy::prelude::*;
@@ -401,15 +401,73 @@ impl Ground {
     }
 }
 
+const GRANNY_GLB: &str = "models/granny.glb";
+const ZOMBIE_GLB: &str = "models/GrannyZombie_Animated.glb";
+const TOWN_GLB: &str = "models/maplewood-town.glb";
+const LAMP_GLB: &str = "models/streetlamp.glb";
+const REVOLVER_GLB: &str = "models/revolver.glb";
+const SHOTGUN_GLB: &str = "models/shotgun.glb";
+
 fn start_loading(mut commands: Commands, server: Res<AssetServer>) {
     commands.insert_resource(Loading {
-        granny: server.load("models/granny.glb"),
-        zombie: server.load("models/GrannyZombie_Animated.glb"),
-        town: server.load("models/maplewood-town.glb"),
-        lamp: server.load("models/streetlamp.glb"),
-        revolver: server.load("models/revolver.glb"),
-        shotgun: server.load("models/shotgun.glb"),
+        granny: server.load(GRANNY_GLB),
+        zombie: server.load(ZOMBIE_GLB),
+        town: server.load(TOWN_GLB),
+        lamp: server.load(LAMP_GLB),
+        revolver: server.load(REVOLVER_GLB),
+        shotgun: server.load(SHOTGUN_GLB),
     });
+}
+
+/// Models that could not be loaded, as "path: error" lines for the log and loading screen.
+#[derive(Resource, Debug, Clone, Default)]
+pub struct LoadFailures(pub Vec<String>);
+
+/// "path: error" for every model whose own load or dependency load failed.
+pub fn failure_report(states: &[(&str, Option<String>)]) -> Vec<String> {
+    states
+        .iter()
+        .filter_map(|(path, error)| error.as_ref().map(|e| format!("{path}: {e}")))
+        .collect()
+}
+
+fn loading_failures(loading: &Loading, server: &AssetServer) -> Vec<String> {
+    // Each failure is named by the asset server's own path for that handle.
+    let states: Vec<(String, Option<String>)> = loading
+        .handles()
+        .into_iter()
+        .map(|id| {
+            let path = server
+                .get_path(id)
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| format!("{id:?}"));
+            let error = match (
+                server.load_state(id),
+                server.recursive_dependency_load_state(id),
+            ) {
+                (LoadState::Failed(e), _) => Some(e.to_string()),
+                (_, RecursiveDependencyLoadState::Failed(e)) => Some(e.to_string()),
+                _ => None,
+            };
+            (path, error)
+        })
+        .collect();
+    let borrowed: Vec<(&str, Option<String>)> = states
+        .iter()
+        .map(|(p, e)| (p.as_str(), e.clone()))
+        .collect();
+    failure_report(&borrowed)
+}
+
+/// Failures in `current` that were not reported yet; remembers them in `reported`.
+fn newly_failed(reported: &mut Vec<String>, current: &[String]) -> Vec<String> {
+    let fresh: Vec<String> = current
+        .iter()
+        .filter(|f| !reported.contains(f))
+        .cloned()
+        .collect();
+    reported.extend(fresh.iter().cloned());
+    fresh
 }
 
 /// Fraction of the model files that finished loading, for the loading screen.
@@ -434,7 +492,16 @@ fn finish_loading(
     clips: Res<Assets<AnimationClip>>,
     mut graphs: ResMut<Assets<AnimationGraph>>,
     mut next: ResMut<NextState<AppState>>,
+    mut reported: Local<Vec<String>>,
 ) {
+    // Keep scanning while loading: a dependency can fail on a later frame than another model.
+    let fresh = newly_failed(&mut reported, &loading_failures(&loading, &server));
+    if !fresh.is_empty() {
+        for line in &fresh {
+            error!("could not load {line}");
+        }
+        commands.insert_resource(LoadFailures(reported.clone()));
+    }
     if loading_progress(&loading, &server) < 1.0 {
         return;
     }
@@ -539,6 +606,42 @@ fn finish_loading(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn failures_found_on_later_frames_are_still_reported() {
+        let mut reported = Vec::new();
+        let first = vec!["models/shotgun.glb: missing".to_string()];
+        assert_eq!(newly_failed(&mut reported, &first), first);
+        assert!(
+            newly_failed(&mut reported, &first).is_empty(),
+            "each failure is logged once"
+        );
+        let later = vec![
+            "models/shotgun.glb: missing".to_string(),
+            "models/granny.glb: bad texture".to_string(),
+        ];
+        assert_eq!(
+            newly_failed(&mut reported, &later),
+            vec!["models/granny.glb: bad texture".to_string()]
+        );
+        assert_eq!(reported.len(), 2);
+    }
+
+    #[test]
+    fn failed_models_are_named_with_their_error() {
+        let report = failure_report(&[
+            ("models/granny.glb", None),
+            (
+                "models/shotgun.glb",
+                Some("Path not found: assets/models/shotgun.glb".into()),
+            ),
+        ]);
+        assert_eq!(
+            report,
+            vec!["models/shotgun.glb: Path not found: assets/models/shotgun.glb".to_string()]
+        );
+        assert!(failure_report(&[("models/granny.glb", None)]).is_empty());
+    }
 
     /// Granny's node tree as `(name, children)`, read from the shipped `granny.glb`.
     fn granny_tree() -> Vec<(String, Vec<usize>)> {

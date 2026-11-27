@@ -55,6 +55,8 @@ pub struct Rig {
     pub player: Option<Entity>,
     /// Granny's right-hand bone, which carries her guns.
     pub hand: Option<Entity>,
+    /// Granny's gun model entities, children of the hand bone.
+    pub guns: Vec<(Gun, Entity)>,
     pub materials: Vec<Handle<StandardMaterial>>,
 }
 
@@ -175,17 +177,22 @@ fn attach_rig(
         if *kit == Kit::Granny && names.get(e).is_ok_and(|n| n.as_str() == "hand.R") {
             rig.hand = Some(e);
             // The gun models are exported in the hand bone's own frame.
+            let mut guns = Vec::new();
             commands.entity(e).with_children(|hand| {
                 for gun in Gun::ALL {
-                    hand.spawn((
-                        GunModel(gun),
-                        WorldAssetRoot(assets.gun(gun)),
-                        Transform::default(),
-                        Visibility::Hidden,
-                    ))
-                    .observe(mark_muzzle);
+                    let id = hand
+                        .spawn((
+                            GunModel(gun),
+                            WorldAssetRoot(assets.gun(gun)),
+                            Transform::default(),
+                            Visibility::Hidden,
+                        ))
+                        .observe(mark_muzzle)
+                        .id();
+                    guns.push((gun, id));
                 }
             });
+            rig.guns = guns;
         }
         if *kit == Kit::Zombie
             && let Ok(mat) = mats.get(e)

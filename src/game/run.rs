@@ -245,7 +245,10 @@ fn advance_sim(
                 || (scripted && sim.world.tick % 40 == 0),
             fire_held,
             fire_pulse: std::mem::take(&mut pending.fire),
-            select: pending.select.take().or(scripted_gun),
+            select: pending
+                .select
+                .take()
+                .or(scripted_select(scripted_gun, sim.world.player.selected)),
             cycle: std::mem::take(&mut pending.cycle),
             aim_point: aim.point,
             auto_target: std::mem::take(&mut pending.auto_target) || auto_held,
@@ -315,5 +318,25 @@ fn apply_run_commands(
             }
             _ => {}
         }
+    }
+}
+
+/// The scripted gun, only when Granny is not already holding it.
+fn scripted_select(wanted: Option<Gun>, current: Gun) -> Option<Gun> {
+    wanted.filter(|g| *g != current)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scripted_gun_is_selected_only_when_it_differs() {
+        assert_eq!(
+            scripted_select(Some(Gun::Shotgun), Gun::Revolver),
+            Some(Gun::Shotgun)
+        );
+        assert_eq!(scripted_select(Some(Gun::Shotgun), Gun::Shotgun), None);
+        assert_eq!(scripted_select(None, Gun::Revolver), None);
     }
 }

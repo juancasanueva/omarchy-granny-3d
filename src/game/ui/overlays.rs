@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use super::{MenuFocus, UiAction, UiActivate, clock, grouped, icon, label, menu_button, mono};
 use crate::game::AppState;
-use crate::game::assets::{Fonts, Loading, loading_progress};
+use crate::game::assets::{Fonts, LoadFailures, Loading, loading_progress};
 use crate::game::run::{RunCommand, Save, Sim};
 use crate::palette::UiPalette;
 
@@ -31,6 +31,9 @@ struct LoadingRoot;
 
 #[derive(Component)]
 struct LoadingBar;
+
+#[derive(Component)]
+struct LoadingStatus;
 
 #[derive(Component)]
 struct PauseRoot;
@@ -121,7 +124,10 @@ fn spawn_loading(mut commands: Commands, fonts: Res<Fonts>, pal: Res<UiPalette>)
                         BackgroundColor(pal.accent),
                     ));
                 });
-                c.spawn(mono(&fonts, "Waking up Maplewood…", 14.0, pal.muted));
+                c.spawn((
+                    LoadingStatus,
+                    mono(&fonts, "Waking up Maplewood…", 14.0, pal.muted),
+                ));
             });
         });
 }
@@ -130,9 +136,24 @@ fn update_loading(
     time: Res<Time>,
     loading: Option<Res<Loading>>,
     server: Res<AssetServer>,
+    pal: Res<UiPalette>,
+    failures: Option<Res<LoadFailures>>,
     mut bar: Query<&mut Node, With<LoadingBar>>,
+    mut status: Query<(&mut Text, &mut TextColor), With<LoadingStatus>>,
     mut shown: Local<f32>,
 ) {
+    if let Some(failures) = failures
+        && let Ok((mut text, mut color)) = status.single_mut()
+    {
+        let message = format!(
+            "Could not load the game's models:\n{}\nCheck the install, or set GRANNY3D_ASSETS to the assets folder.",
+            failures.0.join("\n")
+        );
+        if text.0 != message {
+            text.0 = message;
+            color.0 = pal.bad;
+        }
+    }
     let target = loading
         .map(|l| loading_progress(&l, &server))
         .unwrap_or(0.0)
