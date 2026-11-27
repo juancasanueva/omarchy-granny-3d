@@ -8,7 +8,7 @@ use bevy::window::{CursorMoved, PrimaryWindow, WindowFocused};
 use super::AppState;
 use super::assets::{Ground, LayoutRes};
 use super::scene::GameCamera;
-use crate::sim::data::{Gun, STEP_S, facing_camera, perk_tuning};
+use crate::sim::data::{STEP_S, Weapon, facing_camera, perk_tuning};
 use crate::sim::save::{SaveStore, Settlement};
 use crate::sim::world::{InputSnapshot, Phase, SimEvent, World};
 
@@ -65,6 +65,9 @@ impl Sim {
             // The title screen shows Granny's face, not her back.
             // Three-quarter view: her face reads and the aimed gun points across the screen.
             world.player.facing = facing_camera() + TITLE_TURN;
+            if let Some(weapon) = super::dev::autoplay_gun() {
+                world.player.selected = weapon;
+            }
         }
         static NEXT: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
         let run_id = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -95,9 +98,8 @@ pub struct FrameEvents(pub Vec<SimEvent>);
 /// Edge-triggered input survives until a simulation step consumes it.
 #[derive(Resource, Default)]
 struct PendingInput {
-    melee: bool,
     fire: bool,
-    select: Option<Gun>,
+    select: Option<Weapon>,
     cycle: bool,
     /// The latest fire press came from F, which auto-targets.
     auto_target: bool,
@@ -149,9 +151,6 @@ fn sample_input(
     windows: Query<&Window, With<PrimaryWindow>>,
     camera: Query<(&Camera, &GlobalTransform), With<GameCamera>>,
 ) {
-    if keys.just_pressed(KeyCode::Space) {
-        pending.melee = true;
-    }
     if motion.read().count() > 0 || mouse.just_pressed(MouseButton::Left) {
         aim.mouse = true;
     }
@@ -159,6 +158,11 @@ fn sample_input(
         aim.mouse = false;
         pending.fire = true;
         pending.auto_target = true;
+    }
+    // Space and LMB both use the selected weapon; only the mouse button aims at the cursor
+    // instead of an F auto-target.
+    if keys.just_pressed(KeyCode::Space) {
+        pending.fire = true;
     }
     if mouse.just_pressed(MouseButton::Left) {
         pending.fire = true;
@@ -186,11 +190,14 @@ fn sample_input(
         aim.point = Some(w.player.pos + Vec2::from_angle(-(w.tick as f32) / 60.0 * 1.1) * 5.0);
         aim.reticle = aim.point;
     }
-    if keys.just_pressed(KeyCode::Digit1) {
-        pending.select = Some(Gun::Revolver);
-    }
-    if keys.just_pressed(KeyCode::Digit2) {
-        pending.select = Some(Gun::Shotgun);
+    for (key, weapon) in [
+        (KeyCode::Digit1, Weapon::Bat),
+        (KeyCode::Digit2, Weapon::Revolver),
+        (KeyCode::Digit3, Weapon::Shotgun),
+    ] {
+        if keys.just_pressed(key) {
+            pending.select = Some(weapon);
+        }
     }
     if keys.just_pressed(KeyCode::KeyQ) || wheel.read().any(|w| w.y != 0.0) {
         pending.cycle = true;
@@ -220,14 +227,14 @@ fn advance_sim(
     // Two-key movement: forward toward where Granny aims, back away from it.
     let throttle = held(&[KeyCode::KeyW, KeyCode::ArrowUp]) as i32 as f32
         - held(&[KeyCode::KeyS, KeyCode::ArrowDown]) as i32 as f32;
-    let mouse_fire = mouse.pressed(MouseButton::Left);
+    let lmb_held = mouse.pressed(MouseButton::Left);
     let key_fire = keys.pressed(KeyCode::KeyF);
-    let mut fire_held = mouse_fire || key_fire;
-    // Holding F auto-targets unless the mouse button is also held.
-    let auto_held = key_fire && !mouse_fire;
+    let mut fire_held = lmb_held || keys.pressed(KeyCode::Space) || key_fire;
+    let auto_held = auto_target_held(key_fire, lmb_held);
     let mut move_dir = Vec2::ZERO;
     let scripted = super::dev::autoplay();
-    let scripted_gun = scripted.then(super::dev::autoplay_gun).flatten();
+    let scripted_gun =
+        scripted.then(|| scripted_weapon(super::dev::autoplay_gun(), sim.world.tick as f32 / 60.0));
     if scripted {
         let t = sim.world.tick as f32 / 60.0;
         move_dir = Vec2::from_angle(t * 0.5) * if (t as u32) % 4 == 3 { 0.0 } else { 1.0 };
@@ -241,8 +248,6 @@ fn advance_sim(
         let input = InputSnapshot {
             move_dir,
             throttle,
-            melee_pulse: std::mem::take(&mut pending.melee)
-                || (scripted && sim.world.tick % 40 == 0),
             fire_held,
             fire_pulse: std::mem::take(&mut pending.fire),
             select: pending
@@ -321,8 +326,23 @@ fn apply_run_commands(
     }
 }
 
+/// Holding F auto-targets; only a held mouse button (which aims at the cursor) overrides it.
+fn auto_target_held(f_held: bool, lmb_held: bool) -> bool {
+    f_held && !lmb_held
+}
+
+/// The weapon a scripted run holds at `secs`: the chosen one, or the revolver with a
+/// two-second bat spell every six seconds so unattended runs exercise both paths.
+fn scripted_weapon(chosen: Option<Weapon>, secs: f32) -> Weapon {
+    chosen.unwrap_or(if (secs as u32) % 6 >= 4 {
+        Weapon::Bat
+    } else {
+        Weapon::Revolver
+    })
+}
+
 /// The scripted gun, only when Granny is not already holding it.
-fn scripted_select(wanted: Option<Gun>, current: Gun) -> Option<Gun> {
+fn scripted_select(wanted: Option<Weapon>, current: Weapon) -> Option<Weapon> {
     wanted.filter(|g| *g != current)
 }
 
@@ -331,12 +351,33 @@ mod tests {
     use super::*;
 
     #[test]
+    fn holding_space_with_f_keeps_auto_target_but_the_mouse_button_cancels_it() {
+        assert!(
+            auto_target_held(true, false),
+            "F alone (with or without Space)"
+        );
+        assert!(!auto_target_held(true, true), "LMB aims at the cursor");
+        assert!(!auto_target_held(false, false));
+    }
+
+    #[test]
+    fn scripted_runs_alternate_guns_with_bat_spells_unless_a_weapon_is_chosen() {
+        assert_eq!(scripted_weapon(None, 1.0), Weapon::Revolver);
+        assert_eq!(scripted_weapon(None, 4.5), Weapon::Bat);
+        assert_eq!(scripted_weapon(None, 6.2), Weapon::Revolver);
+        assert_eq!(scripted_weapon(Some(Weapon::Shotgun), 4.5), Weapon::Shotgun);
+    }
+
+    #[test]
     fn scripted_gun_is_selected_only_when_it_differs() {
         assert_eq!(
-            scripted_select(Some(Gun::Shotgun), Gun::Revolver),
-            Some(Gun::Shotgun)
+            scripted_select(Some(Weapon::Shotgun), Weapon::Revolver),
+            Some(Weapon::Shotgun)
         );
-        assert_eq!(scripted_select(Some(Gun::Shotgun), Gun::Shotgun), None);
-        assert_eq!(scripted_select(None, Gun::Revolver), None);
+        assert_eq!(
+            scripted_select(Some(Weapon::Shotgun), Weapon::Shotgun),
+            None
+        );
+        assert_eq!(scripted_select(None, Weapon::Revolver), None);
     }
 }

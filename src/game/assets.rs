@@ -7,7 +7,7 @@ use bevy::mesh::{Indices, VertexAttributeValues};
 use bevy::prelude::*;
 
 use super::AppState;
-use crate::sim::data::Gun;
+use crate::sim::data::{Gun, Weapon};
 use crate::sim::layout::Layout;
 
 pub struct AssetsPlugin;
@@ -63,17 +63,19 @@ pub struct Loading {
     pub zombie: Handle<Gltf>,
     pub town: Handle<Gltf>,
     pub lamp: Handle<Gltf>,
+    pub bat: Handle<Gltf>,
     pub revolver: Handle<Gltf>,
     pub shotgun: Handle<Gltf>,
 }
 
 impl Loading {
-    fn handles(&self) -> [UntypedAssetId; 6] {
+    fn handles(&self) -> [UntypedAssetId; 7] {
         [
             self.granny.id().untyped(),
             self.zombie.id().untyped(),
             self.town.id().untyped(),
             self.lamp.id().untyped(),
+            self.bat.id().untyped(),
             self.revolver.id().untyped(),
             self.shotgun.id().untyped(),
         ]
@@ -87,7 +89,8 @@ pub enum Clip {
     Walk,
     Attack,
     Die,
-    /// Granny's gun layers: upper body only.
+    /// Granny's weapon holds and shots: upper body only.
+    AimBat,
     AimRevolver,
     FireRevolver,
     AimShotgun,
@@ -98,12 +101,13 @@ pub enum Clip {
 }
 
 impl Clip {
-    pub const COUNT: usize = 10;
+    pub const COUNT: usize = 11;
     pub const ALL: [Clip; Clip::COUNT] = [
         Clip::Idle,
         Clip::Walk,
         Clip::Attack,
         Clip::Die,
+        Clip::AimBat,
         Clip::AimRevolver,
         Clip::FireRevolver,
         Clip::AimShotgun,
@@ -112,10 +116,12 @@ impl Clip {
         Clip::WalkLower,
     ];
 
-    pub fn aim(gun: Gun) -> Clip {
-        match gun {
-            Gun::Revolver => Clip::AimRevolver,
-            Gun::Shotgun => Clip::AimShotgun,
+    /// The upper-body hold for a weapon.
+    pub fn aim(weapon: Weapon) -> Clip {
+        match weapon {
+            Weapon::Bat => Clip::AimBat,
+            Weapon::Revolver => Clip::AimRevolver,
+            Weapon::Shotgun => Clip::AimShotgun,
         }
     }
 
@@ -133,6 +139,7 @@ impl Clip {
             Clip::Walk => ("Walk", Layer::Full),
             Clip::Attack => ("Attack", Layer::Full),
             Clip::Die => ("Die", Layer::Full),
+            Clip::AimBat => ("AimBat", Layer::Upper),
             Clip::AimRevolver => ("AimRevolver", Layer::Upper),
             Clip::FireRevolver => ("FireRevolver", Layer::Upper),
             Clip::AimShotgun => ("AimShotgun", Layer::Upper),
@@ -195,15 +202,18 @@ pub struct GameAssets {
     pub zombie: ActorKit,
     pub town: Handle<WorldAsset>,
     pub lamp: Handle<WorldAsset>,
+    pub bat: Handle<WorldAsset>,
     pub revolver: Handle<WorldAsset>,
     pub shotgun: Handle<WorldAsset>,
 }
 
 impl GameAssets {
-    pub fn gun(&self, gun: Gun) -> Handle<WorldAsset> {
-        match gun {
-            Gun::Revolver => self.revolver.clone(),
-            Gun::Shotgun => self.shotgun.clone(),
+    /// The model Granny holds for a weapon.
+    pub fn weapon(&self, weapon: Weapon) -> Handle<WorldAsset> {
+        match weapon {
+            Weapon::Bat => self.bat.clone(),
+            Weapon::Revolver => self.revolver.clone(),
+            Weapon::Shotgun => self.shotgun.clone(),
         }
     }
 }
@@ -405,6 +415,7 @@ const GRANNY_GLB: &str = "models/granny.glb";
 const ZOMBIE_GLB: &str = "models/GrannyZombie_Animated.glb";
 const TOWN_GLB: &str = "models/maplewood-town.glb";
 const LAMP_GLB: &str = "models/streetlamp.glb";
+const BAT_GLB: &str = "models/bat.glb";
 const REVOLVER_GLB: &str = "models/revolver.glb";
 const SHOTGUN_GLB: &str = "models/shotgun.glb";
 
@@ -414,6 +425,7 @@ fn start_loading(mut commands: Commands, server: Res<AssetServer>) {
         zombie: server.load(ZOMBIE_GLB),
         town: server.load(TOWN_GLB),
         lamp: server.load(LAMP_GLB),
+        bat: server.load(BAT_GLB),
         revolver: server.load(REVOLVER_GLB),
         shotgun: server.load(SHOTGUN_GLB),
     });
@@ -539,13 +551,16 @@ fn finish_loading(
             durations,
         }
     };
-    let (Some(revolver), Some(shotgun)) =
-        (gltfs.get(&loading.revolver), gltfs.get(&loading.shotgun))
-    else {
+    let (Some(bat), Some(revolver), Some(shotgun)) = (
+        gltfs.get(&loading.bat),
+        gltfs.get(&loading.revolver),
+        gltfs.get(&loading.shotgun),
+    ) else {
         return;
     };
     let assets = GameAssets {
         granny: granny_kit(granny, &gltf_nodes, &clips, &mut graphs),
+        bat: bat.scenes[0].clone(),
         revolver: revolver.scenes[0].clone(),
         shotgun: shotgun.scenes[0].clone(),
         zombie: kit(
@@ -712,6 +727,7 @@ mod tests {
         assert_eq!(layer_mask(Layer::Full), 0);
         assert_eq!(layer_mask(Layer::Upper), 1 << LOWER_GROUP);
         assert_eq!(layer_mask(Layer::Lower), 1 << UPPER_GROUP);
+        assert_eq!(Clip::AimBat.granny_source().1, Layer::Upper);
         assert_eq!(Clip::AimRevolver.granny_source().1, Layer::Upper);
         assert_eq!(Clip::FireShotgun.granny_source().1, Layer::Upper);
         assert_eq!(Clip::WalkLower.granny_source().1, Layer::Lower);

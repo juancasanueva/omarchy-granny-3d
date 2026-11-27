@@ -62,18 +62,64 @@ pub fn perk_tuning(cardio: bool) -> Tuning {
     t
 }
 
-/// Rolling pin melee timeline (`weapons.ts`).
+/// Baseball bat melee timeline (the web game's rolling pin, `weapons.ts`).
 pub struct MeleeWeapon {
     pub damage: i32,
     pub active_tick: u32,
     pub total_ticks: u32,
 }
 
-pub const ROLLING_PIN: MeleeWeapon = MeleeWeapon {
+pub const BAT: MeleeWeapon = MeleeWeapon {
     damage: 25,
     active_tick: 4,
     total_ticks: 4 + 14,
 };
+
+/// Granny's three weapons, selected with 1, 2 and 3.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Weapon {
+    Bat,
+    Revolver,
+    Shotgun,
+}
+
+impl Weapon {
+    pub const ALL: [Weapon; 3] = [Weapon::Bat, Weapon::Revolver, Weapon::Shotgun];
+
+    pub fn gun(self) -> Option<Gun> {
+        match self {
+            Weapon::Bat => None,
+            Weapon::Revolver => Some(Gun::Revolver),
+            Weapon::Shotgun => Some(Gun::Shotgun),
+        }
+    }
+
+    /// The next weapon for Q and the mouse wheel, wrapping around.
+    pub fn next(self) -> Weapon {
+        match self {
+            Weapon::Bat => Weapon::Revolver,
+            Weapon::Revolver => Weapon::Shotgun,
+            Weapon::Shotgun => Weapon::Bat,
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            Weapon::Bat => "Baseball Bat",
+            Weapon::Revolver => Gun::Revolver.label(),
+            Weapon::Shotgun => Gun::Shotgun.label(),
+        }
+    }
+}
+
+impl From<Gun> for Weapon {
+    fn from(gun: Gun) -> Self {
+        match gun {
+            Gun::Revolver => Weapon::Revolver,
+            Gun::Shotgun => Weapon::Shotgun,
+        }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Gun {

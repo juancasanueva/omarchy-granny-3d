@@ -11,7 +11,7 @@ use crate::game::fx::pickup_color;
 use crate::game::run::{FrameEvents, Sim, SimAdvance, StepClock};
 use crate::game::scene::GameCamera;
 use crate::palette::UiPalette;
-use crate::sim::data::{Gun, PLAYER_HP, ROLLING_PIN, ZOMBIE_POOL_CAPACITY, difficulty_target};
+use crate::sim::data::{BAT, Gun, PLAYER_HP, Weapon, ZOMBIE_POOL_CAPACITY, difficulty_target};
 use crate::sim::world::{DamageSource, PickupKind, SimEvent};
 
 const HP_BAR_W: f32 = 340.0;
@@ -299,7 +299,7 @@ fn spawn_hud(
                 ..default()
             })
             .with_children(|bc| {
-                bc.spawn((HudText::Hint, label(&fonts, "W / S forward / back  ·  MOUSE aim  ·  LMB fire  ·  F auto-target fire  ·  SPACE swing  ·  1 / 2 / Q / wheel switch  ·  ESC pause", 15.0, pal.foreground), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
+                bc.spawn((HudText::Hint, label(&fonts, "W / S forward / back  ·  MOUSE aim  ·  SPACE / LMB use weapon  ·  F auto-target  ·  1 bat  ·  2 revolver  ·  3 shotgun  ·  Q / wheel switch  ·  ESC pause", 15.0, pal.foreground), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
                 bc.spawn((HudText::Empty, mono(&fonts, "", 15.0, pal.warn), TextShadow { offset: Vec2::new(0.0, 2.0), color: Color::BLACK.with_alpha(0.8) }));
                 bc.spawn(Node { column_gap: px(14), align_items: AlignItems::FlexEnd, ..default() }).with_children(|row| {
                     weapon_card(row, &fonts, &pal, None);
@@ -317,9 +317,9 @@ fn weapon_card(
     gun: Option<Gun>,
 ) {
     let (key, name) = match gun {
-        None => ("SPACE", "ROLLING PIN"),
-        Some(Gun::Revolver) => ("1", "REVOLVER"),
-        Some(Gun::Shotgun) => ("2", "CANE SHOTGUN"),
+        None => ("1", "BASEBALL BAT"),
+        Some(Gun::Revolver) => ("2", "REVOLVER"),
+        Some(Gun::Shotgun) => ("3", "CANE SHOTGUN"),
     };
     let (mut node, bg, border, shadow) = card(pal);
     node.width = px(200);
@@ -467,7 +467,11 @@ fn update_stats(
     if let Ok(mut node) = trail.single_mut() {
         node.width = percent(st.trail * 100.0);
     }
-    let empty = w.player.ammo(w.player.selected) == 0;
+    let empty = w
+        .player
+        .selected
+        .gun()
+        .is_some_and(|g| w.player.ammo(g) == 0);
     let hint_alpha = (1.0 - (st.shown_secs - HINT_SECS) / 1.0).clamp(0.0, 1.0);
     for (kind, mut text, mut color) in &mut texts {
         let s = match kind {
@@ -483,7 +487,10 @@ fn update_stats(
             HudText::Cash => grouped(w.run_cash),
             HudText::Empty => {
                 if empty {
-                    format!("{} EMPTY  ·  FIRE SWINGS THE ROLLING PIN", icon::BOLT)
+                    format!(
+                        "{} EMPTY  ·  FIRE SWINGS THE BAT  ·  PRESS 1 FOR THE BAT",
+                        icon::BOLT
+                    )
                 } else {
                     String::new()
                 }
@@ -527,11 +534,12 @@ fn update_weapons(
 ) {
     let p = &sim.world.player;
     for (card, mut border, mut tf, mut bg) in &mut cards {
+        let weapon = card.0.map(Weapon::from).unwrap_or(Weapon::Bat);
         let active = match card.0 {
             None => p.attack_tick.is_some(),
-            Some(g) => g == p.selected && p.attack_tick.is_none(),
+            Some(_) => weapon == p.selected && p.attack_tick.is_none(),
         };
-        let selected = card.0 == Some(p.selected);
+        let selected = weapon == p.selected;
         let edge = if active {
             card.0
                 .map(|g| pickup_color(PickupKind::Ammo(g)))
@@ -562,9 +570,11 @@ fn update_weapons(
         let frac = match c.0 {
             None => p
                 .attack_tick
-                .map(|t| 1.0 - t as f32 / ROLLING_PIN.total_ticks as f32)
+                .map(|t| 1.0 - t as f32 / BAT.total_ticks as f32)
                 .unwrap_or(0.0),
-            Some(g) if g == p.selected => p.gun_cooldown as f32 / g.spec().cooldown_ticks as f32,
+            Some(g) if Weapon::from(g) == p.selected => {
+                p.gun_cooldown as f32 / g.spec().cooldown_ticks as f32
+            }
             Some(_) => 0.0,
         };
         node.width = percent(frac * 100.0);

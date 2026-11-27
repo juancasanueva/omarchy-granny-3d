@@ -108,7 +108,7 @@ fn spawn_title(
                     TitleIntro { delay: 0.24 },
                     label(
                         &fonts,
-                        "The dead are shambling down Maplewood Lane. Granny has a rolling pin, a revolver and a cane shotgun. Survive as long as you can.",
+                        "The dead are shambling down Maplewood Lane. Granny has a baseball bat, a revolver and a cane shotgun. Survive as long as you can.",
                         17.0,
                         pal.muted,
                     ),
@@ -180,11 +180,10 @@ fn spawn_title(
             .with_children(|row| {
                 for (keys, what) in [
                     (&["W", "S"][..], "forward / back"),
-                    (&["SPACE"][..], "swing"),
                     (&["MOUSE"][..], "aim"),
-                    (&["LMB"][..], "fire"),
-                    (&["F"][..], "auto-target fire"),
-                    (&["1", "2", "Q"][..], "weapon"),
+                    (&["SPACE", "LMB"][..], "use weapon"),
+                    (&["F"][..], "auto-target"),
+                    (&["1", "2", "3", "Q"][..], "bat · revolver · shotgun"),
                     (&["ESC"][..], "pause"),
                 ] {
                     row.spawn(Node { column_gap: px(6), align_items: AlignItems::Center, ..default() }).with_children(|c| {
