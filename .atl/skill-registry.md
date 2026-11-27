@@ -54,7 +54,7 @@ Last updated: 2026-11-27
 | `skill-improver` | Trigger: improve skills, audit skills, refactor skills, skill quality. Audit and upgrade existing LLM-first skills. | user | `/home/juancasanueva/.agents/skills/skill-improver/SKILL.md` |
 | `superwhisper` | Configure and troubleshoot Superwhisper dictation on Linux through its CLI. Use when the user asks to change or inspect Superwhisper: processing mode (Offline, Offline Lite, Cloud), language, tone, microphone, keyboard shortcuts, sound effects, the recording indicator, silence removal, auto-paste, history and retention, vocabulary and replacements, offline model downloads, launch at login, the Omarchy bar panel, or why dictation is not working. Triggers: superwhisper, dictation, speech to text, push to talk, voice typing. | user | `/home/juancasanueva/.pi/agent/skills/superwhisper/SKILL.md` |
 | `systemic-issue-triage` | Trigger: new issue, bug report, triage, backlog, issue flood, community report, root cause, dead-end, blocked user. Attack issues by root class, never one-by-one; fixes must shrink the system, not grow it. | user | `/home/juancasanueva/.agents/skills/systemic-issue-triage/SKILL.md` |
-| `work-unit-commits` | Plan commits as reviewable work units. Trigger: commit splitting, chained PRs, or keeping tests and docs with code. | user | `/home/juancasanueva/.agents/skills/work-unit-commits/SKILL.md` |
+| `work-unit-commits` | Plan commits as reviewable work units. Trigger: implementation, commit splitting, chained PRs, or keeping tests and docs with code. | user | `/home/juancasanueva/.agents/skills/work-unit-commits/SKILL.md` |
 
 ## Loading protocol
 
