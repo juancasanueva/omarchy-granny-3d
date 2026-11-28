@@ -297,8 +297,13 @@ fn refresh_title(
         .collect();
         let s = if parts.is_empty() {
             String::new()
-        } else {
+        } else if save.0.can_save() {
             format!("Stocked for your next run: {}", parts.join(" · "))
+        } else {
+            format!(
+                "Stocked ammo is kept until saving works again: {}",
+                parts.join(" · ")
+            )
         };
         set_text(&mut t, &s);
     }
