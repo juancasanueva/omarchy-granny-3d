@@ -62,6 +62,67 @@ pub fn perk_tuning(cardio: bool) -> Tuning {
     t
 }
 
+/// Ammo sold in the shop: rounds added to the next run's starting ammo.
+pub const REVOLVER_AMMO_BOX: u32 = 12;
+pub const REVOLVER_AMMO_BOX_COST: u64 = 15;
+pub const SHOTGUN_SHELL_PACK: u32 = 4;
+pub const SHOTGUN_SHELL_PACK_COST: u64 = 20;
+
+/// Everything the title-screen shop sells.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ShopItem {
+    /// Permanent +10% walk speed.
+    Cardio,
+    /// Extra revolver rounds for the next run.
+    RevolverAmmo,
+    /// Extra shotgun shells for the next run.
+    ShotgunShells,
+}
+
+impl ShopItem {
+    pub const ALL: [ShopItem; 3] = [
+        ShopItem::Cardio,
+        ShopItem::RevolverAmmo,
+        ShopItem::ShotgunShells,
+    ];
+
+    pub fn cost(self) -> u64 {
+        match self {
+            ShopItem::Cardio => CARDIO_COST,
+            ShopItem::RevolverAmmo => REVOLVER_AMMO_BOX_COST,
+            ShopItem::ShotgunShells => SHOTGUN_SHELL_PACK_COST,
+        }
+    }
+
+    pub fn label(self) -> &'static str {
+        match self {
+            ShopItem::Cardio => "Cardio",
+            ShopItem::RevolverAmmo => "Revolver ammo box",
+            ShopItem::ShotgunShells => "Shotgun shells",
+        }
+    }
+
+    /// The gun and rounds per purchase, for ammo.
+    pub fn ammo(self) -> Option<(Gun, u32)> {
+        match self {
+            ShopItem::Cardio => None,
+            ShopItem::RevolverAmmo => Some((Gun::Revolver, REVOLVER_AMMO_BOX)),
+            ShopItem::ShotgunShells => Some((Gun::Shotgun, SHOTGUN_SHELL_PACK)),
+        }
+    }
+
+    /// How many can be held at once: Cardio once, ammo until a full run's start fills the gun.
+    pub fn max_stock(self) -> u32 {
+        match self.ammo() {
+            None => 1,
+            Some((gun, per)) => {
+                let spec = gun.spec();
+                (spec.ammo_cap - spec.initial_ammo) / per
+            }
+        }
+    }
+}
+
 /// Baseball bat melee timeline (the web game's rolling pin, `weapons.ts`).
 pub struct MeleeWeapon {
     pub damage: i32,
@@ -339,6 +400,17 @@ mod tests {
         assert_eq!(difficulty_spawn_hp(cap_tick + 360), 52);
         assert_eq!(difficulty_spawn_hp(cap_tick + 720), 55);
         assert_eq!(difficulty_spawn_damage(cap_tick + 720), 11);
+    }
+
+    #[test]
+    fn shop_ammo_stock_never_overfills_a_gun() {
+        assert_eq!(ShopItem::Cardio.max_stock(), 1);
+        for item in [ShopItem::RevolverAmmo, ShopItem::ShotgunShells] {
+            let (gun, per) = item.ammo().unwrap();
+            let spec = gun.spec();
+            assert!(item.max_stock() > 0);
+            assert!(spec.initial_ammo + item.max_stock() * per <= spec.ammo_cap);
+        }
     }
 
     #[test]
