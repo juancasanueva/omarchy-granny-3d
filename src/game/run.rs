@@ -8,7 +8,7 @@ use bevy::window::{CursorMoved, PrimaryWindow, WindowFocused};
 use super::AppState;
 use super::assets::{Ground, LayoutRes};
 use super::scene::GameCamera;
-use crate::sim::data::{STEP_S, Weapon, facing_camera, perk_tuning};
+use crate::sim::data::{Gun, STEP_S, Weapon, facing_camera, perk_tuning};
 use crate::sim::save::{SaveStore, Settlement};
 use crate::sim::world::{InputSnapshot, Phase, SimEvent, World};
 
@@ -300,7 +300,7 @@ fn apply_run_commands(
     mut commands_in: MessageReader<RunCommand>,
     mut commands: Commands,
     layout: Res<LayoutRes>,
-    save: Res<Save>,
+    mut save: ResMut<Save>,
     state: Res<State<AppState>>,
     mut pending: ResMut<PendingInput>,
     mut next: ResMut<NextState<AppState>>,
@@ -309,7 +309,12 @@ fn apply_run_commands(
         match cmd {
             RunCommand::Start | RunCommand::Restart => {
                 *pending = PendingInput::default();
-                commands.insert_resource(Sim::new(new_world(&layout, &save), false));
+                let mut world = new_world(&layout, &save);
+                // Ammo bought in the shop is spent by the next run.
+                for (gun, extra) in Gun::ALL.into_iter().zip(save.0.take_ammo_stock()) {
+                    world.player.add_ammo(gun, extra);
+                }
+                commands.insert_resource(Sim::new(world, false));
                 next.set(AppState::Playing);
             }
             RunCommand::Pause if *state.get() == AppState::Playing => next.set(AppState::Paused),

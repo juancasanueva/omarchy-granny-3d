@@ -142,6 +142,11 @@ impl Player {
         }
     }
 
+    /// Adds bought rounds on top of the starting ammo, never past the carry cap.
+    pub fn add_ammo(&mut self, gun: Gun, extra: u32) {
+        self.set_ammo(gun, self.ammo(gun).saturating_add(extra));
+    }
+
     /// Swing progress `0..1`, or `None` when idle.
     pub fn swing_t(&self) -> Option<f32> {
         self.attack_tick.map(|t| t as f32 / BAT.total_ticks as f32)
@@ -1120,6 +1125,15 @@ mod tests {
 
     fn world() -> World {
         World::new(Layout::maplewood(), Tuning::default(), 1)
+    }
+
+    #[test]
+    fn bought_ammo_adds_to_the_start_and_respects_the_cap() {
+        let mut w = world();
+        w.player.add_ammo(Gun::Revolver, 12);
+        assert_eq!(w.player.ammo(Gun::Revolver), REVOLVER.initial_ammo + 12);
+        w.player.add_ammo(Gun::Shotgun, 1000);
+        assert_eq!(w.player.ammo(Gun::Shotgun), SHOTGUN.ammo_cap);
     }
 
     fn step_n(w: &mut World, n: usize, input: &InputSnapshot) {

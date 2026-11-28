@@ -18,6 +18,7 @@ pub enum AppState {
     #[default]
     Loading,
     Title,
+    Shop,
     Playing,
     Paused,
     Summary,
