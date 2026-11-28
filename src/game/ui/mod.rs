@@ -3,12 +3,14 @@
 
 mod hud;
 mod overlays;
+mod shop;
 mod title;
 
 use bevy::prelude::*;
 
 use super::assets::Fonts;
 use crate::palette::UiPalette;
+use crate::sim::data::ShopItem;
 
 pub struct UiPlugin;
 
@@ -16,15 +18,25 @@ impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MenuFocus>()
             .add_message::<UiActivate>()
-            .add_systems(Update, (menu_keyboard, style_buttons).chain())
-            .add_plugins((title::TitlePlugin, hud::HudPlugin, overlays::OverlaysPlugin));
+            .add_systems(
+                Update,
+                ((menu_keyboard, style_buttons).chain(), animate_intro),
+            )
+            .add_plugins((
+                title::TitlePlugin,
+                shop::ShopPlugin,
+                hud::HudPlugin,
+                overlays::OverlaysPlugin,
+            ));
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UiAction {
     Play,
-    BuyCardio,
+    Shop,
+    Buy(ShopItem),
+    Back,
     Quit,
     Resume,
     Restart,
@@ -50,12 +62,47 @@ struct ButtonHint;
 pub struct MenuFocus {
     pub index: usize,
     pub armed_at: f32,
+    /// Entry to focus when the next screen opens, instead of the first one.
+    pub next: Option<usize>,
 }
 
 impl MenuFocus {
     pub fn reset(&mut self, now: f32, grace: f32) {
-        self.index = 0;
+        self.index = self.next.take().unwrap_or(0);
         self.armed_at = now + grace;
+    }
+}
+
+/// Staggered slide-and-fade entrance for a screen's blocks; `delay` is in seconds.
+#[derive(Component)]
+pub struct Intro {
+    pub delay: f32,
+}
+
+fn animate_intro(
+    time: Res<Time>,
+    mut q: Query<(&Intro, &mut UiTransform)>,
+    mut start: Local<Option<f32>>,
+    mut seen: Local<usize>,
+) {
+    let count = q.iter().count();
+    if count != *seen {
+        *seen = count;
+        *start = Some(time.elapsed_secs());
+    }
+    let t0 = start.unwrap_or(0.0);
+    for (intro, mut tf) in &mut q {
+        let k = ((time.elapsed_secs() - t0 - intro.delay) / 0.45).clamp(0.0, 1.0);
+        let ease = 1.0 - (1.0 - k).powi(3);
+        tf.translation = Val2::px(-36.0 * (1.0 - ease), 0.0);
+        tf.scale = Vec2::splat(0.98 + 0.02 * ease);
+    }
+}
+
+/// Replaces a text only when it changed, so unchanged UI is not re-laid out.
+pub fn set_text(t: &mut Text, s: &str) {
+    if t.0 != s {
+        t.0 = s.to_string();
     }
 }
 

@@ -1,5 +1,5 @@
 //! Development aids, driven by environment variables (all optional):
-//! - `GRANNY3D_AUTOSTART=play|pause|summary` skips the title screen.
+//! - `GRANNY3D_AUTOSTART=play|pause|summary` skips the title screen; `shop` opens the shop.
 //! - `GRANNY3D_AUTOPLAY=1` drives Granny with scripted input; `GRANNY3D_AUTOPLAY_GUN=bat|revolver|shotgun` picks the weapon (also on the title screen).
 //! - `GRANNY3D_SHOT=/path.png` saves a screenshot after `GRANNY3D_SHOT_AFTER` seconds (default 6) and exits.
 
@@ -35,16 +35,21 @@ pub fn autoplay() -> bool {
     std::env::var("GRANNY3D_AUTOPLAY").is_ok_and(|v| v == "1")
 }
 
-fn autostart(mut run: MessageWriter<RunCommand>, mut done: Local<bool>) {
+fn autostart(
+    mut run: MessageWriter<RunCommand>,
+    mut next: ResMut<NextState<AppState>>,
+    mut done: Local<bool>,
+) {
     if *done {
         return;
     }
     *done = true;
-    if matches!(
-        std::env::var("GRANNY3D_AUTOSTART").as_deref(),
-        Ok("play" | "pause" | "summary")
-    ) {
-        run.write(RunCommand::Start);
+    match std::env::var("GRANNY3D_AUTOSTART").as_deref() {
+        Ok("play" | "pause" | "summary") => {
+            run.write(RunCommand::Start);
+        }
+        Ok("shop") => next.set(AppState::Shop),
+        _ => {}
     }
 }
 
