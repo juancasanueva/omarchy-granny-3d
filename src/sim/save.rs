@@ -193,17 +193,20 @@ impl SaveStore {
     }
 
     /// Hands the stocked ammo to a starting run: returns the extra rounds for
-    /// `[revolver, shotgun]` and clears the stock. The stock is spent even if
-    /// the write fails (the save then turns temporary, like a failed settle).
+    /// `[revolver, shotgun]` and clears the stock. Like a purchase, the save is
+    /// written first: if it cannot record the stock as spent, the run gets nothing
+    /// and the stock stays, so a later launch never grants it twice.
     pub fn take_ammo_stock(&mut self) -> [u32; 2] {
         let rounds = Gun::ALL.map(|g| self.data.stocked_rounds(g));
-        if rounds == [0, 0] {
-            return rounds;
+        if rounds == [0, 0] || !self.can_save() {
+            return [0, 0];
         }
         let mut next = self.data.clone();
         next.revolver_boxes = 0;
         next.shotgun_packs = 0;
-        self.write(&next);
+        if !self.write(&next) {
+            return [0, 0];
+        }
         self.data = next;
         rounds
     }
@@ -335,6 +338,51 @@ mod tests {
         assert_eq!(after.data.owned(ShopItem::RevolverAmmo), 0);
         assert_eq!(after.data.cash, 1000 - spent);
         std::fs::remove_dir_all(path.parent().unwrap()).unwrap();
+    }
+
+    /// A run must not get stocked ammo the save failed to mark as spent, or a later
+    /// launch would load the same stock and grant it again.
+    #[test]
+    fn stock_is_kept_when_spending_it_cannot_be_saved() {
+        use std::os::unix::fs::PermissionsExt;
+        let path = scratch();
+        let dir = path.parent().unwrap().to_path_buf();
+        let mut s = SaveStore::load(Some(path.clone()));
+        s.settle(100, 1.0, 1);
+        assert_eq!(
+            s.purchase(ShopItem::RevolverAmmo),
+            PurchaseResult::Purchased
+        );
+
+        std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o555)).unwrap();
+        let writable = std::fs::write(dir.join("probe"), "").is_ok();
+        let rounds = s.take_ammo_stock();
+        std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o755)).unwrap();
+        if writable {
+            // Running as root: permissions cannot make the write fail.
+            std::fs::remove_dir_all(&dir).unwrap();
+            return;
+        }
+
+        assert_eq!(rounds, [0, 0], "no ammo the save could not record as spent");
+        assert_eq!(s.status, SaveStatus::Temporary);
+        assert_eq!(
+            s.data.owned(ShopItem::RevolverAmmo),
+            1,
+            "stock stays in memory"
+        );
+        assert_eq!(
+            s.take_ammo_stock(),
+            [0, 0],
+            "still unsaved, still not granted"
+        );
+        let reloaded = SaveStore::load(Some(path.clone()));
+        assert_eq!(
+            reloaded.data.owned(ShopItem::RevolverAmmo),
+            1,
+            "stock stays on disk"
+        );
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
