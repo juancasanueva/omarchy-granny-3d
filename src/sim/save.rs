@@ -342,6 +342,7 @@ mod tests {
 
     /// A run must not get stocked ammo the save failed to mark as spent, or a later
     /// launch would load the same stock and grant it again.
+    #[cfg(unix)]
     #[test]
     fn stock_is_kept_when_spending_it_cannot_be_saved() {
         use std::os::unix::fs::PermissionsExt;
